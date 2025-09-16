@@ -8,6 +8,7 @@ type AuthState = {
 	removeToken: () => void;
 	setAdminToken: (token: string) => void;
 	removeAdminToken: () => void;
+	setUsername: (username: string) => void;
 };
 
 export const useAuthStore = create(
@@ -20,6 +21,7 @@ export const useAuthStore = create(
 			removeToken: () => set({ token: null }),
 			setAdminToken: (token) => set({ adminToken: token }),
 			removeAdminToken: () => set({ adminToken: null }),
+			setUsername: (username: string) => set({ username: username }),
 		}),
 		{
 			name: "auth-storage",

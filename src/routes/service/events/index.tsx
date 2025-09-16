@@ -20,6 +20,8 @@ export type EventUser = {
   event_id: string;
   user_id: string;
   joined_at: string;
+  banned: boolean;
+  points: number;
 };
 export type EventInfo = {
   id: string;
@@ -32,20 +34,6 @@ function RouteComponent() {
     isShown: false,
     description: "Something here",
     variant: "info" as BannerVariant,
-  });
-
-  const mutationJoin = useMutation({
-    mutationFn: eventServiceApi.join,
-    onSuccess: () => {
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", "Joined successfully");
-      mutationBanner.update("variant", "success");
-    },
-    onError: (error) => {
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
-      mutationBanner.update("variant", "critical");
-    },
   });
 
   const columns = [
@@ -125,6 +113,7 @@ function RouteComponent() {
       queryFn={eventServiceApi.fetch}
       externalBanner={mutationBanner}
       enableInternalActions={false}
+      disableAdd={true}
     />
   );
 }

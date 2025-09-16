@@ -19,13 +19,19 @@ export type User = {
 function RouteComponent() {
   const columns = [
     { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
-    { accessorKey: "username", header: "Username", field: "username" },
+    {
+      accessorKey: "username",
+      header: "Username",
+      field: "username",
+      sortBy: true,
+    },
     {
       accessorKey: "nickname",
       header: "Nickname",
       field: "nickname",
+      sortBy: true,
     },
-    { accessorKey: "email", header: "Email", field: "email" },
+    { accessorKey: "email", header: "Email", field: "email", sortBy: true },
   ];
 
   const mutationUser = useTypedState<Partial<User>>({

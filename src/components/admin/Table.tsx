@@ -16,6 +16,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import type { AxiosError } from "axios";
 import {
   type ReactElement,
   type ReactNode,
@@ -60,10 +61,15 @@ type GenericTableProps<T> = {
   mutationColumns?: MutationColumn[];
   mutationData?: TypedState<Partial<T>>;
   customActions?: ReactNode;
+  columnActions?: (row: T) => ReactNode;
   externalBanner?: ReturnType<typeof useTypedState<BannerState>>;
   enableInternalActions?: boolean;
   disableAdd?: boolean;
-};
+  hideTitle?: boolean;
+  disablePagination?: boolean;
+  className?: string;
+  getRowId?: (row: T) => string;
+} & React.HTMLAttributes<HTMLDivElement>;
 
 export const GenericTable = <T extends { id: string }>({
   subject,
@@ -75,18 +81,18 @@ export const GenericTable = <T extends { id: string }>({
   mutationColumns,
   mutationData,
   customActions,
+  columnActions,
   externalBanner,
   enableInternalActions = true,
   disableAdd = false,
+  hideTitle = false,
+  disablePagination = false,
+  getRowId = (row) => row.id,
+  ...rest
 }: GenericTableProps<T>) => {
   // add actions to columns
 
   const tableColumns: Column<T>[] = (() => {
-    // 检查是否已经有 actions 列
-    if (columns.find((column) => column.accessorKey === "actions")) {
-      return columns; // 已经有 actions，直接返回原 columns
-    }
-
     if (!enableInternalActions) {
       return columns;
     }
@@ -112,35 +118,48 @@ export const GenericTable = <T extends { id: string }>({
         <ActionMenu>
           <ActionMenu.Anchor>
             <IconButton
-              aria-label={row.id}
-              title={row.id}
+              aria-label={getRowId(row)}
+              title={getRowId(row)}
               icon={KebabHorizontalIcon}
               variant="invisible"
             />
           </ActionMenu.Anchor>
           <ActionMenu.Overlay>
+            {columnActions?.(row)}
             <ActionList>
-              <ActionList.Item
-                key={`${row.id}-edit`}
-                onClick={() => {
-                  setDialogMode("modify");
-                  setIsOpen(true);
-                  mutationData?.setState(row);
-                }}
-              >
-                Edit row
-              </ActionList.Item>
-              <ActionList.Divider />
-              <ActionList.Item
-                key={`${row.id}-delete`}
-                variant="danger"
-                onClick={() => {
-                  deleteMutation?.mutate(row.id);
-                  onDialogClose?.();
-                }}
-              >
-                Delete row
-              </ActionList.Item>
+              {columns.find((column) => column.accessorKey === "actions") ? (
+                <></>
+              ) : (
+                <></>
+              )}
+              {patchFn && (
+                <ActionList.Item
+                  key={`${getRowId(row)}-edit`}
+                  onClick={() => {
+                    setDialogMode("modify");
+                    setIsOpen(true);
+                    mutationData?.setState(row);
+                  }}
+                >
+                  Edit row
+                </ActionList.Item>
+              )}
+
+              {removeFn && (
+                <>
+                  <ActionList.Divider />
+                  <ActionList.Item
+                    key={`${getRowId(row)}-delete`}
+                    variant="danger"
+                    onClick={() => {
+                      deleteMutation?.mutate(getRowId(row));
+                      onDialogClose?.();
+                    }}
+                  >
+                    Delete row
+                  </ActionList.Item>
+                </>
+              )}
             </ActionList>
           </ActionMenu.Overlay>
         </ActionMenu>
@@ -152,8 +171,12 @@ export const GenericTable = <T extends { id: string }>({
 
   // query
   const [page, setPage] = useState(1);
-  const limit = 10;
+  let limit = 10;
+  if (disablePagination) {
+    limit = 100;
+  }
   const queryClient = useQueryClient();
+
   const { data, isLoading }: UseQueryResult<UniResponse<T[]>> = useQuery({
     queryKey: [subject, page],
     queryFn: () => queryFn({ page, limit }),
@@ -193,9 +216,13 @@ export const GenericTable = <T extends { id: string }>({
       mutationBanner.update("description", `Delete ${subject} successfully`);
       mutationBanner.update("variant", "success");
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });
@@ -208,9 +235,13 @@ export const GenericTable = <T extends { id: string }>({
       mutationBanner.update("description", `Create ${subject} successfully `);
       mutationBanner.update("variant", "success");
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });
@@ -223,9 +254,13 @@ export const GenericTable = <T extends { id: string }>({
       mutationBanner.update("description", `Update ${subject} successfully`);
       mutationBanner.update("variant", "success");
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });
@@ -241,7 +276,7 @@ export const GenericTable = <T extends { id: string }>({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full" {...rest}>
       {isOpen && (
         <Dialog
           title={dialogMode === "add" ? `Add ${subject}` : `Modify ${subject}`}
@@ -301,7 +336,10 @@ export const GenericTable = <T extends { id: string }>({
 
       {/* table */}
       <Table.Container>
-        <Table.Title id="repositories-headerAction">{subject}</Table.Title>
+        {!hideTitle && (
+          <Table.Title id="repositories-headerAction">{subject}</Table.Title>
+        )}
+
         <Table.Actions>
           {customActions}
           {!disableAdd && (
@@ -316,7 +354,9 @@ export const GenericTable = <T extends { id: string }>({
             </Button>
           )}
         </Table.Actions>
-        <Table.Divider />
+
+        {!customActions && !disableAdd && <Table.Divider />}
+
         <Table.Subtitle id="repositories-subtitle-headerAction">
           {mutationBanner.state.isShown && (
             <Banner
@@ -336,15 +376,17 @@ export const GenericTable = <T extends { id: string }>({
           data={table.getRowModel().rows.map((row) => row.original)}
           columns={tableColumns}
         />
-        <Table.Pagination
-          aria-label="Pagination"
-          pageSize={limit}
-          totalCount={total}
-          defaultPageIndex={page - 1}
-          onChange={({ pageIndex }) => {
-            setPage(pageIndex + 1);
-          }}
-        />
+        {!disablePagination && (
+          <Table.Pagination
+            aria-label="Pagination"
+            pageSize={limit}
+            totalCount={total}
+            defaultPageIndex={page - 1}
+            onChange={({ pageIndex }) => {
+              setPage(pageIndex + 1);
+            }}
+          />
+        )}
       </Table.Container>
     </div>
   );

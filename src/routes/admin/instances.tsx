@@ -26,8 +26,8 @@ export type Instance = {
 function RouteComponent() {
   const columns = [
     { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
-    { accessorKey: "status", header: "Status", field: "status" },
-    { accessorKey: "ref", header: "Ref", field: "ref" },
+    { accessorKey: "status", header: "Status", field: "status", sortBy: true },
+    { accessorKey: "ref", header: "Ref", field: "ref", sortBy: true },
     { accessorKey: "flag", header: "Flag", field: "flag" },
     {
       accessorKey: "challenge_id",
@@ -53,6 +53,8 @@ function RouteComponent() {
       subject="Instances"
       columns={columns}
       queryFn={instanceAdminApi.fetch}
+      disableAdd={true}
+      enableInternalActions={false}
     />
   );
 }

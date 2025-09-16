@@ -30,22 +30,11 @@ export const admin_routes: NavRoute[] = [
     path: "/admin/instances",
     icon: <ListUnorderedIcon />,
   },
+
   {
-    label: "Events M",
-    path: "",
+    label: "Events",
+    path: "/admin/events",
     icon: <ListUnorderedIcon />,
-    children: [
-      {
-        label: "Events",
-        path: "/admin/events",
-        icon: <ListUnorderedIcon />,
-      },
-      {
-        label: "Event Users",
-        path: "/admin/event_users",
-        icon: <PasskeyFillIcon />,
-      },
-    ],
   },
 ];
 

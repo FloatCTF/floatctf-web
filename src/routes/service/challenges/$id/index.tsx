@@ -9,7 +9,8 @@ import type { Instance } from "@/routes/admin/instances";
 import { Button, ProgressBar, TextInput } from "@primer/react";
 import { Banner } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect, useState } from "react";
@@ -20,7 +21,11 @@ export const Route = createFileRoute("/service/challenges/$id/")({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data: challenge_data, isLoading } = useQuery({
+  const {
+    data: challenge_data,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["challenge", id],
     queryFn: () => challengeServiceApi.get(id),
   });
@@ -42,12 +47,13 @@ function RouteComponent() {
     queryFn: () => challengeServiceApi.getInstance(id),
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (instance_data?.data) {
       challengeStatus.update("isRunning", true);
       challengeStatus.update("instance", instance_data.data);
     }
-  }, [instance_data, challengeStatus.update]);
+  }, [instance_data]);
 
   const mutationInstance = useMutation({
     mutationFn: instanceServiceApi.launch,
@@ -55,9 +61,13 @@ function RouteComponent() {
       challengeStatus.update("isRunning", true);
       challengeStatus.update("instance", data.data!);
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });
@@ -67,9 +77,13 @@ function RouteComponent() {
       challengeStatus.update("isRunning", false);
       challengeStatus.update("instance", {} as Instance);
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });
@@ -83,12 +97,22 @@ function RouteComponent() {
       challengeStatus.update("isRunning", false);
       challengeStatus.update("instance", {} as Instance);
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", "Flag is not correct");
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });
+  const navigate = useNavigate();
+
+  if (isError) {
+    navigate({ to: "/service/challenges" });
+  }
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -114,6 +138,7 @@ function RouteComponent() {
       {challengeStatus.state.instance && (
         <div>{challengeStatus.state.instance.content}</div>
       )}
+
       <div
         id="challenge-content"
         className="mb-4 flex justify-center flex-1 border-bottom"

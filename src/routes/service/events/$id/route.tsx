@@ -23,12 +23,10 @@ function RouteComponent() {
   const { id } = Route.useParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["eventInfo"],
+    queryKey: ["eventInfo", id],
     queryFn: () => eventServiceApi.get(id),
   });
   const eventInfo = data?.data;
-
-  window.document.title = eventInfo?.event.title || "Event";
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -64,13 +62,12 @@ function RouteComponent() {
           Trend
         </RouterNavItem>
       </UnderlineNav>
-
       <Outlet />
     </div>
   );
 }
 
-type RouterNavItemProps = {
+export type RouterNavItemProps = {
   to: string;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   params?: Record<string, any>;

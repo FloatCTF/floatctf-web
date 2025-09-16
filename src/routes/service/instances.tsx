@@ -4,6 +4,7 @@ import { useTypedState } from "@/lib";
 import { Button } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import type { Instance } from "../admin/instances";
@@ -29,9 +30,13 @@ function RouteComponent() {
       mutationBanner.update("description", "Destroyed successfully");
       mutationBanner.update("variant", "success");
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg =
+        error.response?.data?.message || error.message || "Unknown error";
+
       mutationBanner.update("isShown", true);
-      mutationBanner.update("description", error.message);
+      mutationBanner.update("description", msg);
       mutationBanner.update("variant", "critical");
     },
   });

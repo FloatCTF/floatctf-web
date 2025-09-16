@@ -20,15 +20,18 @@ export default (props: React.HTMLAttributes<HTMLDivElement>) => {
     >
       <h3>FloatCTF </h3>
 
-      <Button
-        variant="danger"
-        onClick={() => {
-          authStore.removeToken();
-          navigate({ to: "/" });
-        }}
-      >
-        Logout
-      </Button>
+      <div className="flex justify-center items-center gap-2">
+        <span>{authStore.username}</span>
+        <Button
+          variant="danger"
+          onClick={() => {
+            authStore.removeToken();
+            navigate({ to: "/" });
+          }}
+        >
+          Logout
+        </Button>
+      </div>
     </header>
   );
 };

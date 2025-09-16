@@ -1,6 +1,7 @@
 import { eventAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
+import { CheckIcon } from "@primer/octicons-react";
 import {
   Select,
   Stack,
@@ -24,6 +25,7 @@ export type Event = {
   title: string;
   description?: string;
   hidden: boolean;
+  rules: string;
   start_time: string;
   end_time: string;
   created_at: string;
@@ -45,7 +47,7 @@ function RouteComponent() {
         );
       },
     },
-    { accessorKey: "type", header: "Type", field: "type" },
+    { accessorKey: "type", header: "Type", field: "type", sortBy: true },
     { accessorKey: "title", header: "Title", field: "title" },
     { accessorKey: "description", header: "Description", field: "description" },
     {
@@ -53,13 +55,15 @@ function RouteComponent() {
       header: "Hidden",
       field: "hidden",
       renderCell: (row: Event) => {
-        return <span>{row.hidden ? "Yes" : "No"}</span>;
+        return <span>{row.hidden ? <CheckIcon /> : <></>}</span>;
       },
+      sortBy: true,
     },
     {
       accessorKey: "start_time",
       header: "Start Time",
       field: "start_time",
+      sortBy: true,
       renderCell: (row: Event) => {
         return (
           <span>
@@ -72,6 +76,7 @@ function RouteComponent() {
       accessorKey: "end_time",
       header: "End Time",
       field: "end_time",
+      sortBy: true,
       renderCell: (row: Event) => {
         return (
           <span>
@@ -144,8 +149,19 @@ function RouteComponent() {
       ),
     },
     {
+      header: "Rules",
+      field: "rules",
+      render: (
+        <Textarea
+          value={mutationEvent.state.rules}
+          onChange={(e) => mutationEvent.update("rules", e.target.value)}
+        />
+      ),
+    },
+    {
       header: "Start Time",
       field: "start_time",
+
       render: (
         <input
           type="datetime-local"

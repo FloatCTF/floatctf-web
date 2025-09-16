@@ -1,9 +1,137 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/service/events/$id/trend')({
+import { eventServiceApi } from "@/api/service";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+export const Route = createFileRoute("/service/events/$id/trend")({
   component: RouteComponent,
-})
+});
+export type TrendPoint = {
+  name: string;
+  score: number; // total score
+  time: string; // NaiveDateTime 可以用 ISO 字符串
+};
 
+export type TrendItem = {
+  name: string;
+  points: TrendPoint[];
+};
 function RouteComponent() {
-  return <div>Hello "/service/events/$id/trend"!</div>
+  const { id } = Route.useParams();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["event_trend", id],
+    queryFn: () => eventServiceApi.getTrend(id),
+    refetchInterval: 30000, // 30秒自动刷新
+  });
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>Error</div>;
+  }
+  return (
+    <div className="w-full h-full">
+      {data?.data && <TrendChart data={data.data} />}
+    </div>
+  );
 }
+
+import {
+  Brush,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+type TrendChartProps = {
+  data: TrendItem[];
+};
+
+// 动态 chart 数据类型
+type ChartPoint = {
+  time: string;
+  [key: string]: string | number | undefined;
+};
+
+export const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
+  // 构造 Recharts 可识别的数据格式
+  const chartData: ChartPoint[] = [];
+
+  // 收集所有时间点
+  const allTimesSet = new Set<string>();
+  for (const user of data) {
+    for (const p of user.points) {
+      allTimesSet.add(p.time);
+    }
+  }
+  const allTimes = Array.from(allTimesSet).sort();
+
+  // 构造 chartData
+  for (const time of allTimes) {
+    const point: ChartPoint = { time };
+    for (const user of data) {
+      const userPoint = user.points.find((p) => p.time === time);
+      point[user.name] = userPoint?.score ?? 0;
+      point[`${user.name}_label`] = userPoint?.name ?? "";
+    }
+    chartData.push(point);
+  }
+
+  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300"];
+
+  return (
+    <div className="flex justify-center">
+      <ResponsiveContainer width="90%" height={400}>
+        <LineChart
+          data={chartData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="time"
+            tickFormatter={(time) =>
+              dayjs.utc(time).local().format("YYYY-MM-DD HH:mm:ss")
+            }
+          />
+          <YAxis />
+          <Tooltip
+            isAnimationActive={false}
+            labelFormatter={(time) =>
+              dayjs.utc(time).local().format("YYYY-MM-DD HH:mm:ss")
+            }
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            formatter={(value: number, name: string, props: any) => {
+              const label = props.payload[`${name}_label`];
+              return [`${value}`, `${label}`];
+            }}
+          />
+          <Legend />
+          {data.map((user, idx) => (
+            <Line
+              key={user.name}
+              type="monotone"
+              dataKey={user.name}
+              stroke={colors[idx % colors.length]}
+              dot={{ r: 5, strokeWidth: 2, fill: colors[idx % colors.length] }}
+              connectNulls
+            />
+          ))}
+          <Brush
+            dataKey="time"
+            height={30}
+            stroke="#8884d8"
+            tickFormatter={(time) =>
+              dayjs.utc(time).local().format("YYYY-MM-DD HH:mm:ss")
+            }
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};

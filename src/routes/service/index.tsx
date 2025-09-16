@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ServiceRouteGuard } from "./route";
 
 export const Route = createFileRoute("/service/")({
-  component: RouteComponent,
-  loader: ServiceRouteGuard,
-});
+  loader: async () => {
+    // 先执行你的权限校验
+    await ServiceRouteGuard();
 
-function RouteComponent() {
-  return <div>Hello "/service/"!</div>;
-}
+    // 然后强制重定向到 /service/top
+    throw redirect({
+      to: "/service/top",
+    });
+  },
+});

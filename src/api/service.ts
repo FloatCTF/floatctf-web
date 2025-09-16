@@ -1,7 +1,12 @@
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
 import type { EventInfo, EventUser } from "@/routes/service/events";
+import type { Announcement } from "@/routes/service/events/$id";
+import type { EventChallengeResult } from "@/routes/service/events/$id/challenges";
+import type { ScoreboardItem } from "@/routes/service/events/$id/scoreboard";
+import type { TrendItem } from "@/routes/service/events/$id/trend";
 import type { ChallengeSolve } from "@/routes/service/solves";
+import type { TopUser } from "@/routes/service/top";
 import { type QueryParams, type UniResponse, service_api } from "./axios";
 
 export const userLoginFn = async ({
@@ -11,6 +16,26 @@ export const userLoginFn = async ({
 	const response = await service_api.post("/users/session", {
 		username,
 		password,
+	});
+	return response.data;
+};
+
+export const userRegisterFn = async ({
+	username,
+	password,
+	nickname,
+	email,
+}: {
+	username: string;
+	password: string;
+	nickname: string;
+	email: string;
+}): Promise<UniResponse<string>> => {
+	const response = await service_api.post("/users", {
+		username,
+		password,
+		nickname,
+		email,
 	});
 	return response.data;
 };
@@ -26,6 +51,10 @@ export const eventServiceApi = {
 		const res = await service_api.post(`/events/${event_id}/join`);
 		return res.data;
 	},
+	leave: async (event_id: string): Promise<UniResponse<number>> => {
+		const res = await service_api.delete(`/events/${event_id}/leave`);
+		return res.data;
+	},
 	get: async (id: string): Promise<UniResponse<EventInfo>> => {
 		const res = await service_api.get(`/events/${id}`);
 		return res.data;
@@ -33,8 +62,47 @@ export const eventServiceApi = {
 	fetchChallenges: async (
 		id: string,
 		params: QueryParams = {},
-	): Promise<UniResponse<Challenge[]>> => {
+	): Promise<UniResponse<EventChallengeResult[]>> => {
 		const res = await service_api.get(`/events/${id}/challenges`, { params });
+		return res.data;
+	},
+	getChallengeInstance: async (
+		event_id: string,
+		challenge_id: string,
+	): Promise<UniResponse<Instance>> => {
+		const res = await service_api.get(
+			`/events/${event_id}/challenges/${challenge_id}/instance`,
+		);
+		return res.data;
+	},
+	getInstances: async (event_id: string): Promise<UniResponse<Instance[]>> => {
+		const res = await service_api.get(`/events/${event_id}/instances`);
+		return res.data;
+	},
+	launchSingleInstance: async (
+		event_id: string,
+		challenge_id: string,
+	): Promise<UniResponse<Instance>> => {
+		const res = await service_api.post("/instances/launch", {
+			challenge_id,
+			event_id,
+		});
+		return res.data;
+	},
+	getScoreboard: async (
+		event_id: string,
+	): Promise<UniResponse<ScoreboardItem[]>> => {
+		const res = await service_api.get(`/events/${event_id}/scoreboard`);
+		return res.data;
+	},
+	getTrend: async (event_id: string): Promise<UniResponse<TrendItem[]>> => {
+		const res = await service_api.get(`/events/${event_id}/trend`);
+		return res.data;
+	},
+	getAnnouncements: async (
+		event_id: string,
+	): Promise<UniResponse<Announcement[]>> => {
+		const res = await service_api.get(`/events/${event_id}/announcements`);
 		return res.data;
 	},
 };
@@ -63,6 +131,16 @@ export const instanceServiceApi = {
 		});
 		return res.data;
 	},
+	launchSingle: async (
+		challenge_id: string,
+		event_id: string,
+	): Promise<UniResponse<Instance>> => {
+		const res = await service_api.post("/instances/launch", {
+			challenge_id,
+			event_id,
+		});
+		return res.data;
+	},
 	fetch: async (params: QueryParams = {}): Promise<UniResponse<Instance[]>> => {
 		const res = await service_api.get("/instances", { params });
 		return res.data;
@@ -83,6 +161,45 @@ export const submitServiceApi = {
 		const res = await service_api.post("/submit/flag", { instance_id, flag });
 		return res.data;
 	},
+	// 	#[derive(Debug, MultipartForm)]
+	// pub struct WriteupForm {
+	//     #[multipart(limit = "1024MB")]
+	//     writeup_docx: TempFile,
+	//     event_id: Text<Uuid>,
+	//     team_id: Option<Text<Uuid>>,
+	// }
+	submitWriteup: async (
+		file: File,
+		event_id: string,
+		team_id?: string,
+	): Promise<UniResponse<null>> => {
+		const formData = new FormData();
+		formData.append("writeup_docx", file);
+		formData.append("event_id", event_id);
+		if (team_id) {
+			formData.append("team_id", team_id);
+		}
+		const res = await service_api.post("/submit/writeup", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+		return res.data;
+	},
+	submitSingle: async ({
+		event_id,
+		instance_id,
+		flag,
+	}: { event_id: string; instance_id: string; flag: string }): Promise<
+		UniResponse<ChallengeSolve>
+	> => {
+		const res = await service_api.post("/submit/flag", {
+			event_id,
+			instance_id,
+			flag,
+		});
+		return res.data;
+	},
 };
 
 export const solveServiceApi = {
@@ -90,6 +207,10 @@ export const solveServiceApi = {
 		params: QueryParams = {},
 	): Promise<UniResponse<ChallengeSolve[]>> => {
 		const res = await service_api.get("/solves", { params });
+		return res.data;
+	},
+	getTop15Users: async (): Promise<UniResponse<TopUser[]>> => {
+		const res = await service_api.get("/solves/top15users");
 		return res.data;
 	},
 };
