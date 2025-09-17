@@ -31,8 +31,13 @@ function RouteComponent() {
     return <div>Error</div>;
   }
   return (
-    <div className="w-full h-full">
-      {data?.data && <TrendChart data={data.data} />}
+    <div className="w-full h-full flex">
+      {data?.data && (
+        <TrendChart
+          className="flex justify-center items-center"
+          data={data.data}
+        />
+      )}
     </div>
   );
 }
@@ -51,6 +56,7 @@ import {
 
 type TrendChartProps = {
   data: TrendItem[];
+  className?: string;
 };
 
 // 动态 chart 数据类型
@@ -59,7 +65,7 @@ type ChartPoint = {
   [key: string]: string | number | undefined;
 };
 
-export const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
+export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
   // 构造 Recharts 可识别的数据格式
   const chartData: ChartPoint[] = [];
 
@@ -86,8 +92,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
   const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300"];
 
   return (
-    <div className="flex justify-center">
-      <ResponsiveContainer width="90%" height={400}>
+    <div className={`${className} w-full h-full`}>
+      <ResponsiveContainer width="95%" height={400}>
         <LineChart
           data={chartData}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}

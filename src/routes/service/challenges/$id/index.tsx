@@ -139,7 +139,12 @@ function RouteComponent() {
         />
       )}
       {challengeStatus.state.instance && (
-        <div>{challengeStatus.state.instance.content}</div>
+        <div
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+          dangerouslySetInnerHTML={{
+            __html: challengeStatus.state.instance.content || "",
+          }}
+        />
       )}
 
       <div

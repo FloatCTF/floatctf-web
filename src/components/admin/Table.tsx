@@ -68,6 +68,7 @@ type GenericTableProps<T> = {
   hideTitle?: boolean;
   disablePagination?: boolean;
   className?: string;
+  subtitle?: string;
   getRowId?: (row: T) => string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
@@ -87,6 +88,7 @@ export const GenericTable = <T extends { id: string }>({
   disableAdd = false,
   hideTitle = false,
   disablePagination = false,
+  subtitle,
   getRowId = (row) => row.id,
   ...rest
 }: GenericTableProps<T>) => {
@@ -339,7 +341,11 @@ export const GenericTable = <T extends { id: string }>({
         {!hideTitle && (
           <Table.Title id="repositories-headerAction">{subject}</Table.Title>
         )}
-
+        {subtitle && (
+          <Table.Subtitle id="repositories-subtitle-headerAction">
+            {subtitle}
+          </Table.Subtitle>
+        )}
         <Table.Actions>
           {customActions}
           {!disableAdd && (

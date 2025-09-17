@@ -22,15 +22,29 @@ export type EventChallengeResult = {
 function RouteComponent() {
   const { id } = Route.useParams();
 
-  const { data: event_data } = useQuery({
+  const {
+    data: event_data,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["event", id],
     queryFn: () => eventAdminApi.get(id),
   });
+
   const event = event_data?.data;
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError || !event) {
+    return <div>Error loading event</div>;
+  }
+
   return (
     <div>
       <h3>
-        {event?.title} #{event?.id}
+        {event.title} #{event.id}
       </h3>
       <UnderlineNav aria-label="Repository">
         <RouterNavItem to="/admin/events/$id" params={{ id }}>
@@ -53,6 +67,9 @@ function RouteComponent() {
         </RouterNavItem>
         <RouterNavItem to="/service/events/$id/scoreboard" params={{ id }}>
           Logs
+        </RouterNavItem>
+        <RouterNavItem to="/admin/events/$id/data_present" params={{ id }}>
+          Data Present
         </RouterNavItem>
       </UnderlineNav>
       <Outlet />

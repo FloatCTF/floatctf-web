@@ -11,7 +11,12 @@ import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
-
+export type EventInstance = {
+  id: string;
+  instance: Instance;
+  challenge_name: string;
+  user_nickname: string;
+};
 export const Route = createFileRoute("/service/events/$id/instances")({
   component: RouteComponent,
 });
@@ -50,34 +55,37 @@ function RouteComponent() {
 
   const columns = [
     {
-      accessorKey: "challenge_id",
+      accessorKey: "challenge_name",
       header: "Challenge",
-      field: "challenge_id",
+      field: "challenge_name",
       rowHeader: true,
     },
     {
-      accessorKey: "status",
+      accessorKey: "instance.status",
       header: "Status",
-      field: "status",
+      field: "instance.status",
     },
     {
-      accessorKey: "ref",
+      accessorKey: "instance.ref",
       header: "Ref",
-      field: "ref",
+      field: "instance.ref",
     },
     {
-      accessorKey: "user_id",
+      accessorKey: "user_nickname",
       header: "User",
-      field: "user_id",
+      field: "user_nickname",
     },
     {
-      accessorKey: "destroy_at",
+      accessorKey: "instance.destroy_at",
       header: "Destroy At",
       field: "destroy_at",
-      renderCell: (row: Instance) => {
+      renderCell: (row: EventInstance) => {
         return (
           <span>
-            {dayjs.utc(row.destroy_at).local().format("YYYY-MM-DD HH:mm:ss")}
+            {dayjs
+              .utc(row.instance.destroy_at)
+              .local()
+              .format("YYYY-MM-DD HH:mm:ss")}
           </span>
         );
       },
@@ -86,12 +94,12 @@ function RouteComponent() {
       accessorKey: "action",
       header: "Action",
       field: "action",
-      renderCell: (row: Instance) => {
+      renderCell: (row: EventInstance) => {
         return (
           <Button
             variant="invisible"
             onClick={() => {
-              mutationInstance.mutate(row.id);
+              mutationInstance.mutate(row.instance.id);
             }}
             style={{ color: "#DB0000" }}
           >

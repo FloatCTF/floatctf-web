@@ -35,7 +35,26 @@ function RouteComponent() {
     queryFn: () => eventServiceApi.getScoreboard(id),
     refetchInterval: 30000, // 30秒自动刷新
   });
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
+  if (isError) {
+    return <div>Something went wrong</div>;
+  }
+
+  return <ScoreBoard data={data?.data ?? []} className="mt-2" />;
+}
+
+export function ScoreBoard({
+  data,
+  enableDynamicColumns = true,
+  className,
+}: {
+  data: ScoreboardItem[];
+  enableDynamicColumns?: boolean;
+  className?: string;
+}) {
   const baseColumns = [
     {
       accessorKey: "no",
@@ -52,6 +71,7 @@ function RouteComponent() {
       accessorKey: "score",
       header: "Score",
       field: "score",
+      renderCell: (row: ScoreboardItem) => <span>{row.score.toFixed(2)}</span>,
     },
     {
       accessorKey: "solved_count",
@@ -59,49 +79,45 @@ function RouteComponent() {
       field: "solved_count",
     },
   ];
-
-  // 根据 challenges 动态生成列
-  const challengeColumns =
-    data?.data && data.data.length > 0
-      ? data.data[0].challenges.map((ch) => ({
-          accessorKey: `challenge_${ch.name}`,
-          header: ch.name,
-          field: `challenge_${ch.name}`,
-          renderCell: (row: ScoreboardItem) => {
-            const challenge = row.challenges.find((c) => c.name === ch.name);
-            if (!challenge) return null;
-            if (challenge.solved) {
-              if (challenge.solved_no === 1)
-                return <SparklesFillIcon size={16} />;
-              if (challenge.solved_no === 2)
-                return <SparkleFillIcon size={16} />;
-              if (challenge.solved_no === 3) return <SparkleIcon size={16} />;
-            }
-            return challenge.solved ? <CheckIcon size={16} /> : <></>;
-          },
-        }))
-      : [];
-
-  const columns = [...baseColumns, ...challengeColumns];
+  let columns = baseColumns;
+  if (enableDynamicColumns) {
+    // 根据 challenges 动态生成列
+    const challengeColumns =
+      data && data.length > 0
+        ? data[0].challenges.map((ch) => ({
+            accessorKey: `challenge_${ch.name}`,
+            header: ch.name,
+            field: `challenge_${ch.name}`,
+            renderCell: (row: ScoreboardItem) => {
+              const challenge = row.challenges.find((c) => c.name === ch.name);
+              if (!challenge) return null;
+              if (challenge.solved) {
+                if (challenge.solved_no === 1)
+                  return <SparklesFillIcon size={16} />;
+                if (challenge.solved_no === 2)
+                  return <SparkleFillIcon size={16} />;
+                if (challenge.solved_no === 3) return <SparkleIcon size={16} />;
+              }
+              return challenge.solved ? <CheckIcon size={16} /> : <></>;
+            },
+          }))
+        : [];
+    // @ts-ignore
+    columns = [...baseColumns, ...challengeColumns];
+  } else {
+    columns = baseColumns;
+  }
 
   const table = useReactTable({
-    data: data?.data ?? [],
+    data: data ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError) {
-    return <div>Something went wrong</div>;
-  }
-
   return (
-    <Table.Container className="m-2">
+    <Table.Container className={`${className} `}>
       <Table.Subtitle id="repositories-subtitle-titleSubtitle">
-        <div className="flex gap-2">
+        <div className="flex gap-2 ">
           <span>
             First Blood: <SparklesFillIcon size={16} />
           </span>

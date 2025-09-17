@@ -7,7 +7,12 @@ import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
-import { CheckIcon } from "@primer/octicons-react";
+import {
+  CheckIcon,
+  SparkleFillIcon,
+  SparkleIcon,
+  SparklesFillIcon,
+} from "@primer/octicons-react";
 import { Button, Label, TextInput } from "@primer/react";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -29,6 +34,7 @@ export type EventChallengeResult = {
   current_points: number;
   solved_count: number;
   solved: boolean;
+  solved_no: number;
 };
 
 function RouteComponent() {
@@ -76,7 +82,9 @@ function RouteComponent() {
       header: "Points",
       field: "current_points",
       renderCell: (row: EventChallengeResult) => {
-        return <span className="font-bold">{row.current_points}</span>;
+        return (
+          <span className="font-bold">{row.current_points.toFixed(2)}</span>
+        );
       },
       sortBy: true,
     },
@@ -96,10 +104,15 @@ function RouteComponent() {
       accessorKey: "solved",
       header: "Solved",
       field: "solved",
-      renderCell: (row: EventChallengeResult) => (
-        <span>{row.solved ? <CheckIcon /> : <></>}</span>
+      renderCell: (row: EventChallengeResult) => {
+        if (row.solved) {
+          if (row.solved_no === 1) return <SparklesFillIcon size={16} />;
+          if (row.solved_no === 2) return <SparkleFillIcon size={16} />;
+          if (row.solved_no === 3) return <SparkleIcon size={16} />;
+        }
+        return row.solved ? <CheckIcon size={16} /> : <></>;
         // 是否为一血
-      ),
+      },
       sortBy: true,
     },
   ];
@@ -293,7 +306,12 @@ function ChallengeDialog({
             />
           )}
           {challengeStatus.state.instance && (
-            <div>{challengeStatus.state.instance.content}</div>
+            <div
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+              dangerouslySetInnerHTML={{
+                __html: challengeStatus.state.instance.content || "",
+              }}
+            />
           )}
           {challengeStatus.state.isRunning ? (
             <div className="w-full flex flex-col gap-2 mb-4">

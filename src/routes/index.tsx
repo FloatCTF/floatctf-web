@@ -45,6 +45,7 @@ function App() {
       form.update("buttonMessage", "Redirecting...");
       // redirect to admin dashboard
       authStore.setUsername(form.state.username);
+
       navigate({ to: "/service" });
     },
     onError: (error: AxiosError<{ message: string }>) => {

@@ -3,6 +3,7 @@ import type { Instance } from "@/routes/admin/instances";
 import type { EventInfo, EventUser } from "@/routes/service/events";
 import type { Announcement } from "@/routes/service/events/$id";
 import type { EventChallengeResult } from "@/routes/service/events/$id/challenges";
+import type { EventInstance } from "@/routes/service/events/$id/instances";
 import type { ScoreboardItem } from "@/routes/service/events/$id/scoreboard";
 import type { TrendItem } from "@/routes/service/events/$id/trend";
 import type { ChallengeSolve } from "@/routes/service/solves";
@@ -75,7 +76,9 @@ export const eventServiceApi = {
 		);
 		return res.data;
 	},
-	getInstances: async (event_id: string): Promise<UniResponse<Instance[]>> => {
+	getInstances: async (
+		event_id: string,
+	): Promise<UniResponse<EventInstance[]>> => {
 		const res = await service_api.get(`/events/${event_id}/instances`);
 		return res.data;
 	},
@@ -103,6 +106,12 @@ export const eventServiceApi = {
 		event_id: string,
 	): Promise<UniResponse<Announcement[]>> => {
 		const res = await service_api.get(`/events/${event_id}/announcements`);
+		return res.data;
+	},
+	getWriteUpCreatedDate: async (
+		event_id: string,
+	): Promise<UniResponse<string>> => {
+		const res = await service_api.get(`/events/${event_id}/submit_wp_status`);
 		return res.data;
 	},
 };

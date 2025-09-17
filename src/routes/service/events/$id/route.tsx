@@ -1,5 +1,5 @@
 import { eventServiceApi } from "@/api/service";
-import { ProgressBar, UnderlineNav } from "@primer/react";
+import { Heading, ProgressBar, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Link,
@@ -11,6 +11,7 @@ import {
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
+import { RocketIcon } from "@primer/octicons-react";
 import { useEffect, useState } from "react";
 import { ServiceRouteGuard } from "../../route";
 
@@ -34,6 +35,10 @@ function RouteComponent() {
 
   return (
     <div>
+      <div className="flex gap-1 items-center">
+        <RocketIcon size={20} />
+        <h3 className=" font-bold">{eventInfo?.event.title}</h3>
+      </div>
       <RemainingTimer
         start_at={dayjs
           .utc(eventInfo?.event.start_time)

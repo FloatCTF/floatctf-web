@@ -6,6 +6,7 @@ import type { SystemInformation } from "@/routes/admin/dashboard";
 import type { Event } from "@/routes/admin/events";
 import type { EventChallenge } from "@/routes/admin/events/$id";
 import type { EventAnnouncement } from "@/routes/admin/events/$id/announcements";
+import type { DataPresent } from "@/routes/admin/events/$id/data_present";
 import type { EventUserResult } from "@/routes/admin/events/$id/users";
 import type { EventWriteup } from "@/routes/admin/events/$id/writeups";
 import type { Instance } from "@/routes/admin/instances";
@@ -111,6 +112,10 @@ export const eventAdminApi = {
 	},
 	get: async (id: string): Promise<UniResponse<Event>> => {
 		const res = await admin_api.get(`/events/${id}`);
+		return res.data;
+	},
+	getData: async (id: string): Promise<UniResponse<DataPresent>> => {
+		const res = await admin_api.get(`/events/${id}/data`);
 		return res.data;
 	},
 };

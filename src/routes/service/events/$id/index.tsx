@@ -235,7 +235,7 @@ function RouteComponent() {
                 </Button>
               )
             ) : status === "ended" ? (
-              <span>Ended</span>
+              <SubmitWriteup eventId={id} />
             ) : status === "ongoing" ? (
               <SubmitWriteup eventId={id} />
             ) : (
@@ -343,9 +343,9 @@ function Announcements({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="w-fit">
+    <div className="w-fit flex flex-col gap-3">
       {data.data.map((announcement) => (
-        <section key={announcement.id} className="p-3 rounded border mt-3">
+        <section key={announcement.id} className="p-3 rounded border">
           <h3>{announcement.title}</h3>
           <p>{announcement.content}</p>
         </section>
@@ -367,6 +367,10 @@ function SubmitWriteup({
     text: string;
   }>(null);
   const queryClient = useQueryClient();
+  const { data: createdDate } = useQuery({
+    queryKey: ["writeup_created_date", eventId],
+    queryFn: () => eventServiceApi.getWriteUpCreatedDate(eventId),
+  });
 
   const submitMutation = useMutation({
     mutationFn: (file: File) =>
@@ -432,6 +436,12 @@ function SubmitWriteup({
       <div>
         <Button onClick={handleClick}>Upload Writeup</Button>
         <p>Upload again to override the file</p>
+        {createdDate?.data && (
+          <p className="text-bold">
+            Last uploaded at:{" "}
+            {dayjs.utc(createdDate.data).local().format("YYYY-MM-DD HH:mm:ss")}
+          </p>
+        )}
         <input
           type="file"
           accept=".docx"

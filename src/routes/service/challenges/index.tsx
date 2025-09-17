@@ -61,6 +61,7 @@ function RouteComponent() {
   return (
     <GenericTable
       subject="Challenges"
+      subtitle="If you want submit yours, pls visit https://github.com/FloatCTF/challenge-template"
       columns={columns}
       queryFn={challengeServiceApi.fetch}
       enableInternalActions={false}
