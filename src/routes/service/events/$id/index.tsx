@@ -1,4 +1,3 @@
-import { challengeAdminApi } from "@/api/admin";
 import { eventServiceApi, submitServiceApi } from "@/api/service";
 import { useTypedState } from "@/lib";
 import { Button, FormControl, Heading, Label, TextInput } from "@primer/react";
@@ -28,8 +27,9 @@ type EventQueryResult = {
   joined?: boolean;
 };
 
-function parseMs(iso?: string) {
-  return iso ? Date.parse(iso) : Number.NaN;
+function parseMs(iso?: string): number {
+  if (!iso) return Number.NaN;
+  return dayjs.utc(iso).valueOf(); // 始终按 UTC 解析
 }
 
 function getEventStatus(

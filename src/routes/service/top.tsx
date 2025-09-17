@@ -52,7 +52,7 @@ function RouteComponent() {
       },
     },
   ];
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["top15users"],
     queryFn: () => solveServiceApi.getTop15Users(),
   });

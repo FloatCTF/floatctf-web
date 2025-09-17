@@ -1,5 +1,5 @@
 import { monitorApi } from "@/api/admin";
-import { Box, Heading, Label, PageHeader, ProgressBar } from "@primer/react";
+import { ProgressBar } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminRouteGuard } from "./route";

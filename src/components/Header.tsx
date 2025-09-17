@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/stores/AuthStore";
-import { Avatar, Button } from "@primer/react";
+import { Button } from "@primer/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 

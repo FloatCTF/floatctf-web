@@ -22,7 +22,7 @@ export type EventChallengeResult = {
 function RouteComponent() {
   const { id } = Route.useParams();
 
-  const { data: event_data, isLoading } = useQuery({
+  const { data: event_data } = useQuery({
     queryKey: ["event", id],
     queryFn: () => eventAdminApi.get(id),
   });

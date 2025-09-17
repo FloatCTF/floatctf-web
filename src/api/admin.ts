@@ -4,10 +4,7 @@ import type {
 } from "@/routes/admin/challenges";
 import type { SystemInformation } from "@/routes/admin/dashboard";
 import type { Event } from "@/routes/admin/events";
-import type {
-	EventChallenge,
-	EventChallengeResult,
-} from "@/routes/admin/events/$id";
+import type { EventChallenge } from "@/routes/admin/events/$id";
 import type { EventAnnouncement } from "@/routes/admin/events/$id/announcements";
 import type { EventUserResult } from "@/routes/admin/events/$id/users";
 import type { EventWriteup } from "@/routes/admin/events/$id/writeups";

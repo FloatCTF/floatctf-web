@@ -1,5 +1,5 @@
 import { eventUserAdminApi, userAdminApi } from "@/api/admin";
-import type { UniResponse } from "@/api/axios";
+
 import { ActionSelect } from "@/components/admin/ActionSelect";
 import { GenericTable } from "@/components/admin/Table";
 import type { EventUser } from "@/routes/service/events";

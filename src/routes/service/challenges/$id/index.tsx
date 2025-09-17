@@ -13,7 +13,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/challenges/$id/")({
   component: RouteComponent,
@@ -42,7 +42,7 @@ function RouteComponent() {
     instance: {} as Instance,
   });
 
-  const { data: instance_data } = useQuery({
+  const { data: instance_data, refetch: refetch_instance } = useQuery({
     queryKey: ["instance", id],
     queryFn: () => challengeServiceApi.getInstance(id),
   });
@@ -52,6 +52,9 @@ function RouteComponent() {
     if (instance_data?.data) {
       challengeStatus.update("isRunning", true);
       challengeStatus.update("instance", instance_data.data);
+    } else {
+      challengeStatus.update("isRunning", false);
+      challengeStatus.update("instance", {} as Instance);
     }
   }, [instance_data]);
 
@@ -73,7 +76,7 @@ function RouteComponent() {
   });
   const destroyInstance = useMutation({
     mutationFn: instanceServiceApi.destroy,
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       challengeStatus.update("isRunning", false);
       challengeStatus.update("instance", {} as Instance);
     },
@@ -89,7 +92,7 @@ function RouteComponent() {
   });
   const submitFlag = useMutation({
     mutationFn: submitServiceApi.submit,
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       mutationBanner.update("isShown", true);
       mutationBanner.update("description", "Flag submitted successfully");
       mutationBanner.update("variant", "success");
@@ -147,6 +150,9 @@ function RouteComponent() {
           <div className="w-full flex flex-col gap-2 mb-4">
             <RemainingTimer
               destroy_at={challengeStatus.state.instance.destroy_at}
+              onExpire={() => {
+                destroyInstance.mutate(challengeStatus.state.instance.id);
+              }}
             />
 
             <div className="flex gap-2">
@@ -198,42 +204,52 @@ function RouteComponent() {
 type RemainingTimerProps = {
   destroy_at: string;
   totalMinutes?: number;
+  onExpire?: () => void;
 };
 
 export const RemainingTimer = ({
   destroy_at,
   totalMinutes = 60,
+  onExpire,
 }: RemainingTimerProps) => {
   const [remaining, setRemaining] = useState({
     formatted: "",
     percentage: 100,
   });
 
+  // ✅ 防止 onExpire 重复调用
+  const expiredRef = useRef(false);
+
   useEffect(() => {
     const update = () => {
       const destroyTime = dayjs.utc(destroy_at).toDate();
-
-      const diffSeconds = Math.max(
-        Math.floor((destroyTime.getTime() - new Date().getTime()) / 1000),
-        0
-      );
-      const minutes = Math.floor(diffSeconds / 60);
-      const seconds = diffSeconds % 60;
-
-      const formatted = `${minutes}m ${seconds}s`;
-      const percentage = Math.max(
-        Math.min((diffSeconds / (totalMinutes * 60)) * 100, 100),
-        0
+      const diffSeconds = Math.floor(
+        (destroyTime.getTime() - Date.now()) / 1000
       );
 
-      setRemaining({ formatted, percentage });
+      const safeDiff = Math.max(diffSeconds, 0);
+      const minutes = Math.floor(safeDiff / 60);
+      const seconds = safeDiff % 60;
+      // ✅ <= 0 确保不会错过触发点
+      setRemaining({
+        formatted: `${minutes}m ${seconds}s`,
+        percentage: Math.max(
+          Math.min((safeDiff / (totalMinutes * 60)) * 100, 100),
+          0
+        ),
+      });
+
+      if (safeDiff <= 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        console.log("🔥 Expired, calling onExpire()");
+        onExpire?.();
+      }
     };
 
-    update(); // 初始化
+    update(); // 初始化跑一次
     const timer = setInterval(update, 1000);
-
     return () => clearInterval(timer);
-  }, [destroy_at, totalMinutes]);
+  }, [destroy_at, totalMinutes, onExpire]);
 
   return (
     <>

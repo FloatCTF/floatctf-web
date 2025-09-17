@@ -1,4 +1,4 @@
-import { type NavRoute, service_routes } from "@/routes";
+import { service_routes } from "@/routes";
 import { NavList } from "@primer/react";
 import { useLocation } from "@tanstack/react-router";
 

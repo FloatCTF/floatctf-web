@@ -35,7 +35,7 @@ function RouteComponent() {
   // const subject = `event_challenges-${id}`;
   const queryClient = useQueryClient();
   const subject = `event_challenges-${id}`;
-  const { data, isLoading, isError } = useQuery({
+  const { data } = useQuery({
     queryKey: [subject],
     queryFn: () => eventChallengeAdminApi.fetch(id),
   });

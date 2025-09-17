@@ -1,11 +1,11 @@
 import { eventServiceApi, instanceServiceApi } from "@/api/service";
-import { type BannerVariant, GenericTable } from "@/components/admin/Table";
+import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Instance } from "@/routes/admin/instances";
 import { Button } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
@@ -24,7 +24,7 @@ function RouteComponent() {
     variant: "info" as BannerVariant,
   });
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery({
+  const { data } = useQuery({
     queryKey: ["event_instances", id],
     queryFn: () => eventServiceApi.getInstances(id),
   });

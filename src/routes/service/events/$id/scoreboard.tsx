@@ -4,8 +4,6 @@ import {
   SparkleFillIcon,
   SparkleIcon,
   SparklesFillIcon,
-  SponsorTiersIcon,
-  TrophyIcon,
 } from "@primer/octicons-react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useQuery } from "@tanstack/react-query";

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/service/challenges/$id")({
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
+  // const { id } = Route.useParams();
   return (
     <div className="flex h-full w-full flex-col">
       <UnderlineNav aria-label="Repository">

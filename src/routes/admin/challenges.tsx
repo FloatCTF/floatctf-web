@@ -311,7 +311,7 @@ export function CheckButton({
   const onDialogClose = useCallback(() => setIsOpen(false), []);
 
   // 数据获取
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["ChallengeCheck"],
     queryFn: () => challengeAdminApi.checkChallenges(challenge_id_list),
     enabled: isOpen,

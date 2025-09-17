@@ -4,7 +4,6 @@ export const Route = createFileRoute("/service/events/")({
   component: RouteComponent,
 });
 
-import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
@@ -12,7 +11,6 @@ import { eventServiceApi } from "@/api/service";
 import { type BannerVariant, GenericTable } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import { CheckIcon } from "@primer/octicons-react";
-import { Button } from "@primer/react";
 
 import type { Event } from "../../admin/events";
 

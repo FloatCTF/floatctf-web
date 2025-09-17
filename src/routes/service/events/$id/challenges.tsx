@@ -3,7 +3,7 @@ import {
   instanceServiceApi,
   submitServiceApi,
 } from "@/api/service";
-import { type BannerVariant, GenericTable } from "@/components/admin/Table";
+import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
@@ -11,12 +11,12 @@ import { CheckIcon } from "@primer/octicons-react";
 import { Button, Label, TextInput } from "@primer/react";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { RemainingTimer } from "../../challenges/$id";
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/events/$id/challenges")({
@@ -157,7 +157,7 @@ function ChallengeDialog({
     flag: "",
   });
   // 拉取现有 instance
-  const { data: instance_data } = useQuery({
+  const { data: instance_data, refetch: refetch_instance } = useQuery({
     queryKey: ["event_instance", challenge?.id],
     queryFn: () =>
       eventServiceApi.getChallengeInstance(eventId, challenge?.id ?? ""),
@@ -167,9 +167,14 @@ function ChallengeDialog({
   // useEffect 只在 instance_data 更新时执行一次
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (open && instance_data?.data) {
-      challengeStatus.update("isRunning", true);
-      challengeStatus.update("instance", instance_data.data);
+    if (open) {
+      if (instance_data?.data) {
+        challengeStatus.update("isRunning", true);
+        challengeStatus.update("instance", instance_data.data);
+      } else {
+        challengeStatus.update("isRunning", false);
+        challengeStatus.update("instance", {} as Instance);
+      }
     }
   }, [instance_data, open]);
   const mutationBanner = useTypedState({
@@ -197,7 +202,7 @@ function ChallengeDialog({
   });
   const destroyInstance = useMutation({
     mutationFn: instanceServiceApi.destroy,
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       challengeStatus.update("isRunning", false);
       challengeStatus.update("instance", {} as Instance);
     },
@@ -213,7 +218,7 @@ function ChallengeDialog({
   });
   const submitFlag = useMutation({
     mutationFn: submitServiceApi.submitSingle,
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       mutationBanner.update("isShown", true);
       mutationBanner.update("description", "Flag submitted successfully");
       mutationBanner.update("variant", "success");
@@ -294,6 +299,10 @@ function ChallengeDialog({
             <div className="w-full flex flex-col gap-2 mb-4">
               <RemainingTimer
                 destroy_at={challengeStatus.state.instance.destroy_at}
+                onExpire={() => {
+                  refetch_instance({ cancelRefetch: true });
+                  destroyInstance.mutate(challengeStatus.state.instance.id);
+                }}
               />
 
               <div className="flex gap-2">
