@@ -1,5 +1,5 @@
 import { eventServiceApi } from "@/api/service";
-import { Heading, ProgressBar, UnderlineNav } from "@primer/react";
+import { Heading, ProgressBar, Spinner, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Link,
@@ -30,7 +30,7 @@ function RouteComponent() {
   const eventInfo = data?.data;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
 
   return (

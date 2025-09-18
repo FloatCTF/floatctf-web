@@ -1,5 +1,5 @@
 import { monitorApi } from "@/api/admin";
-import { ProgressBar } from "@primer/react";
+import { ProgressBar, Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminRouteGuard } from "./route";
@@ -69,7 +69,7 @@ function RouteComponent() {
   });
   const data = d?.data;
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
   if (isError || !data) {
     return <div>Error loading system info</div>;

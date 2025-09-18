@@ -1,4 +1,5 @@
 import { solveServiceApi } from "@/api/service";
+import { Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -62,7 +63,7 @@ function RouteComponent() {
     getCoreRowModel: getCoreRowModel(),
   });
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
 
   return (

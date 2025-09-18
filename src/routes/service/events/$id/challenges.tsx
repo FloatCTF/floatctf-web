@@ -19,6 +19,7 @@ import {
   FormControl,
   Label,
   SelectPanel,
+  Spinner,
   TextInput,
 } from "@primer/react";
 import type { ActionListItemInput } from "@primer/react/deprecated";
@@ -174,7 +175,7 @@ function RouteComponent() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
   if (isError) {
     return <div>Event has not been started</div>;

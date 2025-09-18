@@ -1,6 +1,6 @@
 import { eventAdminApi } from "@/api/admin";
 import { RouterNavItem } from "@/routes/service/events/$id/route";
-import { UnderlineNav } from "@primer/react";
+import { Spinner, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import type { Challenge } from "../../challenges";
@@ -34,7 +34,7 @@ function RouteComponent() {
   const event = event_data?.data;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
 
   if (isError || !event) {

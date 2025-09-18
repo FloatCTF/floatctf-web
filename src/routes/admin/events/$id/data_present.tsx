@@ -12,7 +12,7 @@ import {
   ScreenNormalIcon,
   TriangleRightIcon,
 } from "@primer/octicons-react";
-import { Label, LabelGroup, Text, Timeline } from "@primer/react";
+import { Label, LabelGroup, Spinner, Text, Timeline } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
@@ -45,7 +45,7 @@ export type DataPresent = {
   team_count: number;
   solved_recent_15: DataEventChallengeSolve[];
   event_challenges: DataEventChallenge[];
-  scoreboard: ScoreboardItem[];
+  scoreboard_top10: ScoreboardItem[];
   trend: TrendItem[];
 };
 
@@ -60,7 +60,7 @@ function RouteComponent() {
   const dp: DataPresent | undefined = data?.data;
 
   if (isLoading) {
-    return <div>Loading....</div>;
+    return <Spinner size="large" />;
   }
 
   if (isError || !dp || !dp.event) {
@@ -70,11 +70,11 @@ function RouteComponent() {
     <div className="relative w-full h-full mb-2">
       <div
         className={`transition-all duration-500 ease-in-out
-          ${
-            isFull
-              ? "fixed top-0 left-0 w-screen h-screen bg-white z-[9999] scale-100 opacity-100"
-              : ""
-          }`}
+    ${
+      isFull
+        ? "fixed top-0 left-0 w-screen h-screen bg-white z-[9999] scale-100 opacity-100 overflow-auto"
+        : ""
+    }`}
       >
         <button
           type="button"
@@ -115,7 +115,7 @@ function RouteComponent() {
               <div className="flex justify-start items-start">
                 <ScoreBoard
                   className="flex-4 mt-5"
-                  data={dp.scoreboard}
+                  data={dp.scoreboard_top10}
                   enableDynamicColumns={false}
                 />
                 <TrendChart className="flex-9" data={dp?.trend} />
@@ -246,7 +246,7 @@ export function ChallengeGrid({
 function EventChallengesView({ data }: { data: DataEventChallenge[] }) {
   console.log(data);
   return (
-    <div className="mx-auto max-w-6xl p-6">
+    <div className="mx-auto p-6">
       <h3 className="mb-3 text-lg font-semibold">Challenges Detail</h3>
       <ChallengeGrid items={data} />
     </div>

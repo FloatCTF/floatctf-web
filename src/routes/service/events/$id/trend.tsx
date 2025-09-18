@@ -1,4 +1,5 @@
 import { eventServiceApi } from "@/api/service";
+import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
@@ -25,7 +26,7 @@ function RouteComponent() {
     refetchInterval: 30000, // 30秒自动刷新
   });
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
   if (isError) {
     return <div>Error</div>;

@@ -6,7 +6,7 @@ import {
 import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Instance } from "@/routes/admin/instances";
-import { Button, Label, ProgressBar, TextInput } from "@primer/react";
+import { Button, Label, ProgressBar, Spinner, TextInput } from "@primer/react";
 import { Banner } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -117,7 +117,7 @@ function RouteComponent() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
 
   return (

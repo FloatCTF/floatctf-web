@@ -5,6 +5,7 @@ import {
   SparkleIcon,
   SparklesFillIcon,
 } from "@primer/octicons-react";
+import { Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -36,7 +37,7 @@ function RouteComponent() {
     refetchInterval: 30000, // 30秒自动刷新
   });
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size="large" />;
   }
 
   if (isError) {
