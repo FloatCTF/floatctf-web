@@ -42,7 +42,7 @@ function RouteComponent() {
     instance: {} as Instance,
   });
 
-  const { data: instance_data, refetch: refetch_instance } = useQuery({
+  const { data: instance_data } = useQuery({
     queryKey: ["instance", id],
     queryFn: () => challengeServiceApi.getInstance(id),
   });

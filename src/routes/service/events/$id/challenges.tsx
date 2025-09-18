@@ -14,15 +14,8 @@ import {
   SparklesFillIcon,
   TriangleDownIcon,
 } from "@primer/octicons-react";
-import {
-  Button,
-  FormControl,
-  Label,
-  SelectPanel,
-  Spinner,
-  TextInput,
-} from "@primer/react";
-import type { ActionListItemInput } from "@primer/react/deprecated";
+import { Button, Label, SelectPanel, Spinner, TextInput } from "@primer/react";
+
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";

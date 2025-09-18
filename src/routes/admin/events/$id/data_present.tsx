@@ -112,15 +112,21 @@ function RouteComponent() {
           />
           <div className="flex">
             <div id="top-box" className="flex flex-col flex-8">
-              <div className="flex justify-start items-start">
-                <ScoreBoard
-                  className="flex-4 mt-5"
-                  data={dp.scoreboard_top10}
-                  enableDynamicColumns={false}
-                />
-                <TrendChart className="flex-9" data={dp?.trend} />
-              </div>
+              <div className="flex">
+                {/* 左边 ScoreBoard，顶对齐 */}
+                <div className="flex items-start flex-4">
+                  <ScoreBoard
+                    className="mt-3"
+                    data={dp.scoreboard_top10}
+                    enableDynamicColumns={false}
+                  />
+                </div>
 
+                {/* 右边 TrendChart，居中对齐 */}
+                <div className="flex items-center justify-center flex-9">
+                  <TrendChart data={dp?.trend} className=" w-full h-full" />
+                </div>
+              </div>
               <div id="bottom-box" className="flex-8 ">
                 <EventChallengesView data={dp?.event_challenges} />
               </div>

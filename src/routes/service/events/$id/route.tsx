@@ -1,5 +1,5 @@
 import { eventServiceApi } from "@/api/service";
-import { Heading, ProgressBar, Spinner, UnderlineNav } from "@primer/react";
+import { ProgressBar, Spinner, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Link,
