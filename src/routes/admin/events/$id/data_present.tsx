@@ -140,7 +140,13 @@ function RouteComponent() {
                           {solve.user_nickname}
                         </Text>
                         {" solved "}
-                        <Text sx={{ fontFamily: "mono" }}>
+                        <Text
+                          sx={{
+                            fontFamily: "mono",
+                            fontWeight: 900,
+                            textDecoration: "underline",
+                          }}
+                        >
                           {solve.challenge_category}/{solve.challenge_name}
                         </Text>
                         <br />

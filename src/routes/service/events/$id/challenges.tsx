@@ -12,8 +12,16 @@ import {
   SparkleFillIcon,
   SparkleIcon,
   SparklesFillIcon,
+  TriangleDownIcon,
 } from "@primer/octicons-react";
-import { Button, Label, TextInput } from "@primer/react";
+import {
+  Button,
+  FormControl,
+  Label,
+  SelectPanel,
+  TextInput,
+} from "@primer/react";
+import type { ActionListItemInput } from "@primer/react/deprecated";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -21,7 +29,7 @@ import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RemainingTimer } from "../../challenges/$id";
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/events/$id/challenges")({
@@ -53,7 +61,30 @@ function RouteComponent() {
   const handleClose = useCallback(() => {
     challengeDialog.update("open", false);
   }, [challengeDialog]);
-
+  const categories = [
+    { text: "ALL" },
+    { text: "Web" },
+    { text: "Misc" },
+    { text: "Pwn" },
+    { text: "Crypto" },
+    { text: "Reverse" },
+  ];
+  const [selected, setSelected] = useState(categories[0]); // 默认 ALL
+  const [filter, setFilter] = useState("");
+  const [open, setOpen] = useState(false);
+  const filteredData = useMemo(() => {
+    if (!data?.data) return [];
+    if (selected.text === "ALL") return data.data;
+    return data.data.filter(
+      (row: EventChallengeResult) =>
+        row.challenge.category.toLowerCase() === selected.text.toLowerCase()
+    );
+  }, [data?.data, selected]);
+  const filteredItems = categories.filter(
+    (item) =>
+      item.text === selected?.text || // 保证选中的值始终显示
+      item.text.toLowerCase().includes(filter.toLowerCase())
+  );
   const columns = [
     {
       accessorKey: "challenge.name",
@@ -90,9 +121,30 @@ function RouteComponent() {
     },
     {
       accessorKey: "challenge.category",
-      header: "Category",
+      header: () => {
+        return (
+          <SelectPanel
+            renderAnchor={({ children, ...anchorProps }) => (
+              <Button
+                {...anchorProps}
+                trailingAction={TriangleDownIcon}
+                aria-haspopup="dialog"
+              >
+                {selected?.text ?? "Category"}
+              </Button>
+            )}
+            placeholder="Pick category"
+            open={open}
+            onOpenChange={setOpen}
+            items={filteredItems}
+            selected={selected}
+            // @ts-ignore
+            onSelectedChange={setSelected}
+            onFilterChange={setFilter}
+          />
+        );
+      },
       field: "challenge.category",
-      sortBy: "alphanumeric",
     },
     {
       accessorKey: "solved_count",
@@ -111,13 +163,12 @@ function RouteComponent() {
           if (row.solved_no === 3) return <SparkleIcon size={16} />;
         }
         return row.solved ? <CheckIcon size={16} /> : <></>;
-        // 是否为一血
       },
       sortBy: true,
     },
   ];
   const table = useReactTable({
-    data: data?.data ?? [],
+    data: filteredData,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -281,7 +332,7 @@ function ChallengeDialog({
         {/* 附件 */}
         {challenge?.attachment && (
           <a
-            href={`/challenges/${challenge.name}/${challenge.attachment}`}
+            href={`/challenges/${challenge.safe_name}/${challenge.attachment}`}
             download
             target="_blank"
             rel="noopener noreferrer"

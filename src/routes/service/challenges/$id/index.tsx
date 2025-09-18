@@ -6,7 +6,7 @@ import {
 import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Instance } from "@/routes/admin/instances";
-import { Button, ProgressBar, TextInput } from "@primer/react";
+import { Button, Label, ProgressBar, TextInput } from "@primer/react";
 import { Banner } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -126,7 +126,6 @@ function RouteComponent() {
         <p className="font-bold text-2xl">{challenge?.name}</p>
         <div className="border-top mt-2 pt-2">{challenge?.description}</div>
       </div>
-
       {mutationBanner.state.isShown && (
         <Banner
           title="title"
@@ -137,6 +136,18 @@ function RouteComponent() {
             mutationBanner.update("isShown", false);
           }}
         />
+      )}{" "}
+      {/* 附件 */}
+      {challenge?.attachment && (
+        <a
+          href={`/challenges/${challenge.safe_name}/${challenge.attachment}`}
+          download
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-1"
+        >
+          <Label variant="accent">{challenge.attachment}</Label>
+        </a>
       )}
       {challengeStatus.state.instance && (
         <div
@@ -146,7 +157,6 @@ function RouteComponent() {
           }}
         />
       )}
-
       <div
         id="challenge-content"
         className="mb-4 flex justify-center flex-1 border-bottom"

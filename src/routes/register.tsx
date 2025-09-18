@@ -110,7 +110,7 @@ function Register() {
             email: form.state.email,
           });
         }}
-        className="flex flex-col gap-2 w-72"
+        className="flex flex-col gap-2 w-48"
       >
         <FormControl required>
           <FormControl.Label>Username</FormControl.Label>

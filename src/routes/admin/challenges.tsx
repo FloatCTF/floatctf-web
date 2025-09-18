@@ -27,6 +27,7 @@ dayjs.extend(utc);
 export type Challenge = {
   id: string; // Uuid
   name: string;
+  safe_name: string;
   category: string;
   description: string;
   attachment?: string; // Option<String>
