@@ -71,6 +71,14 @@ function RouteComponent() {
     },
     { accessorKey: "event.type", header: "Type", field: "event.type" },
     {
+      accessorKey: "event.allow_join",
+      header: "Joinable",
+      field: "event.allow_join",
+      renderCell: (row: EventInfo) => (
+        <span>{row.event.allow_join ? <CheckIcon /> : <></>}</span>
+      ),
+    },
+    {
       accessorKey: "joined",
       header: "Joined",
       field: "joined",

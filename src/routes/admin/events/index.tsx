@@ -26,6 +26,7 @@ export type Event = {
   description?: string;
   hidden: boolean;
   rules: string;
+  allow_join: boolean;
   start_time: string;
   end_time: string;
   created_at: string;
@@ -56,6 +57,15 @@ function RouteComponent() {
       field: "hidden",
       renderCell: (row: Event) => {
         return <span>{row.hidden ? <CheckIcon /> : <></>}</span>;
+      },
+      sortBy: true,
+    },
+    {
+      accessorKey: "allow_join",
+      header: "Joinable",
+      field: "allow_join",
+      renderCell: (row: Event) => {
+        return <span>{row.allow_join ? <CheckIcon /> : <></>}</span>;
       },
       sortBy: true,
     },
@@ -93,6 +103,7 @@ function RouteComponent() {
     hidden: false,
     start_time: "",
     end_time: "",
+    allow_join: false,
   });
   const eventType = ["JeopardySingle", "JeopardyTeam", "AwdTeam"];
   const mutationColumns = [
@@ -143,6 +154,24 @@ function RouteComponent() {
             checked={mutationEvent.state.hidden}
             onClick={() => {
               mutationEvent.update("hidden", !mutationEvent.state.hidden);
+            }}
+          />
+        </Stack>
+      ),
+    },
+    {
+      header: "Joinable",
+      field: "allow_join",
+      render: (
+        <Stack direction="horizontal" align="center">
+          <ToggleSwitch
+            aria-labelledby="default-toggle-label"
+            checked={mutationEvent.state.allow_join}
+            onClick={() => {
+              mutationEvent.update(
+                "allow_join",
+                !mutationEvent.state.allow_join
+              );
             }}
           />
         </Stack>
