@@ -301,6 +301,11 @@ export type ChallengeCheckResult = {
   docker_image: boolean;
   attachment: boolean;
 };
+export type BuildChallengeResult = {
+  challenge_name: string;
+  is_ok: boolean;
+  message: string;
+};
 
 export function CheckButton({
   challenge_id_list,
@@ -319,7 +324,22 @@ export function CheckButton({
     refetchOnWindowFocus: false,
     staleTime: 60_000, // 1 分钟内重复打开不会再请求
   });
+  const queryClient = useQueryClient();
+  const [building, setBuilding] = useState(false);
 
+  const buildChallengeMutation = useMutation({
+    mutationFn: (challenge_id_list?: string[]) =>
+      challengeAdminApi.buildChallenges(challenge_id_list),
+    onSuccess: (data) => {
+      setBuilding(false);
+      alert(data.data?.map((r) => r.message).join("\n"));
+      queryClient.invalidateQueries({ queryKey: ["ChallengeCheck"] });
+    },
+    onError: (e) => {
+      setBuilding(false);
+      alert(e.message);
+    },
+  });
   // 列定义只生成一次
   const columns = useMemo(
     () => [
@@ -334,7 +354,25 @@ export function CheckButton({
         header: "Docker Image",
         field: "docker_image",
         renderCell: (row: ChallengeCheckResult) => {
-          return <span>{row.docker_image ? <CheckIcon /> : <></>}</span>;
+          return (
+            <span>
+              {row.docker_image ? (
+                <CheckIcon />
+              ) : (
+                <Button
+                  size="small"
+                  variant="primary"
+                  onClick={() => {
+                    setBuilding(true);
+                    buildChallengeMutation.mutate([row.id]);
+                  }}
+                  disabled={building}
+                >
+                  Build
+                </Button>
+              )}
+            </span>
+          );
         },
       },
       {
@@ -346,7 +384,7 @@ export function CheckButton({
         },
       },
     ],
-    []
+    [buildChallengeMutation, building]
   );
 
   // 过滤出不可用的挑战

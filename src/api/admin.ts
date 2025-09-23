@@ -1,4 +1,5 @@
 import type {
+	BuildChallengeResult,
 	Challenge,
 	ChallengeCheckResult,
 } from "@/routes/admin/challenges";
@@ -67,6 +68,14 @@ export const challengeAdminApi = {
 		challenge_id_list?: string[],
 	): Promise<UniResponse<ChallengeCheckResult[]>> => {
 		const res = await admin_api.post("/challenges/check", {
+			challenge_id_list,
+		});
+		return res.data;
+	},
+	buildChallenges: async (
+		challenge_id_list?: string[],
+	): Promise<UniResponse<BuildChallengeResult[]>> => {
+		const res = await admin_api.post("/challenges/build", {
 			challenge_id_list,
 		});
 		return res.data;
