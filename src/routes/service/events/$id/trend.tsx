@@ -1,7 +1,9 @@
+import type { UniResponse } from "@/api/axios";
 import { eventServiceApi } from "@/api/service";
 import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
@@ -20,7 +22,10 @@ export type TrendItem = {
 };
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<
+    UniResponse<TrendItem[]>,
+    AxiosError<{ message: string }>
+  >({
     queryKey: ["event_trend", id],
     queryFn: () => eventServiceApi.getTrend(id),
     refetchInterval: 30000, // 30秒自动刷新
@@ -29,7 +34,7 @@ function RouteComponent() {
     return <Spinner size="large" />;
   }
   if (isError) {
-    return <div>Error</div>;
+    return <div>{error.response?.data.message}</div>;
   }
   return (
     <div className="w-full h-full flex">

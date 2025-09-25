@@ -1,8 +1,9 @@
+import type { UniResponse } from "@/api/axios";
 import { eventServiceApi, instanceServiceApi } from "@/api/service";
 import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Instance } from "@/routes/admin/instances";
-import { Button } from "@primer/react";
+import { Button, Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -29,7 +30,10 @@ function RouteComponent() {
     variant: "info" as BannerVariant,
   });
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<
+    UniResponse<EventInstance[]>,
+    AxiosError<{ message: string }>
+  >({
     queryKey: ["event_instances", id],
     queryFn: () => eventServiceApi.getInstances(id),
   });
@@ -115,6 +119,12 @@ function RouteComponent() {
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
   });
+  if (isLoading) {
+    return <Spinner size="large" />;
+  }
+  if (isError) {
+    return <div>{error.response?.data.message}</div>;
+  }
 
   return (
     <Table.Container className="m-2">

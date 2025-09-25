@@ -3,7 +3,7 @@ import type { Instance } from "@/routes/admin/instances";
 import type { ChallengeWriteup } from "@/routes/service/challenges/$id/route";
 import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
 import type { EventInfo, EventUser } from "@/routes/service/events";
-import type { Announcement } from "@/routes/service/events/$id";
+import type { Announcement, EventTeam } from "@/routes/service/events/$id";
 import type { EventChallengeResult } from "@/routes/service/events/$id/challenges";
 import type { EventInstance } from "@/routes/service/events/$id/instances";
 import type { ScoreboardItem } from "@/routes/service/events/$id/scoreboard";
@@ -56,6 +56,25 @@ export const eventServiceApi = {
 	},
 	leave: async (event_id: string): Promise<UniResponse<number>> => {
 		const res = await service_api.delete(`/events/${event_id}/leave`);
+		return res.data;
+	},
+	createTeam: async ({
+		event_id,
+		name,
+	}: { event_id: string; name: string }): Promise<UniResponse<EventTeam>> => {
+		const res = await service_api.post(`/events/${event_id}/team`, {
+			name,
+		});
+		return res.data;
+	},
+	quitTeam: async ({
+		event_id,
+		team_id,
+	}: {
+		event_id: string;
+		team_id: string;
+	}): Promise<UniResponse<null>> => {
+		const res = await service_api.delete(`/events/${event_id}/team/${team_id}`);
 		return res.data;
 	},
 	get: async (id: string): Promise<UniResponse<EventInfo>> => {

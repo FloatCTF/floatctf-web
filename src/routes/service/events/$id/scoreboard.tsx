@@ -1,3 +1,4 @@
+import type { UniResponse } from "@/api/axios";
 import { eventServiceApi } from "@/api/service";
 import {
   CheckIcon,
@@ -10,6 +11,8 @@ import { DataTable, Table } from "@primer/react/experimental";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import type { AxiosError } from "axios";
+import type { TrendItem } from "./trend";
 
 export const Route = createFileRoute("/service/events/$id/scoreboard")({
   component: RouteComponent,
@@ -31,7 +34,10 @@ export type ScoreboardItem = {
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<
+    UniResponse<ScoreboardItem[]>,
+    AxiosError<{ message: string }>
+  >({
     queryKey: ["event_scoreboard", id],
     queryFn: () => eventServiceApi.getScoreboard(id),
     refetchInterval: 30000, // 30秒自动刷新
@@ -41,7 +47,7 @@ function RouteComponent() {
   }
 
   if (isError) {
-    return <div>Something went wrong</div>;
+    return <div>{error.response?.data.message ?? error.message}</div>;
   }
 
   return <ScoreBoard data={data?.data ?? []} className="mt-2" />;

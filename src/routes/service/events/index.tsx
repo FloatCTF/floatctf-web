@@ -13,6 +13,7 @@ import { useTypedState } from "@/lib";
 import { CheckIcon } from "@primer/octicons-react";
 
 import type { Event } from "../../admin/events";
+import type { EventTeam } from "./$id";
 
 export type EventUser = {
   event_id: string;
@@ -24,6 +25,7 @@ export type EventUser = {
 export type EventInfo = {
   id: string;
   event: Event;
+  team?: EventTeam;
   joined: boolean;
 };
 

@@ -7,6 +7,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { type FormEvent, useMemo, useRef, useState } from "react";
+import type { EventInfo } from "..";
 
 export const Route = createFileRoute("/service/events/$id/")({
   component: RouteComponent,
@@ -22,9 +23,15 @@ type EventCore = {
   rules?: string; // "<>" 分隔
 };
 
-type EventQueryResult = {
-  event: EventCore;
-  joined?: boolean;
+export type EventTeam = {
+  id: string;
+  event_id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+  points: number;
+  banned: boolean;
 };
 
 function parseMs(iso?: string): number {
@@ -63,7 +70,7 @@ function RouteComponent() {
     queryFn: () => eventServiceApi.get(id),
   });
 
-  const eventData: EventQueryResult | undefined = data?.data;
+  const eventData: EventInfo | undefined = data?.data;
   const ev = eventData?.event;
 
   const status = useMemo(
@@ -124,7 +131,37 @@ function RouteComponent() {
   // Team 表单状态（占位实现）
   const [teamId, setTeamId] = useState("");
   const [teamName, setTeamName] = useState("");
+  const createEventTeamMutation = useMutation({
+    mutationFn: eventServiceApi.createTeam,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
+      // join success
+    },
 
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg1 =
+        error.response?.data?.message || error.message || "Unknown error";
+
+      msg.update("hidden", false);
+      msg.update("message", msg1);
+    },
+  });
+  const quitEventTeamMutation = useMutation({
+    mutationFn: eventServiceApi.quitTeam,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
+    },
+
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg1 =
+        error.response?.data?.message || error.message || "Unknown error";
+
+      msg.update("hidden", false);
+      msg.update("message", msg1);
+    },
+  });
   const handleJoinSingle = () => {
     if (!ev) return;
     joinEventMutation.mutate(ev.id);
@@ -135,7 +172,8 @@ function RouteComponent() {
   };
 
   const isJoining = joinEventMutation.isPending;
-  const isLeaving = leaveEventMutation.isPending;
+  const isLeaving =
+    leaveEventMutation.isPending || quitEventTeamMutation.isPending;
 
   if (isLoading) {
     return <div className="p-4">Loading…</div>;
@@ -234,9 +272,9 @@ function RouteComponent() {
                   {isJoining ? "Joining…" : "Join"}
                 </Button>
               )
-            ) : status === "ended" ? (
+            ) : status === "ended" && eventData.joined ? (
               <SubmitWriteup eventId={id} />
-            ) : status === "ongoing" ? (
+            ) : status === "ongoing" && eventData.joined ? (
               <SubmitWriteup eventId={id} />
             ) : (
               <span className="text-muted-foreground">TBD</span>
@@ -246,55 +284,77 @@ function RouteComponent() {
 
         {ev.type === "JeopardyTeam" && (
           <section className="p-3 rounded border flex gap-5">
-            <form
-              className="flex w-full flex-col gap-2"
-              onSubmit={(e: FormEvent) => {
-                e.preventDefault();
-                // TODO: 调用 team join API
-                msg.update("hidden", false);
-                msg.update(
-                  "message",
-                  `Join team by ID: ${teamId} (not implemented)`
-                );
-              }}
-            >
-              <FormControl required>
-                <FormControl.Label>Team ID</FormControl.Label>
-                <TextInput
-                  value={teamId}
-                  onChange={(e) => setTeamId(e.target.value)}
-                  aria-label="Team ID"
-                />
-              </FormControl>
-              <Button variant="primary" type="submit">
-                Join
+            {status === "upcoming" && eventData.joined && (
+              <Button
+                className="w-28"
+                variant="danger"
+                onClick={() =>
+                  quitEventTeamMutation.mutate({
+                    event_id: id,
+                    team_id: eventData.team?.id ?? "",
+                  })
+                }
+                disabled={isLeaving}
+                aria-label="Leave event"
+              >
+                {isLeaving ? "Leaving…" : "Leave"}
               </Button>
-            </form>
-
-            <form
-              className="flex w-full flex-col gap-2"
-              onSubmit={(e: FormEvent) => {
-                e.preventDefault();
-                // TODO: 调用 team create API
-                msg.update("hidden", false);
-                msg.update(
-                  "message",
-                  `Create team: ${teamName} (not implemented)`
-                );
-              }}
-            >
-              <FormControl required>
-                <FormControl.Label>Team Name</FormControl.Label>
-                <TextInput
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  aria-label="Team Name"
-                />
-              </FormControl>
-              <Button variant="primary" type="submit">
-                Create
-              </Button>
-            </form>
+            )}
+            {status === "upcoming" && !eventData.joined && (
+              <>
+                <form
+                  className="flex w-full flex-col gap-2"
+                  onSubmit={(e: FormEvent) => {
+                    e.preventDefault();
+                    // TODO: 调用 team join API 先正常join team 成功再join event
+                    msg.update("hidden", false);
+                    msg.update(
+                      "message",
+                      `Join team by ID: ${teamId} (not implemented)`
+                    );
+                  }}
+                >
+                  <FormControl required>
+                    <FormControl.Label>Team ID</FormControl.Label>
+                    <TextInput
+                      value={teamId}
+                      onChange={(e) => setTeamId(e.target.value)}
+                      aria-label="Team ID"
+                    />
+                  </FormControl>
+                  <Button variant="primary" type="submit">
+                    Join
+                  </Button>
+                </form>
+                <form
+                  className="flex w-full flex-col gap-2"
+                  onSubmit={(e: FormEvent) => {
+                    e.preventDefault();
+                    createEventTeamMutation.mutate({
+                      event_id: id,
+                      name: teamName,
+                    });
+                    msg.update("hidden", false);
+                    msg.update(
+                      "message",
+                      `Create team: ${teamName} (not implemented)`
+                    );
+                  }}
+                >
+                  <FormControl required>
+                    <FormControl.Label>Team Name</FormControl.Label>
+                    <TextInput
+                      value={teamName}
+                      onChange={(e) => setTeamName(e.target.value)}
+                      aria-label="Team Name"
+                    />
+                  </FormControl>
+                  <Button variant="primary" type="submit">
+                    Create
+                  </Button>
+                </form>
+              </>
+            )}
           </section>
         )}
 

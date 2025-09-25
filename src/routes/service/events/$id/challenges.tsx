@@ -16,6 +16,7 @@ import {
 } from "@primer/octicons-react";
 import { Button, Label, SelectPanel, Spinner, TextInput } from "@primer/react";
 
+import type { UniResponse } from "@/api/axios";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -41,7 +42,10 @@ export type EventChallengeResult = {
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<
+    UniResponse<EventChallengeResult[]>,
+    AxiosError<{ message: string }>
+  >({
     queryKey: ["eventChallenges", id],
     queryFn: () => eventServiceApi.fetchChallenges(id),
   });
@@ -171,7 +175,9 @@ function RouteComponent() {
     return <Spinner size="large" />;
   }
   if (isError) {
-    return <div>Event has not been started</div>;
+    const msg =
+      error.response?.data?.message || error.message || "Unknown error";
+    return <div>{msg}</div>;
   }
 
   return (
