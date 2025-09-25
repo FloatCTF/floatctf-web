@@ -1,5 +1,7 @@
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
+import type { ChallengeWriteup } from "@/routes/service/challenges/$id/route";
+import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
 import type { EventInfo, EventUser } from "@/routes/service/events";
 import type { Announcement } from "@/routes/service/events/$id";
 import type { EventChallengeResult } from "@/routes/service/events/$id/challenges";
@@ -129,6 +131,44 @@ export const challengeServiceApi = {
 	},
 	getInstance: async (id: string): Promise<UniResponse<Instance>> => {
 		const res = await service_api.get(`/challenges/${id}/instance`);
+		return res.data;
+	},
+	getMyWriteup: async (
+		challenge_id: string,
+	): Promise<UniResponse<ChallengeWriteup>> => {
+		const res = await service_api.get(`/challenges/${challenge_id}/my_writeup`);
+		return res.data;
+	},
+	createMyWriteup: async ({
+		challenge_id,
+		content,
+	}: { challenge_id: string; content: string }): Promise<
+		UniResponse<ChallengeWriteup>
+	> => {
+		const res = await service_api.post(
+			`/challenges/${challenge_id}/my_writeup`,
+			{
+				content,
+			},
+		);
+		return res.data;
+	},
+	getWriteup: async (
+		id: string,
+	): Promise<UniResponse<ChallengeWriteupResult>> => {
+		const res = await service_api.get(`/writeups/${id}`);
+		return res.data;
+	},
+	getWriteups: async (
+		challenge_id: string,
+	): Promise<UniResponse<ChallengeWriteupResult[]>> => {
+		const res = await service_api.get(`/challenges/${challenge_id}/writeups`);
+		return res.data;
+	},
+	getAllWriteups: async (
+		params: QueryParams = {},
+	): Promise<UniResponse<ChallengeWriteupResult[]>> => {
+		const res = await service_api.get("/writeups");
 		return res.data;
 	},
 };

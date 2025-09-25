@@ -8,9 +8,7 @@ import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provi
 import { routeTree } from "./routeTree.gen";
 
 import reportWebVitals from "./reportWebVitals.ts";
-import "@primer/primitives/dist/css/functional/themes/light.css";
 
-import "@primer/css/dist/primer.css";
 import { BaseStyles, ThemeProvider } from "@primer/react";
 import "./style.css";
 // Create a new router instance

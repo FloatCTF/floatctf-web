@@ -22,9 +22,11 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminInstancesRouteImport } from './routes/admin/instances'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminChallengesRouteImport } from './routes/admin/challenges'
+import { Route as ServiceWriteupsIndexRouteImport } from './routes/service/writeups/index'
 import { Route as ServiceEventsIndexRouteImport } from './routes/service/events/index'
 import { Route as ServiceChallengesIndexRouteImport } from './routes/service/challenges/index'
 import { Route as AdminEventsIndexRouteImport } from './routes/admin/events/index'
+import { Route as ServiceWriteupsIdRouteImport } from './routes/service/writeups/$id'
 import { Route as ServiceEventsIdRouteRouteImport } from './routes/service/events/$id/route'
 import { Route as ServiceChallengesIdRouteRouteImport } from './routes/service/challenges/$id/route'
 import { Route as AdminEventsIdRouteRouteImport } from './routes/admin/events/$id/route'
@@ -35,6 +37,7 @@ import { Route as ServiceEventsIdTrendRouteImport } from './routes/service/event
 import { Route as ServiceEventsIdScoreboardRouteImport } from './routes/service/events/$id/scoreboard'
 import { Route as ServiceEventsIdInstancesRouteImport } from './routes/service/events/$id/instances'
 import { Route as ServiceEventsIdChallengesRouteImport } from './routes/service/events/$id/challenges'
+import { Route as ServiceChallengesIdWriteupRouteImport } from './routes/service/challenges/$id/writeup'
 import { Route as AdminEventsIdWriteupsRouteImport } from './routes/admin/events/$id/writeups'
 import { Route as AdminEventsIdUsersRouteImport } from './routes/admin/events/$id/users'
 import { Route as AdminEventsIdData_presentRouteImport } from './routes/admin/events/$id/data_present'
@@ -105,6 +108,11 @@ const AdminChallengesRoute = AdminChallengesRouteImport.update({
   path: '/challenges',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const ServiceWriteupsIndexRoute = ServiceWriteupsIndexRouteImport.update({
+  id: '/writeups/',
+  path: '/writeups/',
+  getParentRoute: () => ServiceRouteRoute,
+} as any)
 const ServiceEventsIndexRoute = ServiceEventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
@@ -119,6 +127,11 @@ const AdminEventsIndexRoute = AdminEventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
   getParentRoute: () => AdminRouteRoute,
+} as any)
+const ServiceWriteupsIdRoute = ServiceWriteupsIdRouteImport.update({
+  id: '/writeups/$id',
+  path: '/writeups/$id',
+  getParentRoute: () => ServiceRouteRoute,
 } as any)
 const ServiceEventsIdRouteRoute = ServiceEventsIdRouteRouteImport.update({
   id: '/events/$id',
@@ -175,6 +188,12 @@ const ServiceEventsIdChallengesRoute =
     path: '/challenges',
     getParentRoute: () => ServiceEventsIdRouteRoute,
   } as any)
+const ServiceChallengesIdWriteupRoute =
+  ServiceChallengesIdWriteupRouteImport.update({
+    id: '/writeup',
+    path: '/writeup',
+    getParentRoute: () => ServiceChallengesIdRouteRoute,
+  } as any)
 const AdminEventsIdWriteupsRoute = AdminEventsIdWriteupsRouteImport.update({
   id: '/writeups',
   path: '/writeups',
@@ -215,13 +234,16 @@ export interface FileRoutesByFullPath {
   '/admin/events/$id': typeof AdminEventsIdRouteRouteWithChildren
   '/service/challenges/$id': typeof ServiceChallengesIdRouteRouteWithChildren
   '/service/events/$id': typeof ServiceEventsIdRouteRouteWithChildren
+  '/service/writeups/$id': typeof ServiceWriteupsIdRoute
   '/admin/events': typeof AdminEventsIndexRoute
   '/service/challenges': typeof ServiceChallengesIndexRoute
   '/service/events': typeof ServiceEventsIndexRoute
+  '/service/writeups': typeof ServiceWriteupsIndexRoute
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
+  '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
   '/service/events/$id/challenges': typeof ServiceEventsIdChallengesRoute
   '/service/events/$id/instances': typeof ServiceEventsIdInstancesRoute
   '/service/events/$id/scoreboard': typeof ServiceEventsIdScoreboardRoute
@@ -242,13 +264,16 @@ export interface FileRoutesByTo {
   '/service/top': typeof ServiceTopRoute
   '/admin': typeof AdminIndexRoute
   '/service': typeof ServiceIndexRoute
+  '/service/writeups/$id': typeof ServiceWriteupsIdRoute
   '/admin/events': typeof AdminEventsIndexRoute
   '/service/challenges': typeof ServiceChallengesIndexRoute
   '/service/events': typeof ServiceEventsIndexRoute
+  '/service/writeups': typeof ServiceWriteupsIndexRoute
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
+  '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
   '/service/events/$id/challenges': typeof ServiceEventsIdChallengesRoute
   '/service/events/$id/instances': typeof ServiceEventsIdInstancesRoute
   '/service/events/$id/scoreboard': typeof ServiceEventsIdScoreboardRoute
@@ -275,13 +300,16 @@ export interface FileRoutesById {
   '/admin/events/$id': typeof AdminEventsIdRouteRouteWithChildren
   '/service/challenges/$id': typeof ServiceChallengesIdRouteRouteWithChildren
   '/service/events/$id': typeof ServiceEventsIdRouteRouteWithChildren
+  '/service/writeups/$id': typeof ServiceWriteupsIdRoute
   '/admin/events/': typeof AdminEventsIndexRoute
   '/service/challenges/': typeof ServiceChallengesIndexRoute
   '/service/events/': typeof ServiceEventsIndexRoute
+  '/service/writeups/': typeof ServiceWriteupsIndexRoute
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
+  '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
   '/service/events/$id/challenges': typeof ServiceEventsIdChallengesRoute
   '/service/events/$id/instances': typeof ServiceEventsIdInstancesRoute
   '/service/events/$id/scoreboard': typeof ServiceEventsIdScoreboardRoute
@@ -309,13 +337,16 @@ export interface FileRouteTypes {
     | '/admin/events/$id'
     | '/service/challenges/$id'
     | '/service/events/$id'
+    | '/service/writeups/$id'
     | '/admin/events'
     | '/service/challenges'
     | '/service/events'
+    | '/service/writeups'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
+    | '/service/challenges/$id/writeup'
     | '/service/events/$id/challenges'
     | '/service/events/$id/instances'
     | '/service/events/$id/scoreboard'
@@ -336,13 +367,16 @@ export interface FileRouteTypes {
     | '/service/top'
     | '/admin'
     | '/service'
+    | '/service/writeups/$id'
     | '/admin/events'
     | '/service/challenges'
     | '/service/events'
+    | '/service/writeups'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
+    | '/service/challenges/$id/writeup'
     | '/service/events/$id/challenges'
     | '/service/events/$id/instances'
     | '/service/events/$id/scoreboard'
@@ -368,13 +402,16 @@ export interface FileRouteTypes {
     | '/admin/events/$id'
     | '/service/challenges/$id'
     | '/service/events/$id'
+    | '/service/writeups/$id'
     | '/admin/events/'
     | '/service/challenges/'
     | '/service/events/'
+    | '/service/writeups/'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
+    | '/service/challenges/$id/writeup'
     | '/service/events/$id/challenges'
     | '/service/events/$id/instances'
     | '/service/events/$id/scoreboard'
@@ -484,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminChallengesRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/service/writeups/': {
+      id: '/service/writeups/'
+      path: '/writeups'
+      fullPath: '/service/writeups'
+      preLoaderRoute: typeof ServiceWriteupsIndexRouteImport
+      parentRoute: typeof ServiceRouteRoute
+    }
     '/service/events/': {
       id: '/service/events/'
       path: '/events'
@@ -504,6 +548,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/events'
       preLoaderRoute: typeof AdminEventsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
+    }
+    '/service/writeups/$id': {
+      id: '/service/writeups/$id'
+      path: '/writeups/$id'
+      fullPath: '/service/writeups/$id'
+      preLoaderRoute: typeof ServiceWriteupsIdRouteImport
+      parentRoute: typeof ServiceRouteRoute
     }
     '/service/events/$id': {
       id: '/service/events/$id'
@@ -574,6 +625,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/service/events/$id/challenges'
       preLoaderRoute: typeof ServiceEventsIdChallengesRouteImport
       parentRoute: typeof ServiceEventsIdRouteRoute
+    }
+    '/service/challenges/$id/writeup': {
+      id: '/service/challenges/$id/writeup'
+      path: '/writeup'
+      fullPath: '/service/challenges/$id/writeup'
+      preLoaderRoute: typeof ServiceChallengesIdWriteupRouteImport
+      parentRoute: typeof ServiceChallengesIdRouteRoute
     }
     '/admin/events/$id/writeups': {
       id: '/admin/events/$id/writeups'
@@ -650,11 +708,13 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 )
 
 interface ServiceChallengesIdRouteRouteChildren {
+  ServiceChallengesIdWriteupRoute: typeof ServiceChallengesIdWriteupRoute
   ServiceChallengesIdIndexRoute: typeof ServiceChallengesIdIndexRoute
 }
 
 const ServiceChallengesIdRouteRouteChildren: ServiceChallengesIdRouteRouteChildren =
   {
+    ServiceChallengesIdWriteupRoute: ServiceChallengesIdWriteupRoute,
     ServiceChallengesIdIndexRoute: ServiceChallengesIdIndexRoute,
   }
 
@@ -689,8 +749,10 @@ interface ServiceRouteRouteChildren {
   ServiceIndexRoute: typeof ServiceIndexRoute
   ServiceChallengesIdRouteRoute: typeof ServiceChallengesIdRouteRouteWithChildren
   ServiceEventsIdRouteRoute: typeof ServiceEventsIdRouteRouteWithChildren
+  ServiceWriteupsIdRoute: typeof ServiceWriteupsIdRoute
   ServiceChallengesIndexRoute: typeof ServiceChallengesIndexRoute
   ServiceEventsIndexRoute: typeof ServiceEventsIndexRoute
+  ServiceWriteupsIndexRoute: typeof ServiceWriteupsIndexRoute
 }
 
 const ServiceRouteRouteChildren: ServiceRouteRouteChildren = {
@@ -700,8 +762,10 @@ const ServiceRouteRouteChildren: ServiceRouteRouteChildren = {
   ServiceIndexRoute: ServiceIndexRoute,
   ServiceChallengesIdRouteRoute: ServiceChallengesIdRouteRouteWithChildren,
   ServiceEventsIdRouteRoute: ServiceEventsIdRouteRouteWithChildren,
+  ServiceWriteupsIdRoute: ServiceWriteupsIdRoute,
   ServiceChallengesIndexRoute: ServiceChallengesIndexRoute,
   ServiceEventsIndexRoute: ServiceEventsIndexRoute,
+  ServiceWriteupsIndexRoute: ServiceWriteupsIndexRoute,
 }
 
 const ServiceRouteRouteWithChildren = ServiceRouteRoute._addFileChildren(
