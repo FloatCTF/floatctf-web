@@ -8,6 +8,7 @@ import type { Event } from "@/routes/admin/events";
 import type { EventChallenge } from "@/routes/admin/events/$id";
 import type { EventAnnouncement } from "@/routes/admin/events/$id/announcements";
 import type { DataPresent } from "@/routes/admin/events/$id/data_present";
+import type { TeamResult } from "@/routes/admin/events/$id/teams";
 import type { EventUserResult } from "@/routes/admin/events/$id/users";
 import type { EventWriteup } from "@/routes/admin/events/$id/writeups";
 import type { Instance } from "@/routes/admin/instances";
@@ -306,5 +307,44 @@ export const eventWriteupAdminApi = {
 			});
 			return res.data;
 		};
+	},
+};
+
+export const eventTeamAdminApi = {
+	getTeams: (id: string) => {
+		return async (): Promise<UniResponse<TeamResult[]>> => {
+			const res = await admin_api.get(`/events/${id}/teams`);
+			return res.data;
+		};
+	},
+	remove: (id: string) => {
+		return async (team_id: string): Promise<UniResponse<number>> => {
+			const res = await admin_api.delete(`/events/${id}/teams/${team_id}`);
+			return res.data;
+		};
+	},
+	banned: async ({
+		event_id,
+		team_id,
+	}: {
+		event_id: string;
+		team_id: string;
+	}) => {
+		const res = await admin_api.post(
+			`/events/${event_id}/teams/${team_id}/banned`,
+		);
+		return res.data;
+	},
+	unbanned: async ({
+		event_id,
+		team_id,
+	}: {
+		event_id: string;
+		team_id: string;
+	}) => {
+		const res = await admin_api.post(
+			`/events/${event_id}/teams/${team_id}/unbanned`,
+		);
+		return res.data;
 	},
 };

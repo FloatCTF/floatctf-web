@@ -24,7 +24,7 @@ export type EventUserResult = {
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const subject = `users-${id}`;
+  const subject = `EventUsers-${id}`;
 
   const queryClient = useQueryClient();
   const bannedEventUser = useMutation({

@@ -40,6 +40,7 @@ import { Route as ServiceEventsIdChallengesRouteImport } from './routes/service/
 import { Route as ServiceChallengesIdWriteupRouteImport } from './routes/service/challenges/$id/writeup'
 import { Route as AdminEventsIdWriteupsRouteImport } from './routes/admin/events/$id/writeups'
 import { Route as AdminEventsIdUsersRouteImport } from './routes/admin/events/$id/users'
+import { Route as AdminEventsIdTeamsRouteImport } from './routes/admin/events/$id/teams'
 import { Route as AdminEventsIdData_presentRouteImport } from './routes/admin/events/$id/data_present'
 import { Route as AdminEventsIdAnnouncementsRouteImport } from './routes/admin/events/$id/announcements'
 
@@ -204,6 +205,11 @@ const AdminEventsIdUsersRoute = AdminEventsIdUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminEventsIdRouteRoute,
 } as any)
+const AdminEventsIdTeamsRoute = AdminEventsIdTeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => AdminEventsIdRouteRoute,
+} as any)
 const AdminEventsIdData_presentRoute =
   AdminEventsIdData_presentRouteImport.update({
     id: '/data_present',
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/service/writeups': typeof ServiceWriteupsIndexRoute
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
+  '/admin/events/$id/teams': typeof AdminEventsIdTeamsRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
   '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
@@ -271,6 +278,7 @@ export interface FileRoutesByTo {
   '/service/writeups': typeof ServiceWriteupsIndexRoute
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
+  '/admin/events/$id/teams': typeof AdminEventsIdTeamsRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
   '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/service/writeups/': typeof ServiceWriteupsIndexRoute
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
+  '/admin/events/$id/teams': typeof AdminEventsIdTeamsRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
   '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
@@ -344,6 +353,7 @@ export interface FileRouteTypes {
     | '/service/writeups'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
+    | '/admin/events/$id/teams'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
     | '/service/challenges/$id/writeup'
@@ -374,6 +384,7 @@ export interface FileRouteTypes {
     | '/service/writeups'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
+    | '/admin/events/$id/teams'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
     | '/service/challenges/$id/writeup'
@@ -409,6 +420,7 @@ export interface FileRouteTypes {
     | '/service/writeups/'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
+    | '/admin/events/$id/teams'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
     | '/service/challenges/$id/writeup'
@@ -647,6 +659,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEventsIdUsersRouteImport
       parentRoute: typeof AdminEventsIdRouteRoute
     }
+    '/admin/events/$id/teams': {
+      id: '/admin/events/$id/teams'
+      path: '/teams'
+      fullPath: '/admin/events/$id/teams'
+      preLoaderRoute: typeof AdminEventsIdTeamsRouteImport
+      parentRoute: typeof AdminEventsIdRouteRoute
+    }
     '/admin/events/$id/data_present': {
       id: '/admin/events/$id/data_present'
       path: '/data_present'
@@ -667,6 +686,7 @@ declare module '@tanstack/react-router' {
 interface AdminEventsIdRouteRouteChildren {
   AdminEventsIdAnnouncementsRoute: typeof AdminEventsIdAnnouncementsRoute
   AdminEventsIdData_presentRoute: typeof AdminEventsIdData_presentRoute
+  AdminEventsIdTeamsRoute: typeof AdminEventsIdTeamsRoute
   AdminEventsIdUsersRoute: typeof AdminEventsIdUsersRoute
   AdminEventsIdWriteupsRoute: typeof AdminEventsIdWriteupsRoute
   AdminEventsIdIndexRoute: typeof AdminEventsIdIndexRoute
@@ -675,6 +695,7 @@ interface AdminEventsIdRouteRouteChildren {
 const AdminEventsIdRouteRouteChildren: AdminEventsIdRouteRouteChildren = {
   AdminEventsIdAnnouncementsRoute: AdminEventsIdAnnouncementsRoute,
   AdminEventsIdData_presentRoute: AdminEventsIdData_presentRoute,
+  AdminEventsIdTeamsRoute: AdminEventsIdTeamsRoute,
   AdminEventsIdUsersRoute: AdminEventsIdUsersRoute,
   AdminEventsIdWriteupsRoute: AdminEventsIdWriteupsRoute,
   AdminEventsIdIndexRoute: AdminEventsIdIndexRoute,

@@ -50,12 +50,14 @@ function RouteComponent() {
         <RouterNavItem to="/admin/events/$id" params={{ id }}>
           Challenges
         </RouterNavItem>
-        <RouterNavItem to="/admin/events/$id/users" params={{ id }}>
-          Users
-        </RouterNavItem>
+        {event?.type === "JeopardySingle" && (
+          <RouterNavItem to="/admin/events/$id/users" params={{ id }}>
+            Users
+          </RouterNavItem>
+        )}
+
         {event?.type === "JeopardyTeam" && (
-          // {/* banned the user or teams */}
-          <RouterNavItem to="/service/events/$id/instances" params={{ id }}>
+          <RouterNavItem to="/admin/events/$id/teams" params={{ id }}>
             Teams
           </RouterNavItem>
         )}

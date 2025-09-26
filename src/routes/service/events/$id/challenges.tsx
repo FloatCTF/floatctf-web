@@ -314,7 +314,7 @@ function ChallengeDialog({
         <div className="flex flex-wrap gap-4">
           <div>
             <span className="font-semibold">Current Score:</span>{" "}
-            {event_challenge_result?.current_points ?? "-"}
+            {event_challenge_result?.current_points.toFixed(2) ?? "-"}
           </div>
           <div>
             <span className="font-semibold">Solved Count:</span>{" "}
