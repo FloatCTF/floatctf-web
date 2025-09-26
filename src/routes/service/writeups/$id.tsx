@@ -1,10 +1,12 @@
 import { challengeServiceApi } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useEffect } from "react";
 
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/writeups/$id")({
@@ -18,7 +20,11 @@ function RouteComponent() {
     queryFn: () => challengeServiceApi.getWriteup(id),
   });
   const writeup = data?.data;
-
+  useEffect(() => {
+    SiteTitle({
+      title: `${writeup?.challenge.name}/${writeup?.nickname}`,
+    });
+  });
   if (isLoading) {
     return <Spinner />;
   }

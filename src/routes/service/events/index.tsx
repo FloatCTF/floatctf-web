@@ -12,6 +12,8 @@ import { type BannerVariant, GenericTable } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import { CheckIcon } from "@primer/octicons-react";
 
+import SiteTitle from "@/components/SiteTitile";
+import { useEffect } from "react";
 import type { Event } from "../../admin/events";
 import type { EventTeam } from "./$id";
 export type EventTeamMember = {
@@ -46,6 +48,9 @@ export type EventTeamResult = {
 };
 
 function RouteComponent() {
+  useEffect(() => {
+    SiteTitle({ title: "Events" });
+  });
   const mutationBanner = useTypedState({
     isShown: false,
     description: "Something here",

@@ -1,8 +1,10 @@
 import { challengeServiceApi } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useEffect } from "react";
 import type { ChallengeWriteupResult } from "../challenges/$id/writeup";
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/writeups/")({
@@ -10,6 +12,9 @@ export const Route = createFileRoute("/service/writeups/")({
 });
 
 function RouteComponent() {
+  useEffect(() => {
+    SiteTitle({ title: "Writeups" });
+  });
   const subject = "Writeups";
   const columns = [
     {

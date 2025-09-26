@@ -1,8 +1,10 @@
 import { solveServiceApi } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useEffect } from "react";
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/solves")({
   component: RouteComponent,
@@ -16,6 +18,9 @@ export type ChallengeSolve = {
 };
 
 function RouteComponent() {
+  useEffect(() => {
+    SiteTitle({ title: "Solves" });
+  });
   const columns = [
     { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
     { accessorKey: "event_id", header: "Event ID", field: "event_id" },

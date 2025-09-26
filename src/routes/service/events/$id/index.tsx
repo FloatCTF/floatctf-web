@@ -503,9 +503,9 @@ function SubmitWriteup({
     const selected = e.target.files?.[0];
     if (!selected) return;
 
-    // 只允许 docx
-    if (!selected.name.toLowerCase().endsWith(".docx")) {
-      setMessage({ type: "error", text: "只支持 DOCX 文件" });
+    // 只允许 pdf
+    if (!selected.name.toLowerCase().endsWith(".pdf")) {
+      setMessage({ type: "error", text: "只支持 pdf 文件" });
       setTimeout(() => setMessage(null), 3000);
       return;
     }
@@ -553,7 +553,7 @@ function SubmitWriteup({
         )}
         <input
           type="file"
-          accept=".docx"
+          accept=".pdf"
           ref={inputRef}
           className="hidden"
           onChange={handleChange}

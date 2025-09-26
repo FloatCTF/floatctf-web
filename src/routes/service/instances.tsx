@@ -1,4 +1,5 @@
 import { instanceServiceApi } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import { type BannerVariant, GenericTable } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import { Button } from "@primer/react";
@@ -7,6 +8,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useEffect } from "react";
 import type { Instance } from "../admin/instances";
 dayjs.extend(utc);
 export const Route = createFileRoute("/service/instances")({
@@ -14,6 +16,9 @@ export const Route = createFileRoute("/service/instances")({
 });
 
 function RouteComponent() {
+  useEffect(() => {
+    SiteTitle({ title: "Instances" });
+  });
   const subject = "Instances";
   const mutationBanner = useTypedState({
     isShown: false,

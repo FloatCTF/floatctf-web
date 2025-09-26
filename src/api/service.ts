@@ -241,7 +241,7 @@ export const submitServiceApi = {
 	// 	#[derive(Debug, MultipartForm)]
 	// pub struct WriteupForm {
 	//     #[multipart(limit = "1024MB")]
-	//     writeup_docx: TempFile,
+	//     writeup_pdf: TempFile,
 	//     event_id: Text<Uuid>,
 	//     team_id: Option<Text<Uuid>>,
 	// }
@@ -251,7 +251,7 @@ export const submitServiceApi = {
 		team_id?: string,
 	): Promise<UniResponse<null>> => {
 		const formData = new FormData();
-		formData.append("writeup_docx", file);
+		formData.append("writeup_pdf", file);
 		formData.append("event_id", event_id);
 		if (team_id) {
 			formData.append("team_id", team_id);
