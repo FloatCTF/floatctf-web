@@ -22,6 +22,7 @@ export type EventChallenge = {
   event_id: string;
   challenge_id: string;
   hidden: boolean;
+  points: number;
 };
 
 export type EventChallengeResult = {
@@ -81,6 +82,12 @@ function RouteComponent() {
       accessorKey: "challenge.category",
       header: "Challenge Category",
       field: "challenge.category",
+      sortBy: true,
+    },
+    {
+      accessorKey: "event_challenge.points",
+      header: "Challenge Points",
+      field: "event_challenge.points",
       sortBy: true,
     },
     {
