@@ -1,4 +1,5 @@
 import { userRegisterFn } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import { useTypedState } from "@/lib";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
@@ -64,6 +65,7 @@ function Register() {
   });
 
   useEffect(() => {
+    SiteTitle({ title: "Register" });
     usernameRef.current?.focus();
   }, []);
 

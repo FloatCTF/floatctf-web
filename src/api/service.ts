@@ -67,6 +67,15 @@ export const eventServiceApi = {
 		});
 		return res.data;
 	},
+	joinTeam: async ({
+		event_id,
+		team_id,
+	}: { event_id: string; team_id: string }): Promise<UniResponse<null>> => {
+		const res = await service_api.post(
+			`/events/${event_id}/team/${team_id}/join`,
+		);
+		return res.data;
+	},
 	quitTeam: async ({
 		event_id,
 		team_id,

@@ -1,6 +1,13 @@
 import { eventServiceApi, submitServiceApi } from "@/api/service";
 import { useTypedState } from "@/lib";
-import { Button, FormControl, Heading, Label, TextInput } from "@primer/react";
+import {
+  Button,
+  FormControl,
+  Heading,
+  Label,
+  Text,
+  TextInput,
+} from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -12,16 +19,6 @@ import type { EventInfo } from "..";
 export const Route = createFileRoute("/service/events/$id/")({
   component: RouteComponent,
 });
-
-type EventCore = {
-  id: string;
-  title: string;
-  type: "JeopardySingle" | "JeopardyTeam" | string;
-  start_time?: string; // ISO8601
-  end_time?: string; // ISO8601
-  description?: string;
-  rules?: string; // "<>" 分隔
-};
 
 export type EventTeam = {
   id: string;
@@ -162,6 +159,21 @@ function RouteComponent() {
       msg.update("message", msg1);
     },
   });
+  const joinEventTeamMutation = useMutation({
+    mutationFn: eventServiceApi.joinTeam,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
+    },
+
+    onError: (error: AxiosError<{ message: string }>) => {
+      // 这里可以拿到后端返回的 message
+      const msg1 =
+        error.response?.data?.message || error.message || "Unknown error";
+
+      msg.update("hidden", false);
+      msg.update("message", msg1);
+    },
+  });
   const handleJoinSingle = () => {
     if (!ev) return;
     joinEventMutation.mutate(ev.id);
@@ -192,6 +204,15 @@ function RouteComponent() {
     return (
       <div className="p-4">
         <InlineMessage variant="warning">Event not found.</InlineMessage>
+      </div>
+    );
+  }
+  if (status !== "upcoming" && !eventData.joined) {
+    return (
+      <div className="p-4">
+        <InlineMessage variant="warning">
+          You are not joined this event.
+        </InlineMessage>
       </div>
     );
   }
@@ -250,68 +271,101 @@ function RouteComponent() {
       <div className="flex flex-col gap-3 min-w-[320px]">
         {ev.type === "JeopardySingle" && (
           <section className="p-3 rounded border flex items-center min-h-[72px]">
-            {status === "upcoming" ? (
-              eventData.joined ? (
-                <Button
-                  className="w-28"
-                  variant="danger"
-                  onClick={handleLeaveSingle}
-                  disabled={isLeaving}
-                  aria-label="Leave event"
-                >
-                  {isLeaving ? "Leaving…" : "Leave"}
-                </Button>
-              ) : (
-                <Button
-                  className="w-28"
-                  variant="primary"
-                  onClick={handleJoinSingle}
-                  disabled={isJoining}
-                  aria-label="Join event"
-                >
-                  {isJoining ? "Joining…" : "Join"}
-                </Button>
-              )
-            ) : status === "ended" && eventData.joined ? (
+            {status === "upcoming" && (
+              <Button
+                className="w-28"
+                variant={eventData.joined ? "danger" : "primary"}
+                onClick={
+                  eventData.joined ? handleLeaveSingle : handleJoinSingle
+                }
+                disabled={eventData.joined ? isLeaving : isJoining}
+                aria-label={eventData.joined ? "Leave event" : "Join event"}
+              >
+                {eventData.joined
+                  ? isLeaving
+                    ? "Leaving…"
+                    : "Leave"
+                  : isJoining
+                  ? "Joining…"
+                  : "Join"}
+              </Button>
+            )}
+            {status !== "upcoming" && eventData.joined && (
               <SubmitWriteup eventId={id} />
-            ) : status === "ongoing" && eventData.joined ? (
-              <SubmitWriteup eventId={id} />
-            ) : (
-              <span className="text-muted-foreground">TBD</span>
             )}
           </section>
         )}
 
         {ev.type === "JeopardyTeam" && (
           <section className="p-3 rounded border flex gap-5">
-            {status === "upcoming" && eventData.joined && (
-              <Button
-                className="w-28"
-                variant="danger"
-                onClick={() =>
-                  quitEventTeamMutation.mutate({
-                    event_id: id,
-                    team_id: eventData.team?.id ?? "",
-                  })
-                }
-                disabled={isLeaving}
-                aria-label="Leave event"
-              >
-                {isLeaving ? "Leaving…" : "Leave"}
-              </Button>
+            {status !== "upcoming" && eventData.joined && (
+              <SubmitWriteup
+                eventId={id}
+                teamId={eventData.team_result?.team.id}
+              />
             )}
+            {eventData.joined && (
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heading as="h2">{eventData.team_result?.team.name}</Heading>
+                  {eventData.team_result?.team.banned && (
+                    <Label variant="danger">Banned</Label>
+                  )}
+                </div>
+                <dl className="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2">
+                  <dt className="font-bold">ID</dt>
+                  <dd className="font-medium break-all">
+                    {eventData.team_result?.team.id}
+                  </dd>
+
+                  {eventData.team_result?.members.map((member) => (
+                    <>
+                      <dt key={member.member.user_id} className="font-bold">
+                        {member.member.role}
+                      </dt>
+                      <dd
+                        key={member.member.user_id}
+                        className="font-medium  break-all"
+                      >
+                        {member.member_name} @{" "}
+                        {dayjs
+                          .utc(member.member.joined_at)
+                          .local()
+                          .format("YYYY-MM-DD HH:mm:ss")}
+                      </dd>
+                    </>
+                  ))}
+                </dl>
+                {/* 已加入未开始 */}
+                {status === "upcoming" && (
+                  <Button
+                    className="w-28"
+                    variant="danger"
+                    onClick={() =>
+                      quitEventTeamMutation.mutate({
+                        event_id: id,
+                        team_id: eventData.team_result?.team.id ?? "",
+                      })
+                    }
+                    disabled={isLeaving}
+                    aria-label="Leave event"
+                  >
+                    {isLeaving ? "Leaving…" : "Leave"}
+                  </Button>
+                )}
+              </div>
+            )}
+            {/* 未开始未加入 */}
             {status === "upcoming" && !eventData.joined && (
               <>
                 <form
                   className="flex w-full flex-col gap-2"
                   onSubmit={(e: FormEvent) => {
                     e.preventDefault();
-                    // TODO: 调用 team join API 先正常join team 成功再join event
-                    msg.update("hidden", false);
-                    msg.update(
-                      "message",
-                      `Join team by ID: ${teamId} (not implemented)`
-                    );
+                    joinEventTeamMutation.mutate({
+                      event_id: id,
+                      team_id: teamId,
+                    });
                   }}
                 >
                   <FormControl required>
@@ -334,11 +388,6 @@ function RouteComponent() {
                       event_id: id,
                       name: teamName,
                     });
-                    msg.update("hidden", false);
-                    msg.update(
-                      "message",
-                      `Create team: ${teamName} (not implemented)`
-                    );
                   }}
                 >
                   <FormControl required>

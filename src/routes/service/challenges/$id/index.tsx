@@ -3,6 +3,7 @@ import {
   instanceServiceApi,
   submitServiceApi,
 } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import type { BannerVariant } from "@/components/admin/Table";
 import { useTypedState } from "@/lib";
 import type { Instance } from "@/routes/admin/instances";
@@ -49,6 +50,8 @@ function RouteComponent() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    SiteTitle({ title: challenge?.name || "Challenge" });
+
     if (instance_data?.data) {
       challengeStatus.update("isRunning", true);
       challengeStatus.update("instance", instance_data.data);

@@ -6,10 +6,6 @@ import { useEffect } from "react";
 export default (props: React.HTMLAttributes<HTMLDivElement>) => {
   const authStore = useAuthStore();
   const navigate = useNavigate();
-  useEffect(() => {
-    // set title
-    document.title = "FloatCTF";
-  });
   return (
     <header
       className="

@@ -1,4 +1,5 @@
 import { adminLoginFn } from "@/api/admin";
+import SiteTitle from "@/components/SiteTitile";
 import { useTypedState } from "@/lib";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
@@ -59,6 +60,7 @@ function RouteComponent() {
   const usernameRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
+    SiteTitle({ title: "Admin Login" });
     usernameRef.current?.focus();
   }, []);
 

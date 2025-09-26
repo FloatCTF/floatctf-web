@@ -1,3 +1,4 @@
+import SiteTitle from "@/components/SiteTitile";
 import AdminHeader from "@/components/admin/Header";
 import AdminSideBar from "@/components/admin/SideBar";
 import { admin_ignore_routes } from "@/routes";
@@ -9,6 +10,7 @@ import {
   redirect,
   useLocation,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/admin")({
   component: RouteComponent,
@@ -17,7 +19,9 @@ export const Route = createFileRoute("/admin")({
 
 function RouteComponent() {
   const location = useLocation();
-
+  useEffect(() => {
+    SiteTitle({ title: "Admin " });
+  });
   if (admin_ignore_routes.includes(location.pathname)) {
     return <Outlet />;
   }

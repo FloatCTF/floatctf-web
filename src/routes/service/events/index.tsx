@@ -14,7 +14,13 @@ import { CheckIcon } from "@primer/octicons-react";
 
 import type { Event } from "../../admin/events";
 import type { EventTeam } from "./$id";
-
+export type EventTeamMember = {
+  event_id: string;
+  team_id: string;
+  user_id: string;
+  role: string;
+  joined_at: string;
+};
 export type EventUser = {
   event_id: string;
   user_id: string;
@@ -25,8 +31,18 @@ export type EventUser = {
 export type EventInfo = {
   id: string;
   event: Event;
-  team?: EventTeam;
+  team_result?: EventTeamResult;
   joined: boolean;
+};
+
+export type EventTeamMemberResult = {
+  member_name: string;
+  member: EventTeamMember;
+};
+
+export type EventTeamResult = {
+  team: EventTeam;
+  members: EventTeamMemberResult[];
 };
 
 function RouteComponent() {

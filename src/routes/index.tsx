@@ -1,4 +1,5 @@
 import { userLoginFn } from "@/api/service";
+import SiteTitle from "@/components/SiteTitile";
 import { useTypedState } from "@/lib";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
@@ -62,6 +63,7 @@ function App() {
     },
   });
   useEffect(() => {
+    SiteTitle({ title: "Login" });
     usernameRef.current?.focus();
   }, []);
   return (
