@@ -128,6 +128,10 @@ export const eventAdminApi = {
 		const res = await admin_api.get(`/events/${id}/data`);
 		return res.data;
 	},
+	exportWriteUps: async (event_id: string): Promise<UniResponse<string>> => {
+		const res = await admin_api.get(`/events/${event_id}/report`);
+		return res.data;
+	},
 };
 
 export const instanceAdminApi = {

@@ -543,7 +543,7 @@ function SubmitWriteup({
         </div>
       )}
       <div>
-        <Button onClick={handleClick}>Upload Writeup</Button>
+        <Button onClick={handleClick}>Upload Writeup *.pdf</Button>
         <p>Upload again to override the file</p>
         {createdDate?.data && (
           <p className="text-bold">

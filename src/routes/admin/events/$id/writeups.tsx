@@ -1,5 +1,7 @@
-import { eventWriteupAdminApi } from "@/api/admin";
+import { eventAdminApi, eventWriteupAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
+import { Button } from "@primer/react";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -62,6 +64,32 @@ function RouteComponent() {
     },
   ];
 
+  const exportMutation = useMutation({
+    mutationFn: async () => {
+      const res = await eventAdminApi.exportWriteUps(id);
+      return res.data; // 这里是返回的 URL
+    },
+    onSuccess: (url) => {
+      if (url) {
+        const a = document.createElement("a");
+        a.href = `/${url}`;
+        a.download = `${id}.zip`; // 建议加这个，浏览器会强制下载
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    },
+    onError: (error) => {
+      console.error("Export failed:", error);
+    },
+  });
+  const custom_actions = (
+    <div className="flex gap-1 mt-1">
+      <Button variant="primary" onClick={() => exportMutation.mutate()}>
+        Export
+      </Button>
+    </div>
+  );
   return (
     <GenericTable
       subject={subject}
@@ -71,6 +99,7 @@ function RouteComponent() {
       disableAdd={true}
       disablePagination={true}
       enableInternalActions={false}
+      customActions={custom_actions}
     />
   );
 }
