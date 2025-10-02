@@ -1,11 +1,11 @@
 import { userLoginFn } from "@/api/service";
-import SiteTitle from "@/components/SiteTitile";
-import { useTypedState } from "@/lib";
+import SiteTitle from "@/components/SiteTitle";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import { useEffect, useRef } from "react";
 import { ServiceRouteGuardWithRedirect } from "./service/route";
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
 type MessageVariant = "critical" | "success" | "unavailable" | "warning";
 
 function App() {
-  const form = useTypedState({
+  const form = useReactive({
     username: "",
     password: "",
     hidden: true,
@@ -34,18 +34,20 @@ function App() {
   const mutation = useMutation({
     mutationFn: userLoginFn,
     onMutate: () => {
-      form.update("hidden", true);
-      form.update("buttonMessage", "Signing in...");
-      form.update("buttonDisabled", true);
+      form.hidden = true;
+      form.buttonMessage = "Signing in...";
+      form.buttonDisabled = true;
     },
     onSuccess: (data) => {
       authStore.setToken(data.data!);
-      form.update("hidden", false);
-      form.update("status", "success");
-      form.update("message", "Login successful");
-      form.update("buttonMessage", "Redirecting...");
+      form.hidden = false;
+      form.status = "success";
+      form.message = "Login success";
+      form.buttonMessage = "Redirecting...";
+      form.buttonDisabled = true;
+
       // redirect to admin dashboard
-      authStore.setUsername(form.state.username);
+      authStore.setUsername(form.username);
 
       navigate({ to: "/service" });
     },
@@ -53,12 +55,12 @@ function App() {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-      form.update("hidden", false);
-      form.update("status", "critical");
-      form.update("message", msg);
+      form.hidden = false;
+      form.status = "critical";
+      form.message = msg;
 
-      form.update("buttonMessage", "Sign in");
-      form.update("buttonDisabled", false);
+      form.buttonDisabled = false;
+      form.buttonMessage = "Sign in";
       authStore.removeToken();
     },
   });
@@ -73,15 +75,15 @@ function App() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (form.state.username === "" || form.state.password === "") {
-            form.update("hidden", false);
-            form.update("status", "critical");
-            form.update("message", "Please fill in all fields");
+          if (form.username === "" || form.password === "") {
+            form.hidden = false;
+            form.status = "critical";
+            form.message = "Username or password is empty";
             return;
           }
           mutation.mutate({
-            username: form.state.username,
-            password: form.state.password,
+            username: form.username,
+            password: form.password,
           });
         }}
         className="flex flex-col gap-2 w-48"
@@ -93,9 +95,9 @@ function App() {
             ref={usernameRef}
             name="username"
             placeholder="学号"
-            value={form.state.username}
+            value={form.username}
             onChange={(e) => {
-              form.update("username", e.target.value);
+              form.username = e.target.value;
             }}
           />
         </FormControl>
@@ -106,26 +108,20 @@ function App() {
             className="w-full"
             type="password"
             name="password"
-            value={form.state.password}
+            value={form.password}
             onChange={(e) => {
-              form.update("password", e.target.value);
+              form.password = e.target.value;
             }}
           />
         </FormControl>
 
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={form.state.buttonDisabled}
-        >
-          {form.state.buttonMessage}
+        <Button type="submit" variant="primary" disabled={form.buttonDisabled}>
+          {form.buttonMessage}
         </Button>
       </form>
 
-      {!form.state.hidden && (
-        <InlineMessage variant={form.state.status}>
-          {form.state.message}
-        </InlineMessage>
+      {!form.hidden && (
+        <InlineMessage variant={form.status}>{form.message}</InlineMessage>
       )}
     </div>
   );

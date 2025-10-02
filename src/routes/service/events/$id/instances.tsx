@@ -1,7 +1,6 @@
 import type { UniResponse } from "@/api/axios";
 import { eventServiceApi, instanceServiceApi } from "@/api/service";
-import type { BannerVariant } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
+import { useMsgBanner } from "@/components/MsgBanner";
 import type { Instance } from "@/routes/admin/instances";
 import { Button, Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
@@ -24,11 +23,7 @@ export const Route = createFileRoute("/service/events/$id/instances")({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const mutationBanner = useTypedState({
-    isShown: false,
-    description: "Something here",
-    variant: "info" as BannerVariant,
-  });
+  const banner = useMsgBanner();
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useQuery<
     UniResponse<EventInstance[]>,
@@ -42,18 +37,13 @@ function RouteComponent() {
     mutationFn: instanceServiceApi.destroy,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event_instances"] });
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", "Destroyed successfully");
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", "Instance destroyed successfully");
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
 

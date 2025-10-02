@@ -8,11 +8,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 import { eventServiceApi } from "@/api/service";
-import { type BannerVariant, GenericTable } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
+import { GenericTable } from "@/components/admin/Table";
 import { CheckIcon } from "@primer/octicons-react";
 
-import SiteTitle from "@/components/SiteTitile";
+import { useMsgBanner } from "@/components/MsgBanner";
+import SiteTitle from "@/components/SiteTitle";
 import { useEffect } from "react";
 import type { Event } from "../../admin/events";
 import type { EventTeam } from "./$id";
@@ -51,11 +51,7 @@ function RouteComponent() {
   useEffect(() => {
     SiteTitle({ title: "Events" });
   });
-  const mutationBanner = useTypedState({
-    isShown: false,
-    description: "Something here",
-    variant: "info" as BannerVariant,
-  });
+  const banner = useMsgBanner({});
 
   const columns = [
     {
@@ -140,7 +136,7 @@ function RouteComponent() {
       subject="Events"
       columns={columns}
       queryFn={eventServiceApi.fetch}
-      externalBanner={mutationBanner}
+      externalBanner={banner}
       enableInternalActions={false}
       disableAdd={true}
     />

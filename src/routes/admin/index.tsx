@@ -1,11 +1,12 @@
 import { adminLoginFn } from "@/api/admin";
-import SiteTitle from "@/components/SiteTitile";
-import { useTypedState } from "@/lib";
+import SiteTitle from "@/components/SiteTitle";
+
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import * as React from "react";
 import { AdminRouteGuardWithRedirect } from "./route";
 
@@ -19,7 +20,7 @@ type MessageVariant = "critical" | "success" | "unavailable" | "warning";
 function RouteComponent() {
   const authStore = useAuthStore();
   const navigate = useNavigate();
-  const form = useTypedState({
+  const form = useReactive({
     username: "",
     password: "",
     hidden: true,
@@ -32,27 +33,28 @@ function RouteComponent() {
   const mutation = useMutation({
     mutationFn: adminLoginFn,
     onMutate: () => {
-      form.update("hidden", true);
-      form.update("buttonMessage", "Signing in...");
-      form.update("buttonDisabled", true);
+      form.hidden = true;
+      form.buttonDisabled = true;
+      form.buttonMessage = "Signing in...";
     },
     onSuccess: (data) => {
       authStore.setAdminToken(data.data!);
-      form.update("hidden", false);
-      form.update("status", "success");
-      form.update("message", "Login successful");
-      form.update("buttonMessage", "Redirecting...");
+      form.hidden = false;
+      form.status = "success";
+      form.message = "Login successful";
+      form.buttonDisabled = true;
+      form.buttonMessage = "Redirecting...";
       // redirect to admin dashboard
       navigate({ to: "/admin/dashboard" });
     },
     onError: (error) => {
       console.log(error);
-      form.update("hidden", false);
-      form.update("status", "critical");
-      form.update("message", "Invalid username or password");
+      form.hidden = true;
+      form.status = "critical";
+      form.message = "Invalid username or password";
 
-      form.update("buttonMessage", "Sign in");
-      form.update("buttonDisabled", false);
+      form.buttonDisabled = false;
+      form.buttonMessage = "Sign in";
       authStore.removeAdminToken();
     },
   });
@@ -72,15 +74,16 @@ function RouteComponent() {
         onSubmit={(e) => {
           e.preventDefault();
           console.log("submit");
-          if (form.state.username === "" || form.state.password === "") {
-            form.update("hidden", false);
-            form.update("status", "critical");
-            form.update("message", "Please fill in all fields");
+          if (form.username === "" || form.password === "") {
+            form.hidden = true;
+            form.status = "critical";
+            form.message = "Please fill in all fields";
+
             return;
           }
           mutation.mutate({
-            username: form.state.username,
-            password: form.state.password,
+            username: form.username,
+            password: form.password,
           });
         }}
         className="flex flex-col gap-2 w-48"
@@ -91,9 +94,9 @@ function RouteComponent() {
             className="w-full"
             ref={usernameRef}
             name="username"
-            value={form.state.username}
+            value={form.username}
             onChange={(e) => {
-              form.update("username", e.target.value);
+              form.username = e.target.value;
             }}
           />
         </FormControl>
@@ -104,26 +107,20 @@ function RouteComponent() {
             className="w-full"
             type="password"
             name="password"
-            value={form.state.password}
+            value={form.password}
             onChange={(e) => {
-              form.update("password", e.target.value);
+              form.password = e.target.value;
             }}
           />
         </FormControl>
 
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={form.state.buttonDisabled}
-        >
-          {form.state.buttonMessage}
+        <Button type="submit" variant="primary" disabled={form.buttonDisabled}>
+          {form.buttonMessage}
         </Button>
       </form>
 
-      {!form.state.hidden && (
-        <InlineMessage variant={form.state.status}>
-          {form.state.message}
-        </InlineMessage>
+      {!form.hidden && (
+        <InlineMessage variant={form.status}>{form.message}</InlineMessage>
       )}
     </div>
   );

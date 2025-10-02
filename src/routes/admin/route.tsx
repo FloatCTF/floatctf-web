@@ -1,4 +1,4 @@
-import SiteTitle from "@/components/SiteTitile";
+import SiteTitle from "@/components/SiteTitle";
 import AdminHeader from "@/components/admin/Header";
 import AdminSideBar from "@/components/admin/SideBar";
 import { admin_ignore_routes } from "@/routes";

@@ -3,8 +3,6 @@ import {
   instanceServiceApi,
   submitServiceApi,
 } from "@/api/service";
-import type { BannerVariant } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
 import {
@@ -17,10 +15,12 @@ import {
 import { Button, Label, SelectPanel, Spinner, TextInput } from "@primer/react";
 
 import type { UniResponse } from "@/api/axios";
+import { useMsgBanner } from "@/components/MsgBanner";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -50,14 +50,14 @@ function RouteComponent() {
     queryFn: () => eventServiceApi.fetchChallenges(id),
   });
 
-  const challengeDialog = useTypedState({
+  const challengeDialog = useReactive({
     open: false,
     title: "",
     event_challenge_result: {} as EventChallengeResult,
   });
 
   const handleClose = useCallback(() => {
-    challengeDialog.update("open", false);
+    challengeDialog.open = false;
   }, [challengeDialog]);
   const categories = [
     { text: "ALL" },
@@ -94,9 +94,9 @@ function RouteComponent() {
           <button
             type="button"
             onClick={() => {
-              challengeDialog.update("title", row.challenge.name);
-              challengeDialog.update("event_challenge_result", row);
-              challengeDialog.update("open", true);
+              challengeDialog.title = row.challenge.name;
+              challengeDialog.event_challenge_result = row;
+              challengeDialog.open = true;
             }}
             className="bg-transparent border-none p-0 m-0 text-blue-600 hover:underline cursor-pointer"
           >
@@ -189,9 +189,9 @@ function RouteComponent() {
         data={table.getRowModel().rows.map((row) => row.original)}
       />
       <ChallengeDialog
-        open={challengeDialog.state.open}
-        title={challengeDialog.state.title}
-        event_challenge_result={challengeDialog.state.event_challenge_result}
+        open={challengeDialog.open}
+        title={challengeDialog.title}
+        event_challenge_result={challengeDialog.event_challenge_result}
         onClose={handleClose}
         eventId={id}
       />
@@ -215,7 +215,7 @@ function ChallengeDialog({
 }: ChallengeDialogProps) {
   const challenge = event_challenge_result?.challenge;
 
-  const challengeStatus = useTypedState({
+  const challengeStatus = useReactive({
     isRunning: false,
     instance: {} as Instance,
     flag: "",
@@ -233,71 +233,58 @@ function ChallengeDialog({
   useEffect(() => {
     if (open) {
       if (instance_data?.data) {
-        challengeStatus.update("isRunning", true);
-        challengeStatus.update("instance", instance_data.data);
+        challengeStatus.isRunning = true;
+        challengeStatus.instance = instance_data.data;
       } else {
-        challengeStatus.update("isRunning", false);
-        challengeStatus.update("instance", {} as Instance);
+        challengeStatus.isRunning = false;
+        challengeStatus.instance = {} as Instance;
       }
     }
   }, [instance_data, open]);
-  const mutationBanner = useTypedState({
-    isShown: false,
-    description: "Something here",
-    variant: "info" as BannerVariant,
-  });
+  const banner = useMsgBanner();
   // Launch mutation
   const launchMutation = useMutation({
     mutationFn: (challenge_id: string) =>
       eventServiceApi.launchSingleInstance(eventId, challenge_id),
     onSuccess: (data) => {
-      challengeStatus.update("isRunning", true);
-      challengeStatus.update("instance", data.data!);
+      challengeStatus.isRunning = true;
+      challengeStatus.instance = data.data!;
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
 
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
   const destroyInstance = useMutation({
     mutationFn: instanceServiceApi.destroy,
     onSuccess: (_data) => {
-      challengeStatus.update("isRunning", false);
-      challengeStatus.update("instance", {} as Instance);
+      challengeStatus.isRunning = false;
+      challengeStatus.instance = {} as Instance;
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
 
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
   const submitFlag = useMutation({
     mutationFn: submitServiceApi.submitSingle,
     onSuccess: (_data) => {
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", "Flag submitted successfully");
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", "Flag is correct!");
       // close in the backend
-      challengeStatus.update("isRunning", false);
-      challengeStatus.update("instance", {} as Instance);
+      challengeStatus.isRunning = false;
+      challengeStatus.instance = {} as Instance;
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
 
@@ -344,49 +331,38 @@ function ChallengeDialog({
 
         {/* Instance 控制 */}
         <div className="mt-2 ">
-          {mutationBanner.state.isShown && (
-            <Banner
-              title="title"
-              hideTitle={true}
-              description={mutationBanner.state.description}
-              variant={mutationBanner.state.variant}
-              className="m-2"
-              onDismiss={() => {
-                mutationBanner.update("isShown", false);
-              }}
-            />
-          )}
-          {challengeStatus.state.instance && (
+          <banner.BannerComponent />
+          {challengeStatus.instance && (
             <div
               // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
               dangerouslySetInnerHTML={{
-                __html: challengeStatus.state.instance.content || "",
+                __html: challengeStatus.instance.content || "",
               }}
             />
           )}
-          {challengeStatus.state.isRunning ? (
+          {challengeStatus.isRunning ? (
             <div className="w-full flex flex-col gap-2 mb-4">
               <RemainingTimer
-                destroy_at={challengeStatus.state.instance.destroy_at}
+                destroy_at={challengeStatus.instance.destroy_at}
                 onExpire={() => {
                   refetch_instance({ cancelRefetch: true });
-                  destroyInstance.mutate(challengeStatus.state.instance.id);
+                  destroyInstance.mutate(challengeStatus.instance.id);
                 }}
               />
 
               <div className="flex gap-2">
                 <TextInput
                   className="flex-1"
-                  value={challengeStatus.state.flag}
+                  value={challengeStatus.flag}
                   onChange={(e) => {
-                    challengeStatus.update("flag", e.target.value);
+                    challengeStatus.flag = e.target.value;
                   }}
                   placeholder="flag{}"
                 />
                 <Button
                   variant="danger"
                   onClick={() => {
-                    destroyInstance.mutate(challengeStatus.state.instance.id);
+                    destroyInstance.mutate(challengeStatus.instance.id);
                   }}
                 >
                   Destroy
@@ -397,8 +373,8 @@ function ChallengeDialog({
                   onClick={() => {
                     submitFlag.mutate({
                       event_id: eventId,
-                      instance_id: challengeStatus.state.instance.id,
-                      flag: challengeStatus.state.flag,
+                      instance_id: challengeStatus.instance.id,
+                      flag: challengeStatus.flag,
                     });
                   }}
                 >

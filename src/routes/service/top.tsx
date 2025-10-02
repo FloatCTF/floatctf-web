@@ -1,5 +1,5 @@
 import { solveServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitile";
+import SiteTitle from "@/components/SiteTitle";
 import { Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useQuery } from "@tanstack/react-query";

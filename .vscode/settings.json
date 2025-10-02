@@ -32,7 +32,7 @@
 	"editor.codeActionsOnSave": {
 		"source.organizeImports.biome": "explicit"
 	},
-	"cSpell.words": ["writeups"],
+	"cSpell.words": ["ahooks", "upsell", "writeups"],
 	"workbench.colorCustomizations": {
 		"minimap.background": "#00000000",
 		"scrollbar.shadow": "#00000000"

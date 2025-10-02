@@ -1,10 +1,11 @@
 import { instanceServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitile";
-import { type BannerVariant, GenericTable } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
+import { useMsgBanner } from "@/components/MsgBanner";
+import SiteTitle from "@/components/SiteTitle";
+import { GenericTable } from "@/components/admin/Table";
 import { Button } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -20,29 +21,20 @@ function RouteComponent() {
     SiteTitle({ title: "Instances" });
   });
   const subject = "Instances";
-  const mutationBanner = useTypedState({
-    isShown: false,
-    description: "Something here",
-    variant: "info" as BannerVariant,
-  });
+  const banner = useMsgBanner();
   const queryClient = useQueryClient();
 
   const mutationInstance = useMutation({
     mutationFn: instanceServiceApi.destroy,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", "Destroyed successfully");
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", "Instance destroyed successfully");
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
   const columns = [
@@ -114,7 +106,7 @@ function RouteComponent() {
       columns={columns}
       queryFn={instanceServiceApi.fetch}
       enableInternalActions={false}
-      externalBanner={mutationBanner}
+      externalBanner={banner}
       disableAdd={true}
     />
   );

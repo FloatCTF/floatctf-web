@@ -1,5 +1,5 @@
 import { solveServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitile";
+import SiteTitle from "@/components/SiteTitle";
 import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";

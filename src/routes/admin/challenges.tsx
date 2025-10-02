@@ -1,5 +1,4 @@
 import { challengeAdminApi } from "@/api/admin";
-import { useTypedState } from "@/lib";
 
 import { GenericTable } from "@/components/admin/Table";
 import {
@@ -19,6 +18,7 @@ import { CheckIcon } from "@primer/octicons-react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useReactive } from "ahooks";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { AdminRouteGuard } from "./route";
 
@@ -88,7 +88,7 @@ function RouteComponent() {
     },
   ];
 
-  const mutationChallenge = useTypedState<Partial<Challenge>>({
+  const mutationChallenge = useReactive<Partial<Challenge>>({
     name: "",
     category: "",
     description: "",
@@ -103,9 +103,9 @@ function RouteComponent() {
       field: "name",
       render: (
         <TextInput
-          value={mutationChallenge.state.name}
+          value={mutationChallenge.name}
           onChange={(e) => {
-            mutationChallenge.update("name", e.target.value);
+            mutationChallenge.name = e.target.value;
           }}
         />
       ),
@@ -115,9 +115,9 @@ function RouteComponent() {
       field: "category",
       render: (
         <TextInput
-          value={mutationChallenge.state.category}
+          value={mutationChallenge.category}
           onChange={(e) => {
-            mutationChallenge.update("category", e.target.value);
+            mutationChallenge.category = e.target.value;
           }}
         />
       ),
@@ -127,9 +127,9 @@ function RouteComponent() {
       field: "description",
       render: (
         <TextInput
-          value={mutationChallenge.state.description}
+          value={mutationChallenge.description}
           onChange={(e) => {
-            mutationChallenge.update("description", e.target.value);
+            mutationChallenge.description = e.target.value;
           }}
         />
       ),
@@ -139,9 +139,9 @@ function RouteComponent() {
       field: "attachment",
       render: (
         <TextInput
-          value={mutationChallenge.state.attachment}
+          value={mutationChallenge.attachment}
           onChange={(e) => {
-            mutationChallenge.update("attachment", e.target.value);
+            mutationChallenge.attachment = e.target.value;
           }}
         />
       ),
@@ -153,12 +153,9 @@ function RouteComponent() {
         <Stack direction="horizontal" align="center">
           <ToggleSwitch
             aria-labelledby="default-toggle-label"
-            checked={mutationChallenge.state.hidden}
+            checked={mutationChallenge.hidden}
             onClick={() => {
-              mutationChallenge.update(
-                "hidden",
-                !mutationChallenge.state.hidden
-              );
+              mutationChallenge.hidden = !mutationChallenge.hidden;
             }}
           />
         </Stack>
@@ -169,9 +166,9 @@ function RouteComponent() {
       field: "toml_str",
       render: (
         <Textarea
-          value={mutationChallenge.state.toml_str}
+          value={mutationChallenge.toml_str}
           onChange={(e) => {
-            mutationChallenge.update("toml_str", e.target.value);
+            mutationChallenge.toml_str = e.target.value;
           }}
         />
       ),
@@ -200,6 +197,7 @@ function RouteComponent() {
     />
   );
 }
+
 function ImportButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);

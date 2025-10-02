@@ -1,8 +1,9 @@
 import { eventAnnouncementAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
+
 import { TextInput, Textarea } from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
@@ -37,7 +38,7 @@ function RouteComponent() {
       },
     },
   ];
-  const mutationEventAnnouncement = useTypedState<Partial<EventAnnouncement>>({
+  const mutationEventAnnouncement = useReactive<Partial<EventAnnouncement>>({
     title: "",
     content: "",
   });
@@ -47,9 +48,9 @@ function RouteComponent() {
       field: "title",
       render: (
         <TextInput
-          value={mutationEventAnnouncement.state.title}
+          value={mutationEventAnnouncement.title}
           onChange={(e) => {
-            mutationEventAnnouncement.update("title", e.target.value);
+            mutationEventAnnouncement.title = e.target.value;
           }}
         />
       ),
@@ -59,9 +60,9 @@ function RouteComponent() {
       field: "content",
       render: (
         <Textarea
-          value={mutationEventAnnouncement.state.content}
+          value={mutationEventAnnouncement.content}
           onChange={(e) => {
-            mutationEventAnnouncement.update("content", e.target.value);
+            mutationEventAnnouncement.content = e.target.value;
           }}
         />
       ),

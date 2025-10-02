@@ -1,5 +1,5 @@
 import type { QueryParams, UniResponse } from "@/api/axios";
-import { type TypedState, useTypedState } from "@/lib";
+
 import { KebabHorizontalIcon } from "@primer/octicons-react";
 import {
   ActionList,
@@ -16,6 +16,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import {
   type ReactElement,
@@ -24,12 +25,7 @@ import {
   useCallback,
   useState,
 } from "react";
-export type BannerVariant =
-  | "critical"
-  | "info"
-  | "success"
-  | "upsell"
-  | "warning";
+import { type BannerVariant, useMsgBanner } from "../MsgBanner";
 export type PaginationResponse<T> = {
   data: T[];
   meta: { total: number; page: number; limit: number };
@@ -51,6 +47,7 @@ export type BannerState = {
   description: string;
   variant: BannerVariant;
 };
+
 type GenericTableProps<T> = {
   subject: string; // 用作 queryKey
   columns: Column<T>[];
@@ -59,10 +56,10 @@ type GenericTableProps<T> = {
   removeFn?: (id: string) => Promise<UniResponse<number>>;
   patchFn?: (data: Partial<T>) => Promise<UniResponse<T>>;
   mutationColumns?: MutationColumn[];
-  mutationData?: TypedState<Partial<T>>;
+  mutationData?: Partial<T>;
   customActions?: ReactNode;
   columnActions?: (row: T) => ReactNode;
-  externalBanner?: ReturnType<typeof useTypedState<BannerState>>;
+  externalBanner?: ReturnType<typeof useMsgBanner>;
   enableInternalActions?: boolean;
   disableAdd?: boolean;
   hideTitle?: boolean;
@@ -140,7 +137,9 @@ export const GenericTable = <T extends { id: string }>({
                   onClick={() => {
                     setDialogMode("modify");
                     setIsOpen(true);
-                    mutationData?.setState(row);
+                    if (mutationData) {
+                      Object.assign(mutationData, row);
+                    }
                   }}
                 >
                   Edit row
@@ -190,19 +189,7 @@ export const GenericTable = <T extends { id: string }>({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // banner
-  // const mutationBanner = useTypedState({
-  //   isShown: false,
-  //   description: "Something here",
-  //   variant: "info" as BannerVariant,
-  // });
-  const mutationBanner =
-    externalBanner ??
-    useTypedState<BannerState>({
-      isShown: false,
-      description: "Something here",
-      variant: "info" as BannerVariant,
-    });
+  const banner = externalBanner ?? useMsgBanner();
 
   // add or modify
   const [isOpen, setIsOpen] = useState(false);
@@ -214,18 +201,14 @@ export const GenericTable = <T extends { id: string }>({
     mutationFn: removeFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", `Delete ${subject} successfully`);
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", `Delete ${subject} successfully`);
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
 
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
 
@@ -233,18 +216,13 @@ export const GenericTable = <T extends { id: string }>({
     mutationFn: createFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", `Create ${subject} successfully `);
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", `Create ${subject} successfully`);
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
 
@@ -252,18 +230,14 @@ export const GenericTable = <T extends { id: string }>({
     mutationFn: patchFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", `Update ${subject} successfully`);
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", `Update ${subject} successfully`);
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
 
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
 
@@ -300,7 +274,7 @@ export const GenericTable = <T extends { id: string }>({
                 className="w-full"
                 variant="primary"
                 onClick={() => {
-                  if (mutationData) createMutation.mutate(mutationData.state);
+                  if (mutationData) createMutation.mutate(mutationData);
                 }}
               >
                 Create
@@ -312,8 +286,7 @@ export const GenericTable = <T extends { id: string }>({
                     className="w-full"
                     variant="primary"
                     onClick={() => {
-                      if (mutationData)
-                        patchMutation.mutate(mutationData.state);
+                      if (mutationData) patchMutation.mutate(mutationData);
                       setIsOpen(false);
                     }}
                   >
@@ -324,7 +297,7 @@ export const GenericTable = <T extends { id: string }>({
                     variant="danger"
                     onClick={() => {
                       if (mutationData)
-                        deleteMutation.mutate(mutationData.state.id as string);
+                        deleteMutation.mutate(mutationData.id as string);
                       setIsOpen(false);
                     }}
                   >
@@ -351,7 +324,9 @@ export const GenericTable = <T extends { id: string }>({
           {!disableAdd && (
             <Button
               onClick={() => {
-                if (mutationData) mutationData.setState({});
+                if (mutationData) {
+                  Object.assign(mutationData, {});
+                }
                 setDialogMode("add");
                 setIsOpen(true);
               }}
@@ -364,17 +339,7 @@ export const GenericTable = <T extends { id: string }>({
         {!customActions && !disableAdd && <Table.Divider />}
 
         <Table.Subtitle id="repositories-subtitle-headerAction">
-          {mutationBanner.state.isShown && (
-            <Banner
-              title="title"
-              hideTitle={true}
-              description={mutationBanner.state.description}
-              variant={mutationBanner.state.variant}
-              onDismiss={() => {
-                mutationBanner.update("isShown", false);
-              }}
-            />
-          )}
+          <banner.BannerComponent />
         </Table.Subtitle>
         <DataTable
           aria-labelledby="repositories-default-headerAction"

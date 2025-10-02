@@ -1,10 +1,9 @@
 import { userAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
 import { TextInput } from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import { AdminRouteGuard } from "./route";
-
 export const Route = createFileRoute("/admin/users")({
   component: RouteComponent,
   loader: AdminRouteGuard,
@@ -34,7 +33,7 @@ function RouteComponent() {
     { accessorKey: "email", header: "Email", field: "email", sortBy: true },
   ];
 
-  const mutationUser = useTypedState<Partial<User>>({
+  const mutationUser = useReactive<Partial<User>>({
     username: "",
     email: "",
     password: "",
@@ -47,9 +46,9 @@ function RouteComponent() {
       field: "username",
       render: (
         <TextInput
-          value={mutationUser.state.username}
+          value={mutationUser.username}
           onChange={(e) => {
-            mutationUser.update("username", e.target.value);
+            mutationUser.username = e.target.value;
           }}
         />
       ),
@@ -59,9 +58,9 @@ function RouteComponent() {
       field: "email",
       render: (
         <TextInput
-          value={mutationUser.state.email}
+          value={mutationUser.email}
           onChange={(e) => {
-            mutationUser.update("email", e.target.value);
+            mutationUser.email = e.target.value;
           }}
         />
       ),
@@ -71,9 +70,9 @@ function RouteComponent() {
       field: "nickname",
       render: (
         <TextInput
-          value={mutationUser.state.nickname}
+          value={mutationUser.nickname}
           onChange={(e) => {
-            mutationUser.update("nickname", e.target.value);
+            mutationUser.nickname = e.target.value;
           }}
         />
       ),
@@ -83,9 +82,9 @@ function RouteComponent() {
       field: "password",
       render: (
         <TextInput
-          value={mutationUser.state.password}
+          value={mutationUser.password}
           onChange={(e) => {
-            mutationUser.update("password", e.target.value);
+            mutationUser.password = e.target.value;
           }}
         />
       ),

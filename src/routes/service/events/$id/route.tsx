@@ -11,7 +11,7 @@ import {
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
-import SiteTitle from "@/components/SiteTitile";
+import SiteTitle from "@/components/SiteTitle";
 import { RocketIcon } from "@primer/octicons-react";
 import { useEffect, useState } from "react";
 import { ServiceRouteGuard } from "../../route";

@@ -1,5 +1,5 @@
 import { challengeServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitile";
+import SiteTitle from "@/components/SiteTitle";
 import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";

@@ -3,14 +3,15 @@ import {
   instanceServiceApi,
   submitServiceApi,
 } from "@/api/service";
-import SiteTitle from "@/components/SiteTitile";
-import type { BannerVariant } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
+import { useMsgBanner } from "@/components/MsgBanner";
+import SiteTitle from "@/components/SiteTitle";
+
 import type { Instance } from "@/routes/admin/instances";
 import { Button, Label, ProgressBar, Spinner, TextInput } from "@primer/react";
 import { Banner } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -30,14 +31,10 @@ function RouteComponent() {
     queryKey: ["challenge", id],
     queryFn: () => challengeServiceApi.get(id),
   });
-  const mutationBanner = useTypedState({
-    isShown: false,
-    description: "Something here",
-    variant: "info" as BannerVariant,
-  });
+  const banner = useMsgBanner();
 
   const challenge = challenge_data?.data;
-  const challengeStatus = useTypedState({
+  const challengeStatus = useReactive({
     flag: "",
     isRunning: false,
     instance: {} as Instance,
@@ -53,64 +50,54 @@ function RouteComponent() {
     SiteTitle({ title: challenge?.name || "Challenge" });
 
     if (instance_data?.data) {
-      challengeStatus.update("isRunning", true);
-      challengeStatus.update("instance", instance_data.data);
+      challengeStatus.isRunning = true;
+      challengeStatus.instance = instance_data.data;
     } else {
-      challengeStatus.update("isRunning", false);
-      challengeStatus.update("instance", {} as Instance);
+      challengeStatus.isRunning = false;
+      challengeStatus.instance = {} as Instance;
     }
   }, [instance_data]);
 
   const mutationInstance = useMutation({
     mutationFn: instanceServiceApi.launch,
     onSuccess: (data) => {
-      challengeStatus.update("isRunning", true);
-      challengeStatus.update("instance", data.data!);
+      challengeStatus.isRunning = true;
+      challengeStatus.instance = data.data!;
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
   const destroyInstance = useMutation({
     mutationFn: instanceServiceApi.destroy,
     onSuccess: (_data) => {
-      challengeStatus.update("isRunning", false);
-      challengeStatus.update("instance", {} as Instance);
+      challengeStatus.isRunning = false;
+      challengeStatus.instance = {} as Instance;
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
 
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
   const submitFlag = useMutation({
     mutationFn: submitServiceApi.submit,
     onSuccess: (_data) => {
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", "Flag submitted successfully");
-      mutationBanner.update("variant", "success");
+      banner.showBanner("success", "Flag is correct!");
       // close in the backend
-      challengeStatus.update("isRunning", false);
-      challengeStatus.update("instance", {} as Instance);
+      challengeStatus.isRunning = false;
+      challengeStatus.instance = {} as Instance;
     },
     onError: (error: AxiosError<{ message: string }>) => {
       // 这里可以拿到后端返回的 message
       const msg =
         error.response?.data?.message || error.message || "Unknown error";
-
-      mutationBanner.update("isShown", true);
-      mutationBanner.update("description", msg);
-      mutationBanner.update("variant", "critical");
+      banner.showBanner("critical", msg);
     },
   });
   const navigate = useNavigate();
@@ -129,17 +116,7 @@ function RouteComponent() {
         <p className="font-bold text-2xl">{challenge?.name}</p>
         <div className="border-top mt-2 pt-2">{challenge?.description}</div>
       </div>
-      {mutationBanner.state.isShown && (
-        <Banner
-          title="title"
-          hideTitle={true}
-          description={mutationBanner.state.description}
-          variant={mutationBanner.state.variant}
-          onDismiss={() => {
-            mutationBanner.update("isShown", false);
-          }}
-        />
-      )}{" "}
+      <banner.BannerComponent />
       {/* 附件 */}
       {challenge?.attachment && (
         <a
@@ -152,11 +129,11 @@ function RouteComponent() {
           <Label variant="accent">{challenge.attachment}</Label>
         </a>
       )}
-      {challengeStatus.state.instance && (
+      {challengeStatus.instance && (
         <div
           // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
           dangerouslySetInnerHTML={{
-            __html: challengeStatus.state.instance.content || "",
+            __html: challengeStatus.instance.content || "",
           }}
         />
       )}
@@ -164,28 +141,28 @@ function RouteComponent() {
         id="challenge-content"
         className="mb-4 flex justify-center flex-1 border-bottom"
       >
-        {challengeStatus.state.isRunning ? (
+        {challengeStatus.isRunning ? (
           <div className="w-full flex flex-col gap-2 mb-4">
             <RemainingTimer
-              destroy_at={challengeStatus.state.instance.destroy_at}
+              destroy_at={challengeStatus.instance.destroy_at}
               onExpire={() => {
-                destroyInstance.mutate(challengeStatus.state.instance.id);
+                destroyInstance.mutate(challengeStatus.instance.id);
               }}
             />
 
             <div className="flex gap-2">
               <TextInput
                 className="flex-1"
-                value={challengeStatus.state.flag}
+                value={challengeStatus.flag}
                 onChange={(e) => {
-                  challengeStatus.update("flag", e.target.value);
+                  challengeStatus.flag = e.target.value;
                 }}
                 placeholder="flag{}"
               />
               <Button
                 variant="danger"
                 onClick={() => {
-                  destroyInstance.mutate(challengeStatus.state.instance.id);
+                  destroyInstance.mutate(challengeStatus.instance.id);
                 }}
               >
                 Destroy
@@ -195,8 +172,8 @@ function RouteComponent() {
                 variant="primary"
                 onClick={() => {
                   submitFlag.mutate({
-                    instance_id: challengeStatus.state.instance.id,
-                    flag: challengeStatus.state.flag,
+                    instance_id: challengeStatus.instance.id,
+                    flag: challengeStatus.flag,
                   });
                 }}
               >

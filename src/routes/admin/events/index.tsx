@@ -1,6 +1,5 @@
 import { eventAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
-import { useTypedState } from "@/lib";
 import { CheckIcon } from "@primer/octicons-react";
 import {
   Select,
@@ -10,6 +9,7 @@ import {
   ToggleSwitch,
 } from "@primer/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useReactive } from "ahooks";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { AdminRouteGuard } from "../route";
@@ -96,7 +96,7 @@ function RouteComponent() {
       },
     },
   ];
-  const mutationEvent = useTypedState<Partial<Event>>({
+  const mutationEvent = useReactive<Partial<Event>>({
     type: "JeopardySingle",
     title: "",
     description: "",
@@ -113,8 +113,10 @@ function RouteComponent() {
       field: "title",
       render: (
         <TextInput
-          value={mutationEvent.state.title}
-          onChange={(e) => mutationEvent.update("title", e.target.value)}
+          value={mutationEvent.title}
+          onChange={(e) => {
+            mutationEvent.title = e.target.value;
+          }}
         />
       ),
     },
@@ -123,8 +125,10 @@ function RouteComponent() {
       field: "description",
       render: (
         <Textarea
-          value={mutationEvent.state.description}
-          onChange={(e) => mutationEvent.update("description", e.target.value)}
+          value={mutationEvent.description}
+          onChange={(e) => {
+            mutationEvent.description = e.target.value;
+          }}
         />
       ),
     },
@@ -133,8 +137,10 @@ function RouteComponent() {
       field: "type",
       render: (
         <Select
-          value={mutationEvent.state.type}
-          onChange={(e) => mutationEvent.update("type", e.target.value)}
+          value={mutationEvent.type}
+          onChange={(e) => {
+            mutationEvent.type = e.target.value;
+          }}
         >
           {eventType.map((type) => (
             <Select.Option key={type} value={type}>
@@ -152,9 +158,9 @@ function RouteComponent() {
         <Stack direction="horizontal" align="center">
           <ToggleSwitch
             aria-labelledby="default-toggle-label"
-            checked={mutationEvent.state.hidden}
+            checked={mutationEvent.hidden}
             onClick={() => {
-              mutationEvent.update("hidden", !mutationEvent.state.hidden);
+              mutationEvent.hidden = !mutationEvent.hidden;
             }}
           />
         </Stack>
@@ -167,12 +173,9 @@ function RouteComponent() {
         <Stack direction="horizontal" align="center">
           <ToggleSwitch
             aria-labelledby="default-toggle-label"
-            checked={mutationEvent.state.allow_join}
+            checked={mutationEvent.allow_join}
             onClick={() => {
-              mutationEvent.update(
-                "allow_join",
-                !mutationEvent.state.allow_join
-              );
+              mutationEvent.allow_join = !mutationEvent.allow_join;
             }}
           />
         </Stack>
@@ -183,8 +186,10 @@ function RouteComponent() {
       field: "rules",
       render: (
         <Textarea
-          value={mutationEvent.state.rules}
-          onChange={(e) => mutationEvent.update("rules", e.target.value)}
+          value={mutationEvent.rules}
+          onChange={(e) => {
+            mutationEvent.rules = e.target.value;
+          }}
         />
       ),
     },
@@ -198,13 +203,13 @@ function RouteComponent() {
           step="1"
           // 显示本地时间
           value={dayjs
-            .utc(mutationEvent.state.start_time)
+            .utc(mutationEvent.start_time)
             .local()
             .format("YYYY-MM-DDTHH:mm:ss")}
           onChange={(e) => {
             const localTime = dayjs(e.target.value);
             const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss"); // UTC 不带 Z
-            mutationEvent.update("start_time", utcTime);
+            mutationEvent.start_time = utcTime;
           }}
         />
       ),
@@ -218,14 +223,14 @@ function RouteComponent() {
           step="1"
           // 显示本地时间
           value={dayjs
-            .utc(mutationEvent.state.end_time)
+            .utc(mutationEvent.end_time)
             .local()
             .format("YYYY-MM-DDTHH:mm:ss")}
           onChange={(e) => {
             // 用户选择的本地时间 -> 转成 UTC 保存
             const localTime = dayjs(e.target.value);
             const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss"); // UTC 不带 Z
-            mutationEvent.update("end_time", utcTime);
+            mutationEvent.end_time = utcTime;
           }}
         />
       ),

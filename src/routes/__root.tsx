@@ -12,7 +12,7 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
-    <div className="h-screen w-screen">
+    <div className="h-screen">
       <Outlet />
       {showDevtools && (
         <TanstackDevtools

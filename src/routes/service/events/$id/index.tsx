@@ -1,5 +1,4 @@
 import { eventServiceApi, submitServiceApi } from "@/api/service";
-import { useTypedState } from "@/lib";
 import {
   Button,
   FormControl,
@@ -12,6 +11,7 @@ import { Banner, InlineMessage } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
+import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { type FormEvent, useMemo, useRef, useState } from "react";
@@ -58,7 +58,7 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
 
-  const msg = useTypedState({
+  const msg = useReactive({
     hidden: true,
     message: "",
   });
@@ -89,8 +89,8 @@ function RouteComponent() {
   const joinEventMutation = useMutation({
     mutationFn: eventServiceApi.join,
     onMutate: () => {
-      msg.update("hidden", true);
-      msg.update("message", "");
+      msg.hidden = true;
+      msg.message = "";
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
@@ -101,16 +101,16 @@ function RouteComponent() {
       const msg1 =
         error.response?.data?.message || error.message || "Unknown error";
 
-      msg.update("hidden", false);
-      msg.update("message", msg1);
+      msg.hidden = false;
+      msg.message = msg1;
     },
   });
 
   const leaveEventMutation = useMutation({
     mutationFn: eventServiceApi.leave,
     onMutate: () => {
-      msg.update("hidden", true);
-      msg.update("message", "");
+      msg.hidden = true;
+      msg.message = "";
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
@@ -121,8 +121,8 @@ function RouteComponent() {
       const msg1 =
         error.response?.data?.message || error.message || "Unknown error";
 
-      msg.update("hidden", false);
-      msg.update("message", msg1);
+      msg.hidden = false;
+      msg.message = msg1;
     },
   });
 
@@ -141,8 +141,8 @@ function RouteComponent() {
       const msg1 =
         error.response?.data?.message || error.message || "Unknown error";
 
-      msg.update("hidden", false);
-      msg.update("message", msg1);
+      msg.hidden = false;
+      msg.message = msg1;
     },
   });
   const quitEventTeamMutation = useMutation({
@@ -156,8 +156,8 @@ function RouteComponent() {
       const msg1 =
         error.response?.data?.message || error.message || "Unknown error";
 
-      msg.update("hidden", false);
-      msg.update("message", msg1);
+      msg.hidden = false;
+      msg.message = msg1;
     },
   });
   const joinEventTeamMutation = useMutation({
@@ -171,8 +171,8 @@ function RouteComponent() {
       const msg1 =
         error.response?.data?.message || error.message || "Unknown error";
 
-      msg.update("hidden", false);
-      msg.update("message", msg1);
+      msg.hidden = false;
+      msg.message = msg1;
     },
   });
   const handleJoinSingle = () => {
@@ -366,10 +366,8 @@ function RouteComponent() {
             </section>
           )}
 
-          {!msg.state.hidden && (
-            <InlineMessage variant="critical">
-              {msg.state.message}
-            </InlineMessage>
+          {!msg.hidden && (
+            <InlineMessage variant="critical">{msg.message}</InlineMessage>
           )}
         </div>
         <section className="p-3 rounded border">
