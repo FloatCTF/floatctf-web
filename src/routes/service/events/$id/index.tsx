@@ -227,7 +227,7 @@ function RouteComponent() {
         {/* 右侧：操作 */}
         <div className="flex flex-col gap-3 min-w-[320px]">
           {ev.type === "JeopardySingle" && (
-            <section className="p-3 rounded border flex items-center min-h-[72px]">
+            <section className="p-3 rounded border flex  items-center min-h-[72px]">
               {status === "upcoming" && (
                 <Button
                   className="w-28"
@@ -520,7 +520,7 @@ function SubmitWriteup({
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col justify-center gap-3">
       {message && (
         <span
           className={`ml-2 text-sm ${
@@ -530,6 +530,7 @@ function SubmitWriteup({
           {message.text}
         </span>
       )}
+
       {file && (
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500">{file.name}</span>
@@ -542,6 +543,7 @@ function SubmitWriteup({
           </Button>
         </div>
       )}
+
       <div>
         <Button onClick={handleClick}>Upload Writeup *.pdf</Button>
         <p>Upload again to override the file</p>
