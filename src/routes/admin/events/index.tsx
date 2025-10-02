@@ -103,6 +103,7 @@ function RouteComponent() {
     hidden: false,
     start_time: "",
     end_time: "",
+    rules: "",
     allow_join: false,
   });
   const eventType = ["JeopardySingle", "JeopardyTeam", "AwdTeam"];
