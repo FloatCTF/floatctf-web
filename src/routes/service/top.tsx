@@ -1,10 +1,11 @@
 import { solveServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitle";
+
 import { Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useTitle } from "ahooks";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect } from "react";
@@ -21,9 +22,7 @@ export type TopUser = {
 };
 
 function RouteComponent() {
-  useEffect(() => {
-    SiteTitle({ title: "Top" });
-  });
+  useTitle("Top | FloatCTF");
   const columns = [
     {
       accessorKey: "no",

@@ -11,8 +11,9 @@ import {
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
-import SiteTitle from "@/components/SiteTitle";
+
 import { RocketIcon } from "@primer/octicons-react";
+import { useTitle } from "ahooks";
 import { useEffect, useState } from "react";
 import { ServiceRouteGuard } from "../../route";
 
@@ -31,7 +32,7 @@ function RouteComponent() {
   const eventInfo = data?.data;
 
   useEffect(() => {
-    SiteTitle({ title: eventInfo?.event.title || "Event" });
+    useTitle(`${eventInfo?.event.title} | FloatCTF`);
   }, [eventInfo]);
 
   if (isLoading) {

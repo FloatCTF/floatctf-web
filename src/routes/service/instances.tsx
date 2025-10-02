@@ -1,11 +1,11 @@
 import { instanceServiceApi } from "@/api/service";
 import { useMsgBanner } from "@/components/MsgBanner";
-import SiteTitle from "@/components/SiteTitle";
+
 import { GenericTable } from "@/components/admin/Table";
 import { Button } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useReactive } from "ahooks";
+import { useReactive, useTitle } from "ahooks";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -17,9 +17,8 @@ export const Route = createFileRoute("/service/instances")({
 });
 
 function RouteComponent() {
-  useEffect(() => {
-    SiteTitle({ title: "Instances" });
-  });
+  useTitle("Instances | FloatCTF");
+
   const subject = "Instances";
   const banner = useMsgBanner();
   const queryClient = useQueryClient();

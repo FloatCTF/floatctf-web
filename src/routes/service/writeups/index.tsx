@@ -1,7 +1,8 @@
 import { challengeServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitle";
+
 import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useTitle } from "ahooks";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect } from "react";
@@ -12,9 +13,7 @@ export const Route = createFileRoute("/service/writeups/")({
 });
 
 function RouteComponent() {
-  useEffect(() => {
-    SiteTitle({ title: "Writeups" });
-  });
+  useTitle("Writeups | FloatCTF");
   const subject = "Writeups";
   const columns = [
     {

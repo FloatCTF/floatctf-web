@@ -12,7 +12,8 @@ import { GenericTable } from "@/components/admin/Table";
 import { CheckIcon } from "@primer/octicons-react";
 
 import { useMsgBanner } from "@/components/MsgBanner";
-import SiteTitle from "@/components/SiteTitle";
+
+import { useTitle } from "ahooks";
 import { useEffect } from "react";
 import type { Event } from "../../admin/events";
 import type { EventTeam } from "./$id";
@@ -48,9 +49,7 @@ export type EventTeamResult = {
 };
 
 function RouteComponent() {
-  useEffect(() => {
-    SiteTitle({ title: "Events" });
-  });
+  useTitle("Events | FloatCTF");
   const banner = useMsgBanner({});
 
   const columns = [

@@ -4,14 +4,13 @@ import {
   submitServiceApi,
 } from "@/api/service";
 import { useMsgBanner } from "@/components/MsgBanner";
-import SiteTitle from "@/components/SiteTitle";
 
 import type { Instance } from "@/routes/admin/instances";
 import { Button, Label, ProgressBar, Spinner, TextInput } from "@primer/react";
 import { Banner } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useReactive } from "ahooks";
+import { useReactive, useTitle } from "ahooks";
 import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -47,8 +46,7 @@ function RouteComponent() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    SiteTitle({ title: challenge?.name || "Challenge" });
-
+    useTitle(`${challenge?.name} | FloatCTF`);
     if (instance_data?.data) {
       challengeStatus.isRunning = true;
       challengeStatus.instance = instance_data.data;

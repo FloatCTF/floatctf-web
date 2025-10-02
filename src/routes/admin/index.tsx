@@ -1,12 +1,11 @@
 import { adminLoginFn } from "@/api/admin";
-import SiteTitle from "@/components/SiteTitle";
 
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useReactive } from "ahooks";
+import { useReactive, useTitle } from "ahooks";
 import * as React from "react";
 import { AdminRouteGuardWithRedirect } from "./route";
 
@@ -18,6 +17,7 @@ export const Route = createFileRoute("/admin/")({
 type MessageVariant = "critical" | "success" | "unavailable" | "warning";
 
 function RouteComponent() {
+  useTitle("Admin Login | FloatCTF");
   const authStore = useAuthStore();
   const navigate = useNavigate();
   const form = useReactive({
@@ -62,7 +62,6 @@ function RouteComponent() {
   const usernameRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    SiteTitle({ title: "Admin Login" });
     usernameRef.current?.focus();
   }, []);
 

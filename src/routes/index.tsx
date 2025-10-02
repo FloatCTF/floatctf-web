@@ -1,11 +1,11 @@
 import { userLoginFn } from "@/api/service";
-import SiteTitle from "@/components/SiteTitle";
+
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useReactive } from "ahooks";
+import { useReactive, useTitle } from "ahooks";
 import type { AxiosError } from "axios";
 import { useEffect, useRef } from "react";
 import { ServiceRouteGuardWithRedirect } from "./service/route";
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/")({
 type MessageVariant = "critical" | "success" | "unavailable" | "warning";
 
 function App() {
+  useTitle("Login | FloatCTF");
   const form = useReactive({
     username: "",
     password: "",
@@ -65,7 +66,6 @@ function App() {
     },
   });
   useEffect(() => {
-    SiteTitle({ title: "Login" });
     usernameRef.current?.focus();
   }, []);
   return (

@@ -1,9 +1,10 @@
 import { challengeServiceApi } from "@/api/service";
-import SiteTitle from "@/components/SiteTitle";
+
 import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
+import { useTitle } from "ahooks";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect } from "react";
@@ -21,9 +22,7 @@ function RouteComponent() {
   });
   const writeup = data?.data;
   useEffect(() => {
-    SiteTitle({
-      title: `${writeup?.challenge.name}/${writeup?.nickname}`,
-    });
+    useTitle(`${writeup?.challenge.name} | FloatCTF`);
   });
   if (isLoading) {
     return <Spinner />;

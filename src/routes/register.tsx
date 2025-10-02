@@ -1,11 +1,9 @@
 import { userRegisterFn } from "@/api/service";
-import SiteTitle from "@/components/SiteTitle";
-
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useReactive } from "ahooks";
+import { useReactive, useTitle } from "ahooks";
 import type { AxiosError } from "axios";
 import { useEffect, useRef } from "react";
 import { ServiceRouteGuardWithRedirect } from "./service/route";
@@ -18,6 +16,7 @@ export const Route = createFileRoute("/register")({
 type MessageVariant = "critical" | "success" | "unavailable" | "warning";
 
 function Register() {
+  useTitle("Register | FloatCTF");
   const form = useReactive({
     username: "",
     nickname: "",
@@ -65,7 +64,6 @@ function Register() {
   });
 
   useEffect(() => {
-    SiteTitle({ title: "Register" });
     usernameRef.current?.focus();
   }, []);
 
