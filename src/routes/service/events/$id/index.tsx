@@ -219,43 +219,11 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex p-4 w-full gap-3 justify-between">
-      <MDEditor.Markdown source={ev.rules} className="border rounded p-3" />
+    <div className="flex p-3 w-full gap-3 justify-between">
+      <MDEditor.Markdown source={ev.rules} className="border rounded p-4" />
 
       <div className="flex flex-col gap-3">
-        <section className="p-3 rounded border">
-          <div className="flex items-center gap-2 mb-2">
-            <Heading as="h2">{ev.title}</Heading>
-            {eventData.joined ? (
-              <Label variant="success">Joined</Label>
-            ) : (
-              <Label variant="attention">Unjoined</Label>
-            )}
-          </div>
-
-          {/* 用 <dl> 语义化描述列表，替代 div+tr/td 混用 */}
-          <dl className="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2">
-            <dt className="font-bold">ID</dt>
-            <dd className="font-medium break-all">{ev.id}</dd>
-
-            <dt className="font-bold">Type</dt>
-            <dd className="font-medium">{ev.type}</dd>
-
-            <dt className="font-bold">Start</dt>
-            <dd className="font-medium">{formatDate(ev.start_time)}</dd>
-
-            <dt className="font-bold">End</dt>
-            <dd className="font-medium">{formatDate(ev.end_time)}</dd>
-
-            <dt className="font-bold">Status</dt>
-            <dd className="font-medium">{showStatusText}</dd>
-
-            <dt className="font-bold">Description</dt>
-            <dd className="font-medium whitespace-pre-wrap">
-              {ev.description || "-"}
-            </dd>
-          </dl>
-        </section>
+        {" "}
         {/* 右侧：操作 */}
         <div className="flex flex-col gap-3 min-w-[320px]">
           {ev.type === "JeopardySingle" && (
@@ -404,6 +372,39 @@ function RouteComponent() {
             </InlineMessage>
           )}
         </div>
+        <section className="p-3 rounded border">
+          <div className="flex items-center gap-2 mb-2">
+            <Heading as="h2">{ev.title}</Heading>
+            {eventData.joined ? (
+              <Label variant="success">Joined</Label>
+            ) : (
+              <Label variant="attention">Unjoined</Label>
+            )}
+          </div>
+
+          {/* 用 <dl> 语义化描述列表，替代 div+tr/td 混用 */}
+          <dl className="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2">
+            <dt className="font-bold">ID</dt>
+            <dd className="font-medium break-all">{ev.id}</dd>
+
+            <dt className="font-bold">Type</dt>
+            <dd className="font-medium">{ev.type}</dd>
+
+            <dt className="font-bold">Start</dt>
+            <dd className="font-medium">{formatDate(ev.start_time)}</dd>
+
+            <dt className="font-bold">End</dt>
+            <dd className="font-medium">{formatDate(ev.end_time)}</dd>
+
+            <dt className="font-bold">Status</dt>
+            <dd className="font-medium">{showStatusText}</dd>
+
+            <dt className="font-bold">Description</dt>
+            <dd className="font-medium whitespace-pre-wrap">
+              {ev.description || "-"}
+            </dd>
+          </dl>
+        </section>
         <Announcements eventId={id} />
       </div>
     </div>

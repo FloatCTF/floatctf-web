@@ -101,8 +101,8 @@ function RouteComponent() {
     title: "",
     description: "",
     hidden: false,
-    start_time: "",
-    end_time: "",
+    start_time: dayjs().utc().format("YYYY-MM-DDTHH:mm:ss"),
+    end_time: dayjs().utc().format("YYYY-MM-DDTHH:mm:ss"),
     rules: "",
     allow_join: false,
   });
