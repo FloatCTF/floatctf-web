@@ -1,6 +1,7 @@
 import { challengeAdminApi } from "@/api/admin";
 import { ActionSelect } from "@/components/admin/ActionSelect";
 import { GenericTable } from "@/components/admin/Table";
+import { CheckIcon } from "@primer/octicons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Challenge } from "../challenges";
 
@@ -18,6 +19,16 @@ function RouteComponent() {
       accessorKey: "category",
       header: "Category",
       field: "category",
+      sortBy: true,
+    },
+    {
+      accessorKey: "hidden",
+      header: "Hidden",
+      field: "hidden",
+
+      renderCell: (row: Challenge) => {
+        return <span>{row.hidden ? <CheckIcon /> : <></>}</span>;
+      },
       sortBy: true,
     },
   ];
