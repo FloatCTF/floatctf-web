@@ -74,7 +74,8 @@ function RouteComponent() {
       isFull
         ? "fixed top-0 left-0 w-screen h-screen bg-white z-[9999] scale-100 opacity-100 overflow-auto"
         : ""
-    }`}
+    }
+    `}
       >
         <button
           type="button"

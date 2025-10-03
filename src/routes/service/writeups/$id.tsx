@@ -21,9 +21,7 @@ function RouteComponent() {
     queryFn: () => challengeServiceApi.getWriteup(id),
   });
   const writeup = data?.data;
-  useEffect(() => {
-    useTitle(`${writeup?.challenge.name} | FloatCTF`);
-  });
+  useTitle(`${writeup?.challenge.name ?? "Writeup"} | FloatCTF`);
   if (isLoading) {
     return <Spinner />;
   }

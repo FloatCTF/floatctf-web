@@ -19,6 +19,7 @@ import { Route as ServiceTopRouteImport } from './routes/service/top'
 import { Route as ServiceSolvesRouteImport } from './routes/service/solves'
 import { Route as ServiceInstancesRouteImport } from './routes/service/instances'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminInstancesRouteImport } from './routes/admin/instances'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminChallengesRouteImport } from './routes/admin/challenges'
@@ -92,6 +93,11 @@ const ServiceInstancesRoute = ServiceInstancesRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminInstancesRoute = AdminInstancesRouteImport.update({
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/admin/challenges': typeof AdminChallengesRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/instances': typeof AdminInstancesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/service/instances': typeof ServiceInstancesRoute
   '/service/solves': typeof ServiceSolvesRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/admin/challenges': typeof AdminChallengesRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/instances': typeof AdminInstancesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/service/instances': typeof ServiceInstancesRoute
   '/service/solves': typeof ServiceSolvesRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/admin/challenges': typeof AdminChallengesRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/instances': typeof AdminInstancesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/service/instances': typeof ServiceInstancesRoute
   '/service/solves': typeof ServiceSolvesRoute
@@ -337,6 +346,7 @@ export interface FileRouteTypes {
     | '/admin/challenges'
     | '/admin/dashboard'
     | '/admin/instances'
+    | '/admin/settings'
     | '/admin/users'
     | '/service/instances'
     | '/service/solves'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/admin/challenges'
     | '/admin/dashboard'
     | '/admin/instances'
+    | '/admin/settings'
     | '/admin/users'
     | '/service/instances'
     | '/service/solves'
@@ -404,6 +415,7 @@ export interface FileRouteTypes {
     | '/admin/challenges'
     | '/admin/dashboard'
     | '/admin/instances'
+    | '/admin/settings'
     | '/admin/users'
     | '/service/instances'
     | '/service/solves'
@@ -510,6 +522,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/instances': {
@@ -708,6 +727,7 @@ interface AdminRouteRouteChildren {
   AdminChallengesRoute: typeof AdminChallengesRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminInstancesRoute: typeof AdminInstancesRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminEventsIdRouteRoute: typeof AdminEventsIdRouteRouteWithChildren
@@ -718,6 +738,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminChallengesRoute: AdminChallengesRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminInstancesRoute: AdminInstancesRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminEventsIdRouteRoute: AdminEventsIdRouteRouteWithChildren,

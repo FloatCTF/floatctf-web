@@ -44,18 +44,6 @@ function RouteComponent() {
     queryFn: () => challengeServiceApi.getInstance(id),
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    useTitle(`${challenge?.name} | FloatCTF`);
-    if (instance_data?.data) {
-      challengeStatus.isRunning = true;
-      challengeStatus.instance = instance_data.data;
-    } else {
-      challengeStatus.isRunning = false;
-      challengeStatus.instance = {} as Instance;
-    }
-  }, [instance_data]);
-
   const mutationInstance = useMutation({
     mutationFn: instanceServiceApi.launch,
     onSuccess: (data) => {
@@ -99,6 +87,18 @@ function RouteComponent() {
     },
   });
   const navigate = useNavigate();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (instance_data?.data) {
+      challengeStatus.isRunning = true;
+      challengeStatus.instance = instance_data.data;
+    } else {
+      challengeStatus.isRunning = false;
+      challengeStatus.instance = {} as Instance;
+    }
+  }, [instance_data]);
+  // 顶层调用 Hook
+  useTitle(`${challenge?.name ?? "Challenge"} | FloatCTF`);
 
   if (isError) {
     navigate({ to: "/service/challenges" });

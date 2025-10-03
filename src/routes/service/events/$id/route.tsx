@@ -31,9 +31,7 @@ function RouteComponent() {
   });
   const eventInfo = data?.data;
 
-  useEffect(() => {
-    useTitle(`${eventInfo?.event.title} | FloatCTF`);
-  }, [eventInfo]);
+  useTitle(`${eventInfo?.event.title ?? "Event"} | FloatCTF`);
 
   if (isLoading) {
     return <Spinner size="large" />;

@@ -12,6 +12,7 @@ import type { TeamResult } from "@/routes/admin/events/$id/teams";
 import type { EventUserResult } from "@/routes/admin/events/$id/users";
 import type { EventWriteup } from "@/routes/admin/events/$id/writeups";
 import type { Instance } from "@/routes/admin/instances";
+import type { Setting } from "@/routes/admin/settings";
 import type { User } from "@/routes/admin/users";
 import { type QueryParams, type UniResponse, admin_api } from "../api/axios";
 
@@ -26,7 +27,24 @@ export const monitorApi = async (): Promise<UniResponse<SystemInformation>> => {
 	const response = await admin_api.get("/monitor");
 	return response.data;
 };
-
+export const settingAdminApi = {
+	fetch: async (): Promise<UniResponse<Setting[]>> => {
+		const res = await admin_api.get("/settings");
+		return res.data;
+	},
+	create: async (setting: Partial<Setting>): Promise<UniResponse<Setting>> => {
+		const res = await admin_api.post("/settings", setting);
+		return res.data;
+	},
+	remove: async (id: string): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete(`/settings/${id}`);
+		return res.data;
+	},
+	patch: async (setting: Partial<Setting>): Promise<UniResponse<Setting>> => {
+		const res = await admin_api.patch(`/settings/${setting.id}`, setting);
+		return res.data;
+	},
+};
 export const challengeAdminApi = {
 	fetch: async (
 		params: QueryParams = {},

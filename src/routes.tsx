@@ -1,6 +1,7 @@
 import {
   FileIcon,
   FlameIcon,
+  GearIcon,
   GoalIcon,
   ListUnorderedIcon,
   LogIcon,
@@ -39,6 +40,11 @@ export const admin_routes: NavRoute[] = [
     label: "Events",
     path: "/admin/events",
     icon: <ListUnorderedIcon />,
+  },
+  {
+    label: "Settings",
+    path: "/admin/settings",
+    icon: <GearIcon />,
   },
 ];
 

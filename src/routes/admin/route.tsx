@@ -10,7 +10,6 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/admin")({
   component: RouteComponent,
