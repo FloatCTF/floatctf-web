@@ -1,19 +1,20 @@
 import { eventAdminApi } from "@/api/admin";
+import type { Event } from "@/routes/admin/events";
 import { RouterNavItem } from "@/routes/service/events/$id/route";
 import { Spinner, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createContext } from "react";
 import type { Challenge } from "../../challenges";
-
 export const Route = createFileRoute("/admin/events/$id")({
   component: RouteComponent,
 });
+export const EventContext = createContext<Event | null>(null);
 export type EventChallenge = {
   event_id: string;
   challenge_id: string;
   hidden: boolean;
 };
-
 export type EventChallengeResult = {
   id: string;
   event_challenge: EventChallenge;
@@ -74,7 +75,9 @@ function RouteComponent() {
           Data Present
         </RouterNavItem>
       </UnderlineNav>
-      <Outlet />
+      <EventContext.Provider value={event}>
+        <Outlet /> {/* 普通 TanStack Router 的 Outlet */}
+      </EventContext.Provider>
     </div>
   );
 }

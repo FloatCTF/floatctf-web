@@ -1,16 +1,21 @@
-import { challengeAdminApi, eventChallengeAdminApi } from "@/api/admin";
+import {
+  challengeAdminApi,
+  eventAdminApi,
+  eventChallengeAdminApi,
+} from "@/api/admin";
 import { ActionSelect } from "@/components/admin/ActionSelect";
 
 import { CheckIcon, KebabHorizontalIcon } from "@primer/octicons-react";
-import { ActionList, ActionMenu, IconButton } from "@primer/react";
+import { ActionList, ActionMenu, Button, IconButton } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-
+import { useContext } from "react";
 import { type Challenge, CheckButton } from "../../challenges";
+import { EventContext } from "./route";
 
 dayjs.extend(utc);
 
@@ -32,6 +37,7 @@ export type EventChallengeResult = {
 };
 
 function RouteComponent() {
+  const event = useContext(EventContext);
   const { id } = Route.useParams();
   // const subject = `event_challenges-${id}`;
   const queryClient = useQueryClient();
@@ -65,6 +71,16 @@ function RouteComponent() {
       });
     },
   });
+  const createChallengeSetMutation = useMutation({
+    mutationFn: eventAdminApi.createChallengeSet,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [subject],
+      });
+      alert("Create Challenge Set Success");
+    },
+  });
+
   const columns = [
     {
       accessorKey: "challenge.id",
@@ -182,6 +198,21 @@ function RouteComponent() {
             []
           }
         />
+
+        <Button
+          variant="primary"
+          onClick={() => {
+            createChallengeSetMutation.mutate({
+              name: event?.title ?? "Challenge Set",
+              description: event?.description ?? "Challenge Set",
+              challenge_id_list: data?.data.map(
+                (row: EventChallengeResult) => row.challenge.id
+              ),
+            });
+          }}
+        >
+          As Challenge Set
+        </Button>
         {/* Add Challenges */}
         <ActionSelect
           event_id={id}
@@ -197,7 +228,6 @@ function RouteComponent() {
           getId={(c: Challenge) => c.id}
           enableImportJson={true}
         />
-
         {/* Open Challenges */}
         <ActionSelect
           event_id={id}

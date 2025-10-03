@@ -14,6 +14,7 @@ import type { EventWriteup } from "@/routes/admin/events/$id/writeups";
 import type { Instance } from "@/routes/admin/instances";
 import type { Setting } from "@/routes/admin/settings";
 import type { User } from "@/routes/admin/users";
+import type { ChallengeSet } from "@/routes/service/challenge_sets";
 import { type QueryParams, type UniResponse, admin_api } from "../api/axios";
 
 export const adminLoginFn = async ({
@@ -99,6 +100,55 @@ export const challengeAdminApi = {
 		});
 		return res.data;
 	},
+	getChallengeSets: async (): Promise<UniResponse<ChallengeSet[]>> => {
+		const res = await admin_api.get("/challenge_sets");
+		return res.data;
+	},
+	createChallengeSet: async (
+		challenge_set: Partial<ChallengeSet>,
+	): Promise<UniResponse<ChallengeSet>> => {
+		const res = await admin_api.post("/challenge_sets", challenge_set);
+		return res.data;
+	},
+	deleteChallengeSet: async (id: string): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete(`/challenge_sets/${id}`);
+		return res.data;
+	},
+	getChallengeSet: (id: string) => {
+		return async (): Promise<UniResponse<Challenge[]>> => {
+			const res = await admin_api.get(`/challenge_sets/${id}`);
+			return res.data;
+		};
+	},
+	removeChallengeFromSet: (id: string) => {
+		return async (challenge_id: string): Promise<UniResponse<number>> => {
+			const res = await admin_api.delete(
+				`/challenge_sets/${id}/challenges/${challenge_id}`,
+			);
+			return res.data;
+		};
+	},
+	addChallengeToSet: async ({
+		set_id,
+		challenge_id_list,
+	}: {
+		set_id: string;
+		challenge_id_list?: string[];
+	}): Promise<UniResponse<null>> => {
+		const res = await admin_api.post(`/challenge_sets/${set_id}/challenges`, {
+			challenge_id_list,
+		});
+		return res.data;
+	},
+	patchChallengeSet: async (
+		challenge_set: Partial<ChallengeSet>,
+	): Promise<UniResponse<ChallengeSet>> => {
+		const res = await admin_api.patch(
+			`/challenge_sets/${challenge_set.id}`,
+			challenge_set,
+		);
+		return res.data;
+	},
 };
 
 export const userAdminApi = {
@@ -148,6 +198,22 @@ export const eventAdminApi = {
 	},
 	exportWriteUps: async (event_id: string): Promise<UniResponse<string>> => {
 		const res = await admin_api.get(`/events/${event_id}/report`);
+		return res.data;
+	},
+	createChallengeSet: async ({
+		name,
+		description,
+		challenge_id_list,
+	}: {
+		name: string;
+		description?: string;
+		challenge_id_list: string[];
+	}) => {
+		const res = await admin_api.post("/challenge_sets", {
+			name,
+			description,
+			challenge_id_list,
+		});
 		return res.data;
 	},
 };

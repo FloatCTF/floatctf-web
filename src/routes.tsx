@@ -8,6 +8,7 @@ import {
   NoteIcon,
   PasskeyFillIcon,
   PersonIcon,
+  TasklistIcon,
   TelescopeIcon,
 } from "@primer/octicons-react";
 export type NavRoute = {
@@ -29,6 +30,11 @@ export const admin_routes: NavRoute[] = [
     label: "Challenges",
     path: "/admin/challenges",
     icon: <ListUnorderedIcon />,
+  },
+  {
+    label: "Challenge Sets",
+    path: "/admin/challenge_sets",
+    icon: <TasklistIcon />,
   },
 
   {
@@ -62,6 +68,11 @@ export const service_routes: NavRoute[] = [
     label: "Challenges",
     path: "/service/challenges",
     icon: <ListUnorderedIcon size={18} />,
+  },
+  {
+    label: "Challenge Sets",
+    path: "/service/challenge_sets",
+    icon: <TasklistIcon size={18} />,
   },
   {
     label: "Instances",

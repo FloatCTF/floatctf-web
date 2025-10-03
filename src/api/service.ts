@@ -1,6 +1,7 @@
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
 import type { User } from "@/routes/admin/users";
+import type { ChallengeSet } from "@/routes/service/challenge_sets";
 import type { ChallengeWriteup } from "@/routes/service/challenges/$id/route";
 import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
 import type { EventInfo, EventUser } from "@/routes/service/events";
@@ -206,6 +207,14 @@ export const challengeServiceApi = {
 		params: QueryParams = {},
 	): Promise<UniResponse<ChallengeWriteupResult[]>> => {
 		const res = await service_api.get("/writeups");
+		return res.data;
+	},
+	getChallengeSets: async (): Promise<UniResponse<ChallengeSet[]>> => {
+		const res = await service_api.get("/challenge_sets");
+		return res.data;
+	},
+	getChallengeSet: async (id: string): Promise<UniResponse<Challenge[]>> => {
+		const res = await service_api.get(`/challenge_sets/${id}`);
 		return res.data;
 	},
 };
