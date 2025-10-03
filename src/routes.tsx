@@ -7,6 +7,7 @@ import {
   LogIcon,
   NoteIcon,
   PasskeyFillIcon,
+  PersonIcon,
   TelescopeIcon,
 } from "@primer/octicons-react";
 export type NavRoute = {
@@ -76,5 +77,10 @@ export const service_routes: NavRoute[] = [
     label: "Solves",
     path: "/service/solves",
     icon: <LogIcon size={18} />,
+  },
+  {
+    label: "Profile",
+    path: "/service/profile",
+    icon: <PersonIcon size={18} />,
   },
 ];

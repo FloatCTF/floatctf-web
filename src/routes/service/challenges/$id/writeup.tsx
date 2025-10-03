@@ -1,6 +1,6 @@
 import { challengeServiceApi } from "@/api/service";
 import type { Challenge } from "@/routes/admin/challenges";
-import { Spinner } from "@primer/react";
+import { Spinner, Truncate } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import dayjs from "dayjs";
@@ -57,15 +57,16 @@ function RouteComponent() {
               </div>
 
               <div className="mt-2 text-muted">
-                {writeup.writeup.content
-                  .replace(/!\[.*?\]\(.*?\)/g, "") // 去掉图片
-                  .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // 去掉链接，保留文字
-                  .replace(/(`{1,3})(.*?)\1/g, "$2") // 去掉代码块/行内代码
-                  .replace(/[*_~>#-]+/g, "") // 去掉粗体/斜体/标题/列表符号
-                  .replace(/\n+/g, " ") // 换行转空格
-                  .trim()
-                  .slice(0, 50)}
-                ...
+                <Truncate title="Some example text" maxWidth="100%">
+                  {writeup.writeup.content
+                    .replace(/!\[.*?\]\(.*?\)/g, "") // 去掉图片
+                    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // 去掉链接，保留文字
+                    .replace(/(`{1,3})(.*?)\1/g, "$2") // 去掉代码块/行内代码
+                    .replace(/[*_~>#-]+/g, "") // 去掉粗体/斜体/标题/列表符号
+                    .replace(/\n+/g, " ") // 换行转空格
+                    .trim()
+                    .slice(0, 50)}
+                </Truncate>
               </div>
             </div>
 

@@ -14,7 +14,15 @@ export default (props: React.HTMLAttributes<HTMLDivElement>) => {
             "
       {...props}
     >
-      <h2>FloatCTF Admin</h2>
+      <h2
+        className="hover:cursor-pointer"
+        onClick={() => {
+          navigate({ to: "/admin" });
+        }}
+        onKeyUp={() => {}}
+      >
+        FloatCTF Admin
+      </h2>
       <Button
         variant="danger"
         onClick={() => {

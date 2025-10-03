@@ -17,6 +17,7 @@ import { Route as ServiceIndexRouteImport } from './routes/service/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ServiceTopRouteImport } from './routes/service/top'
 import { Route as ServiceSolvesRouteImport } from './routes/service/solves'
+import { Route as ServiceProfileRouteImport } from './routes/service/profile'
 import { Route as ServiceInstancesRouteImport } from './routes/service/instances'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
@@ -83,6 +84,11 @@ const ServiceTopRoute = ServiceTopRouteImport.update({
 const ServiceSolvesRoute = ServiceSolvesRouteImport.update({
   id: '/solves',
   path: '/solves',
+  getParentRoute: () => ServiceRouteRoute,
+} as any)
+const ServiceProfileRoute = ServiceProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => ServiceRouteRoute,
 } as any)
 const ServiceInstancesRoute = ServiceInstancesRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/service/instances': typeof ServiceInstancesRoute
+  '/service/profile': typeof ServiceProfileRoute
   '/service/solves': typeof ServiceSolvesRoute
   '/service/top': typeof ServiceTopRoute
   '/admin/': typeof AdminIndexRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/service/instances': typeof ServiceInstancesRoute
+  '/service/profile': typeof ServiceProfileRoute
   '/service/solves': typeof ServiceSolvesRoute
   '/service/top': typeof ServiceTopRoute
   '/admin': typeof AdminIndexRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/service/instances': typeof ServiceInstancesRoute
+  '/service/profile': typeof ServiceProfileRoute
   '/service/solves': typeof ServiceSolvesRoute
   '/service/top': typeof ServiceTopRoute
   '/admin/': typeof AdminIndexRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/service/instances'
+    | '/service/profile'
     | '/service/solves'
     | '/service/top'
     | '/admin/'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/service/instances'
+    | '/service/profile'
     | '/service/solves'
     | '/service/top'
     | '/admin'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/service/instances'
+    | '/service/profile'
     | '/service/solves'
     | '/service/top'
     | '/admin/'
@@ -508,6 +520,13 @@ declare module '@tanstack/react-router' {
       path: '/solves'
       fullPath: '/service/solves'
       preLoaderRoute: typeof ServiceSolvesRouteImport
+      parentRoute: typeof ServiceRouteRoute
+    }
+    '/service/profile': {
+      id: '/service/profile'
+      path: '/profile'
+      fullPath: '/service/profile'
+      preLoaderRoute: typeof ServiceProfileRouteImport
       parentRoute: typeof ServiceRouteRoute
     }
     '/service/instances': {
@@ -786,6 +805,7 @@ const ServiceEventsIdRouteRouteWithChildren =
 
 interface ServiceRouteRouteChildren {
   ServiceInstancesRoute: typeof ServiceInstancesRoute
+  ServiceProfileRoute: typeof ServiceProfileRoute
   ServiceSolvesRoute: typeof ServiceSolvesRoute
   ServiceTopRoute: typeof ServiceTopRoute
   ServiceIndexRoute: typeof ServiceIndexRoute
@@ -799,6 +819,7 @@ interface ServiceRouteRouteChildren {
 
 const ServiceRouteRouteChildren: ServiceRouteRouteChildren = {
   ServiceInstancesRoute: ServiceInstancesRoute,
+  ServiceProfileRoute: ServiceProfileRoute,
   ServiceSolvesRoute: ServiceSolvesRoute,
   ServiceTopRoute: ServiceTopRoute,
   ServiceIndexRoute: ServiceIndexRoute,

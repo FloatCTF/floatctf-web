@@ -1,5 +1,6 @@
 import type { Challenge } from "@/routes/admin/challenges";
 import type { Instance } from "@/routes/admin/instances";
+import type { User } from "@/routes/admin/users";
 import type { ChallengeWriteup } from "@/routes/service/challenges/$id/route";
 import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
 import type { EventInfo, EventUser } from "@/routes/service/events";
@@ -11,36 +12,44 @@ import type { TrendItem } from "@/routes/service/events/$id/trend";
 import type { ChallengeSolve } from "@/routes/service/solves";
 import type { TopUser } from "@/routes/service/top";
 import { type QueryParams, type UniResponse, service_api } from "./axios";
-
-export const userLoginFn = async ({
-	username,
-	password,
-}: { username: string; password: string }): Promise<UniResponse<string>> => {
-	const response = await service_api.post("/users/session", {
+export const userServiceApi = {
+	getMe: async (): Promise<UniResponse<User>> => {
+		const response = await service_api.get("/users/me");
+		return response.data;
+	},
+	patchMe: async (data: Partial<User>): Promise<UniResponse<User>> => {
+		const response = await service_api.patch("/users/me", data);
+		return response.data;
+	},
+	login: async ({
 		username,
 		password,
-	});
-	return response.data;
-};
-
-export const userRegisterFn = async ({
-	username,
-	password,
-	nickname,
-	email,
-}: {
-	username: string;
-	password: string;
-	nickname: string;
-	email: string;
-}): Promise<UniResponse<string>> => {
-	const response = await service_api.post("/users", {
+	}: { username: string; password: string }): Promise<UniResponse<string>> => {
+		const response = await service_api.post("/users/session", {
+			username,
+			password,
+		});
+		return response.data;
+	},
+	register: async ({
 		username,
 		password,
 		nickname,
 		email,
-	});
-	return response.data;
+	}: {
+		username: string;
+		password: string;
+		nickname: string;
+		email: string;
+	}): Promise<UniResponse<string>> => {
+		const response = await service_api.post("/users", {
+			username,
+			password,
+			nickname,
+			email,
+		});
+		return response.data;
+	},
 };
 
 export const eventServiceApi = {

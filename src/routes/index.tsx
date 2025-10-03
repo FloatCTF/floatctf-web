@@ -1,5 +1,4 @@
-import { userLoginFn } from "@/api/service";
-
+import { userServiceApi } from "@/api/service";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
@@ -33,7 +32,7 @@ function App() {
   const authStore = useAuthStore();
   const navigate = useNavigate();
   const mutation = useMutation({
-    mutationFn: userLoginFn,
+    mutationFn: userServiceApi.login,
     onMutate: () => {
       form.hidden = true;
       form.buttonMessage = "Signing in...";

@@ -1,4 +1,4 @@
-import { userRegisterFn } from "@/api/service";
+import { userServiceApi } from "@/api/service";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
 import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
@@ -34,7 +34,7 @@ function Register() {
   const navigate = useNavigate();
 
   const mutation = useMutation({
-    mutationFn: userRegisterFn,
+    mutationFn: userServiceApi.register,
     onMutate: () => {
       form.hidden = true;
       form.buttonMessage = "Registering...";

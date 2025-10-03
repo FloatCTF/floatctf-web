@@ -66,6 +66,7 @@ function RouteComponent() {
     { text: "Pwn" },
     { text: "Crypto" },
     { text: "Reverse" },
+    { text: "AI" },
   ];
   const [selected, setSelected] = useState(categories[0]); // 默认 ALL
   const [filter, setFilter] = useState("");
