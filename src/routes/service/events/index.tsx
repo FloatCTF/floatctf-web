@@ -16,7 +16,7 @@ import { useMsgBanner } from "@/components/MsgBanner";
 import { useTitle } from "ahooks";
 import { useEffect } from "react";
 import type { Event } from "../../admin/events";
-import type { EventTeam } from "./$id";
+import type { EventTeam } from "./jeopardy.$id";
 export type EventTeamMember = {
   event_id: string;
   team_id: string;
@@ -58,17 +58,6 @@ function RouteComponent() {
       header: "ID",
       field: "event.id",
       rowHeader: true,
-      renderCell: (row: EventInfo) => {
-        return (
-          <Link
-            to={"/service/events/$id"}
-            params={{ id: row.event.id }}
-            target="_blank"
-          >
-            {row.event.id}
-          </Link>
-        );
-      },
     },
     {
       accessorKey: "event.title",
@@ -76,15 +65,17 @@ function RouteComponent() {
       field: "event.title",
       rowHeader: true,
       renderCell: (row: EventInfo) => {
-        return (
-          <Link
-            to={"/service/events/$id"}
-            params={{ id: row.event.id }}
-            target="_blank"
-          >
-            {row.event.title}
-          </Link>
-        );
+        if (row.event.type.includes("Jeopardy")) {
+          return (
+            <Link
+              to={"/service/events/jeopardy/$id"}
+              params={{ id: row.event.id }}
+              target="_blank"
+            >
+              {row.event.title}
+            </Link>
+          );
+        }
       },
     },
     { accessorKey: "event.type", header: "Type", field: "event.type" },

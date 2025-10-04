@@ -27,9 +27,11 @@ import utc from "dayjs/plugin/utc";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RemainingTimer } from "../../challenges/$id";
 dayjs.extend(utc);
-export const Route = createFileRoute("/service/events/$id/challenges")({
-  component: RouteComponent,
-});
+export const Route = createFileRoute("/service/events/jeopardy/$id/challenges")(
+  {
+    component: RouteComponent,
+  }
+);
 
 export type EventChallengeResult = {
   id: string;

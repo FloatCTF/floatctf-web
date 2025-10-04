@@ -7,7 +7,7 @@ import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
-export const Route = createFileRoute("/service/events/$id/trend")({
+export const Route = createFileRoute("/service/events/jeopardy/$id/trend")({
   component: RouteComponent,
 });
 export type TrendPoint = {

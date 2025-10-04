@@ -5,11 +5,14 @@ import type { ChallengeSet } from "@/routes/service/challenge_sets";
 import type { ChallengeWriteup } from "@/routes/service/challenges/$id/route";
 import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
 import type { EventInfo, EventUser } from "@/routes/service/events";
-import type { Announcement, EventTeam } from "@/routes/service/events/$id";
-import type { EventChallengeResult } from "@/routes/service/events/$id/challenges";
-import type { EventInstance } from "@/routes/service/events/$id/instances";
-import type { ScoreboardItem } from "@/routes/service/events/$id/scoreboard";
-import type { TrendItem } from "@/routes/service/events/$id/trend";
+import type {
+	Announcement,
+	EventTeam,
+} from "@/routes/service/events/jeopardy.$id";
+import type { EventChallengeResult } from "@/routes/service/events/jeopardy.$id/challenges";
+import type { EventInstance } from "@/routes/service/events/jeopardy.$id/instances";
+import type { ScoreboardItem } from "@/routes/service/events/jeopardy.$id/scoreboard";
+import type { TrendItem } from "@/routes/service/events/jeopardy.$id/trend";
 import type { ChallengeSolve } from "@/routes/service/solves";
 import type { TopUser } from "@/routes/service/top";
 import { type QueryParams, type UniResponse, service_api } from "./axios";

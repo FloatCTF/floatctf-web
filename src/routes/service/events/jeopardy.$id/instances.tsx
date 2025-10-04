@@ -17,7 +17,7 @@ export type EventInstance = {
   challenge_name: string;
   user_nickname: string;
 };
-export const Route = createFileRoute("/service/events/$id/instances")({
+export const Route = createFileRoute("/service/events/jeopardy/$id/instances")({
   component: RouteComponent,
 });
 

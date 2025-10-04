@@ -9,7 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { RouterNavItem } from "../../events/$id/route";
+import { RouterNavItem } from "../../events/jeopardy.$id/route";
 import { ServiceRouteGuard } from "../../route";
 export const Route = createFileRoute("/service/challenges/$id")({
   component: RouteComponent,

@@ -1,6 +1,6 @@
 import { eventAdminApi, eventTeamAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
-import type { EventTeam } from "@/routes/service/events/$id";
+import type { EventTeam } from "@/routes/service/events/jeopardy.$id";
 import { CheckIcon } from "@primer/octicons-react";
 import { ActionList, TreeView } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

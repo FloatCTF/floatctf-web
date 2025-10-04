@@ -32,23 +32,23 @@ import { Route as AdminEventsIndexRouteImport } from './routes/admin/events/inde
 import { Route as AdminChallenge_setsIndexRouteImport } from './routes/admin/challenge_sets/index'
 import { Route as ServiceWriteupsIdRouteImport } from './routes/service/writeups/$id'
 import { Route as AdminChallenge_setsIdRouteImport } from './routes/admin/challenge_sets/$id'
-import { Route as ServiceEventsIdRouteRouteImport } from './routes/service/events/$id/route'
 import { Route as ServiceChallengesIdRouteRouteImport } from './routes/service/challenges/$id/route'
 import { Route as AdminEventsIdRouteRouteImport } from './routes/admin/events/$id/route'
-import { Route as ServiceEventsIdIndexRouteImport } from './routes/service/events/$id/index'
 import { Route as ServiceChallengesIdIndexRouteImport } from './routes/service/challenges/$id/index'
 import { Route as ServiceChallenge_setsIdIndexRouteImport } from './routes/service/challenge_sets/$id/index'
 import { Route as AdminEventsIdIndexRouteImport } from './routes/admin/events/$id/index'
-import { Route as ServiceEventsIdTrendRouteImport } from './routes/service/events/$id/trend'
-import { Route as ServiceEventsIdScoreboardRouteImport } from './routes/service/events/$id/scoreboard'
-import { Route as ServiceEventsIdInstancesRouteImport } from './routes/service/events/$id/instances'
-import { Route as ServiceEventsIdChallengesRouteImport } from './routes/service/events/$id/challenges'
 import { Route as ServiceChallengesIdWriteupRouteImport } from './routes/service/challenges/$id/writeup'
 import { Route as AdminEventsIdWriteupsRouteImport } from './routes/admin/events/$id/writeups'
 import { Route as AdminEventsIdUsersRouteImport } from './routes/admin/events/$id/users'
 import { Route as AdminEventsIdTeamsRouteImport } from './routes/admin/events/$id/teams'
 import { Route as AdminEventsIdData_presentRouteImport } from './routes/admin/events/$id/data_present'
 import { Route as AdminEventsIdAnnouncementsRouteImport } from './routes/admin/events/$id/announcements'
+import { Route as ServiceEventsJeopardyIdRouteRouteImport } from './routes/service/events/jeopardy.$id/route'
+import { Route as ServiceEventsJeopardyIdIndexRouteImport } from './routes/service/events/jeopardy.$id/index'
+import { Route as ServiceEventsJeopardyIdTrendRouteImport } from './routes/service/events/jeopardy.$id/trend'
+import { Route as ServiceEventsJeopardyIdScoreboardRouteImport } from './routes/service/events/jeopardy.$id/scoreboard'
+import { Route as ServiceEventsJeopardyIdInstancesRouteImport } from './routes/service/events/jeopardy.$id/instances'
+import { Route as ServiceEventsJeopardyIdChallengesRouteImport } from './routes/service/events/jeopardy.$id/challenges'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -167,11 +167,6 @@ const AdminChallenge_setsIdRoute = AdminChallenge_setsIdRouteImport.update({
   path: '/challenge_sets/$id',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const ServiceEventsIdRouteRoute = ServiceEventsIdRouteRouteImport.update({
-  id: '/events/$id',
-  path: '/events/$id',
-  getParentRoute: () => ServiceRouteRoute,
-} as any)
 const ServiceChallengesIdRouteRoute =
   ServiceChallengesIdRouteRouteImport.update({
     id: '/challenges/$id',
@@ -182,11 +177,6 @@ const AdminEventsIdRouteRoute = AdminEventsIdRouteRouteImport.update({
   id: '/events/$id',
   path: '/events/$id',
   getParentRoute: () => AdminRouteRoute,
-} as any)
-const ServiceEventsIdIndexRoute = ServiceEventsIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ServiceEventsIdRouteRoute,
 } as any)
 const ServiceChallengesIdIndexRoute =
   ServiceChallengesIdIndexRouteImport.update({
@@ -205,29 +195,6 @@ const AdminEventsIdIndexRoute = AdminEventsIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminEventsIdRouteRoute,
 } as any)
-const ServiceEventsIdTrendRoute = ServiceEventsIdTrendRouteImport.update({
-  id: '/trend',
-  path: '/trend',
-  getParentRoute: () => ServiceEventsIdRouteRoute,
-} as any)
-const ServiceEventsIdScoreboardRoute =
-  ServiceEventsIdScoreboardRouteImport.update({
-    id: '/scoreboard',
-    path: '/scoreboard',
-    getParentRoute: () => ServiceEventsIdRouteRoute,
-  } as any)
-const ServiceEventsIdInstancesRoute =
-  ServiceEventsIdInstancesRouteImport.update({
-    id: '/instances',
-    path: '/instances',
-    getParentRoute: () => ServiceEventsIdRouteRoute,
-  } as any)
-const ServiceEventsIdChallengesRoute =
-  ServiceEventsIdChallengesRouteImport.update({
-    id: '/challenges',
-    path: '/challenges',
-    getParentRoute: () => ServiceEventsIdRouteRoute,
-  } as any)
 const ServiceChallengesIdWriteupRoute =
   ServiceChallengesIdWriteupRouteImport.update({
     id: '/writeup',
@@ -261,6 +228,42 @@ const AdminEventsIdAnnouncementsRoute =
     path: '/announcements',
     getParentRoute: () => AdminEventsIdRouteRoute,
   } as any)
+const ServiceEventsJeopardyIdRouteRoute =
+  ServiceEventsJeopardyIdRouteRouteImport.update({
+    id: '/events/jeopardy/$id',
+    path: '/events/jeopardy/$id',
+    getParentRoute: () => ServiceRouteRoute,
+  } as any)
+const ServiceEventsJeopardyIdIndexRoute =
+  ServiceEventsJeopardyIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ServiceEventsJeopardyIdRouteRoute,
+  } as any)
+const ServiceEventsJeopardyIdTrendRoute =
+  ServiceEventsJeopardyIdTrendRouteImport.update({
+    id: '/trend',
+    path: '/trend',
+    getParentRoute: () => ServiceEventsJeopardyIdRouteRoute,
+  } as any)
+const ServiceEventsJeopardyIdScoreboardRoute =
+  ServiceEventsJeopardyIdScoreboardRouteImport.update({
+    id: '/scoreboard',
+    path: '/scoreboard',
+    getParentRoute: () => ServiceEventsJeopardyIdRouteRoute,
+  } as any)
+const ServiceEventsJeopardyIdInstancesRoute =
+  ServiceEventsJeopardyIdInstancesRouteImport.update({
+    id: '/instances',
+    path: '/instances',
+    getParentRoute: () => ServiceEventsJeopardyIdRouteRoute,
+  } as any)
+const ServiceEventsJeopardyIdChallengesRoute =
+  ServiceEventsJeopardyIdChallengesRouteImport.update({
+    id: '/challenges',
+    path: '/challenges',
+    getParentRoute: () => ServiceEventsJeopardyIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -280,7 +283,6 @@ export interface FileRoutesByFullPath {
   '/service/': typeof ServiceIndexRoute
   '/admin/events/$id': typeof AdminEventsIdRouteRouteWithChildren
   '/service/challenges/$id': typeof ServiceChallengesIdRouteRouteWithChildren
-  '/service/events/$id': typeof ServiceEventsIdRouteRouteWithChildren
   '/admin/challenge_sets/$id': typeof AdminChallenge_setsIdRoute
   '/service/writeups/$id': typeof ServiceWriteupsIdRoute
   '/admin/challenge_sets': typeof AdminChallenge_setsIndexRoute
@@ -289,20 +291,21 @@ export interface FileRoutesByFullPath {
   '/service/challenges': typeof ServiceChallengesIndexRoute
   '/service/events': typeof ServiceEventsIndexRoute
   '/service/writeups': typeof ServiceWriteupsIndexRoute
+  '/service/events/jeopardy/$id': typeof ServiceEventsJeopardyIdRouteRouteWithChildren
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
   '/admin/events/$id/teams': typeof AdminEventsIdTeamsRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
   '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
-  '/service/events/$id/challenges': typeof ServiceEventsIdChallengesRoute
-  '/service/events/$id/instances': typeof ServiceEventsIdInstancesRoute
-  '/service/events/$id/scoreboard': typeof ServiceEventsIdScoreboardRoute
-  '/service/events/$id/trend': typeof ServiceEventsIdTrendRoute
   '/admin/events/$id/': typeof AdminEventsIdIndexRoute
   '/service/challenge_sets/$id': typeof ServiceChallenge_setsIdIndexRoute
   '/service/challenges/$id/': typeof ServiceChallengesIdIndexRoute
-  '/service/events/$id/': typeof ServiceEventsIdIndexRoute
+  '/service/events/jeopardy/$id/challenges': typeof ServiceEventsJeopardyIdChallengesRoute
+  '/service/events/jeopardy/$id/instances': typeof ServiceEventsJeopardyIdInstancesRoute
+  '/service/events/jeopardy/$id/scoreboard': typeof ServiceEventsJeopardyIdScoreboardRoute
+  '/service/events/jeopardy/$id/trend': typeof ServiceEventsJeopardyIdTrendRoute
+  '/service/events/jeopardy/$id/': typeof ServiceEventsJeopardyIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -332,14 +335,14 @@ export interface FileRoutesByTo {
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
   '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
-  '/service/events/$id/challenges': typeof ServiceEventsIdChallengesRoute
-  '/service/events/$id/instances': typeof ServiceEventsIdInstancesRoute
-  '/service/events/$id/scoreboard': typeof ServiceEventsIdScoreboardRoute
-  '/service/events/$id/trend': typeof ServiceEventsIdTrendRoute
   '/admin/events/$id': typeof AdminEventsIdIndexRoute
   '/service/challenge_sets/$id': typeof ServiceChallenge_setsIdIndexRoute
   '/service/challenges/$id': typeof ServiceChallengesIdIndexRoute
-  '/service/events/$id': typeof ServiceEventsIdIndexRoute
+  '/service/events/jeopardy/$id/challenges': typeof ServiceEventsJeopardyIdChallengesRoute
+  '/service/events/jeopardy/$id/instances': typeof ServiceEventsJeopardyIdInstancesRoute
+  '/service/events/jeopardy/$id/scoreboard': typeof ServiceEventsJeopardyIdScoreboardRoute
+  '/service/events/jeopardy/$id/trend': typeof ServiceEventsJeopardyIdTrendRoute
+  '/service/events/jeopardy/$id': typeof ServiceEventsJeopardyIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -360,7 +363,6 @@ export interface FileRoutesById {
   '/service/': typeof ServiceIndexRoute
   '/admin/events/$id': typeof AdminEventsIdRouteRouteWithChildren
   '/service/challenges/$id': typeof ServiceChallengesIdRouteRouteWithChildren
-  '/service/events/$id': typeof ServiceEventsIdRouteRouteWithChildren
   '/admin/challenge_sets/$id': typeof AdminChallenge_setsIdRoute
   '/service/writeups/$id': typeof ServiceWriteupsIdRoute
   '/admin/challenge_sets/': typeof AdminChallenge_setsIndexRoute
@@ -369,20 +371,21 @@ export interface FileRoutesById {
   '/service/challenges/': typeof ServiceChallengesIndexRoute
   '/service/events/': typeof ServiceEventsIndexRoute
   '/service/writeups/': typeof ServiceWriteupsIndexRoute
+  '/service/events/jeopardy/$id': typeof ServiceEventsJeopardyIdRouteRouteWithChildren
   '/admin/events/$id/announcements': typeof AdminEventsIdAnnouncementsRoute
   '/admin/events/$id/data_present': typeof AdminEventsIdData_presentRoute
   '/admin/events/$id/teams': typeof AdminEventsIdTeamsRoute
   '/admin/events/$id/users': typeof AdminEventsIdUsersRoute
   '/admin/events/$id/writeups': typeof AdminEventsIdWriteupsRoute
   '/service/challenges/$id/writeup': typeof ServiceChallengesIdWriteupRoute
-  '/service/events/$id/challenges': typeof ServiceEventsIdChallengesRoute
-  '/service/events/$id/instances': typeof ServiceEventsIdInstancesRoute
-  '/service/events/$id/scoreboard': typeof ServiceEventsIdScoreboardRoute
-  '/service/events/$id/trend': typeof ServiceEventsIdTrendRoute
   '/admin/events/$id/': typeof AdminEventsIdIndexRoute
   '/service/challenge_sets/$id/': typeof ServiceChallenge_setsIdIndexRoute
   '/service/challenges/$id/': typeof ServiceChallengesIdIndexRoute
-  '/service/events/$id/': typeof ServiceEventsIdIndexRoute
+  '/service/events/jeopardy/$id/challenges': typeof ServiceEventsJeopardyIdChallengesRoute
+  '/service/events/jeopardy/$id/instances': typeof ServiceEventsJeopardyIdInstancesRoute
+  '/service/events/jeopardy/$id/scoreboard': typeof ServiceEventsJeopardyIdScoreboardRoute
+  '/service/events/jeopardy/$id/trend': typeof ServiceEventsJeopardyIdTrendRoute
+  '/service/events/jeopardy/$id/': typeof ServiceEventsJeopardyIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -404,7 +407,6 @@ export interface FileRouteTypes {
     | '/service/'
     | '/admin/events/$id'
     | '/service/challenges/$id'
-    | '/service/events/$id'
     | '/admin/challenge_sets/$id'
     | '/service/writeups/$id'
     | '/admin/challenge_sets'
@@ -413,20 +415,21 @@ export interface FileRouteTypes {
     | '/service/challenges'
     | '/service/events'
     | '/service/writeups'
+    | '/service/events/jeopardy/$id'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
     | '/admin/events/$id/teams'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
     | '/service/challenges/$id/writeup'
-    | '/service/events/$id/challenges'
-    | '/service/events/$id/instances'
-    | '/service/events/$id/scoreboard'
-    | '/service/events/$id/trend'
     | '/admin/events/$id/'
     | '/service/challenge_sets/$id'
     | '/service/challenges/$id/'
-    | '/service/events/$id/'
+    | '/service/events/jeopardy/$id/challenges'
+    | '/service/events/jeopardy/$id/instances'
+    | '/service/events/jeopardy/$id/scoreboard'
+    | '/service/events/jeopardy/$id/trend'
+    | '/service/events/jeopardy/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -456,14 +459,14 @@ export interface FileRouteTypes {
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
     | '/service/challenges/$id/writeup'
-    | '/service/events/$id/challenges'
-    | '/service/events/$id/instances'
-    | '/service/events/$id/scoreboard'
-    | '/service/events/$id/trend'
     | '/admin/events/$id'
     | '/service/challenge_sets/$id'
     | '/service/challenges/$id'
-    | '/service/events/$id'
+    | '/service/events/jeopardy/$id/challenges'
+    | '/service/events/jeopardy/$id/instances'
+    | '/service/events/jeopardy/$id/scoreboard'
+    | '/service/events/jeopardy/$id/trend'
+    | '/service/events/jeopardy/$id'
   id:
     | '__root__'
     | '/'
@@ -483,7 +486,6 @@ export interface FileRouteTypes {
     | '/service/'
     | '/admin/events/$id'
     | '/service/challenges/$id'
-    | '/service/events/$id'
     | '/admin/challenge_sets/$id'
     | '/service/writeups/$id'
     | '/admin/challenge_sets/'
@@ -492,20 +494,21 @@ export interface FileRouteTypes {
     | '/service/challenges/'
     | '/service/events/'
     | '/service/writeups/'
+    | '/service/events/jeopardy/$id'
     | '/admin/events/$id/announcements'
     | '/admin/events/$id/data_present'
     | '/admin/events/$id/teams'
     | '/admin/events/$id/users'
     | '/admin/events/$id/writeups'
     | '/service/challenges/$id/writeup'
-    | '/service/events/$id/challenges'
-    | '/service/events/$id/instances'
-    | '/service/events/$id/scoreboard'
-    | '/service/events/$id/trend'
     | '/admin/events/$id/'
     | '/service/challenge_sets/$id/'
     | '/service/challenges/$id/'
-    | '/service/events/$id/'
+    | '/service/events/jeopardy/$id/challenges'
+    | '/service/events/jeopardy/$id/instances'
+    | '/service/events/jeopardy/$id/scoreboard'
+    | '/service/events/jeopardy/$id/trend'
+    | '/service/events/jeopardy/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -678,13 +681,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminChallenge_setsIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/service/events/$id': {
-      id: '/service/events/$id'
-      path: '/events/$id'
-      fullPath: '/service/events/$id'
-      preLoaderRoute: typeof ServiceEventsIdRouteRouteImport
-      parentRoute: typeof ServiceRouteRoute
-    }
     '/service/challenges/$id': {
       id: '/service/challenges/$id'
       path: '/challenges/$id'
@@ -698,13 +694,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/events/$id'
       preLoaderRoute: typeof AdminEventsIdRouteRouteImport
       parentRoute: typeof AdminRouteRoute
-    }
-    '/service/events/$id/': {
-      id: '/service/events/$id/'
-      path: '/'
-      fullPath: '/service/events/$id/'
-      preLoaderRoute: typeof ServiceEventsIdIndexRouteImport
-      parentRoute: typeof ServiceEventsIdRouteRoute
     }
     '/service/challenges/$id/': {
       id: '/service/challenges/$id/'
@@ -726,34 +715,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/events/$id/'
       preLoaderRoute: typeof AdminEventsIdIndexRouteImport
       parentRoute: typeof AdminEventsIdRouteRoute
-    }
-    '/service/events/$id/trend': {
-      id: '/service/events/$id/trend'
-      path: '/trend'
-      fullPath: '/service/events/$id/trend'
-      preLoaderRoute: typeof ServiceEventsIdTrendRouteImport
-      parentRoute: typeof ServiceEventsIdRouteRoute
-    }
-    '/service/events/$id/scoreboard': {
-      id: '/service/events/$id/scoreboard'
-      path: '/scoreboard'
-      fullPath: '/service/events/$id/scoreboard'
-      preLoaderRoute: typeof ServiceEventsIdScoreboardRouteImport
-      parentRoute: typeof ServiceEventsIdRouteRoute
-    }
-    '/service/events/$id/instances': {
-      id: '/service/events/$id/instances'
-      path: '/instances'
-      fullPath: '/service/events/$id/instances'
-      preLoaderRoute: typeof ServiceEventsIdInstancesRouteImport
-      parentRoute: typeof ServiceEventsIdRouteRoute
-    }
-    '/service/events/$id/challenges': {
-      id: '/service/events/$id/challenges'
-      path: '/challenges'
-      fullPath: '/service/events/$id/challenges'
-      preLoaderRoute: typeof ServiceEventsIdChallengesRouteImport
-      parentRoute: typeof ServiceEventsIdRouteRoute
     }
     '/service/challenges/$id/writeup': {
       id: '/service/challenges/$id/writeup'
@@ -796,6 +757,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/events/$id/announcements'
       preLoaderRoute: typeof AdminEventsIdAnnouncementsRouteImport
       parentRoute: typeof AdminEventsIdRouteRoute
+    }
+    '/service/events/jeopardy/$id': {
+      id: '/service/events/jeopardy/$id'
+      path: '/events/jeopardy/$id'
+      fullPath: '/service/events/jeopardy/$id'
+      preLoaderRoute: typeof ServiceEventsJeopardyIdRouteRouteImport
+      parentRoute: typeof ServiceRouteRoute
+    }
+    '/service/events/jeopardy/$id/': {
+      id: '/service/events/jeopardy/$id/'
+      path: '/'
+      fullPath: '/service/events/jeopardy/$id/'
+      preLoaderRoute: typeof ServiceEventsJeopardyIdIndexRouteImport
+      parentRoute: typeof ServiceEventsJeopardyIdRouteRoute
+    }
+    '/service/events/jeopardy/$id/trend': {
+      id: '/service/events/jeopardy/$id/trend'
+      path: '/trend'
+      fullPath: '/service/events/jeopardy/$id/trend'
+      preLoaderRoute: typeof ServiceEventsJeopardyIdTrendRouteImport
+      parentRoute: typeof ServiceEventsJeopardyIdRouteRoute
+    }
+    '/service/events/jeopardy/$id/scoreboard': {
+      id: '/service/events/jeopardy/$id/scoreboard'
+      path: '/scoreboard'
+      fullPath: '/service/events/jeopardy/$id/scoreboard'
+      preLoaderRoute: typeof ServiceEventsJeopardyIdScoreboardRouteImport
+      parentRoute: typeof ServiceEventsJeopardyIdRouteRoute
+    }
+    '/service/events/jeopardy/$id/instances': {
+      id: '/service/events/jeopardy/$id/instances'
+      path: '/instances'
+      fullPath: '/service/events/jeopardy/$id/instances'
+      preLoaderRoute: typeof ServiceEventsJeopardyIdInstancesRouteImport
+      parentRoute: typeof ServiceEventsJeopardyIdRouteRoute
+    }
+    '/service/events/jeopardy/$id/challenges': {
+      id: '/service/events/jeopardy/$id/challenges'
+      path: '/challenges'
+      fullPath: '/service/events/jeopardy/$id/challenges'
+      preLoaderRoute: typeof ServiceEventsJeopardyIdChallengesRouteImport
+      parentRoute: typeof ServiceEventsJeopardyIdRouteRoute
     }
   }
 }
@@ -867,24 +870,30 @@ const ServiceChallengesIdRouteRouteWithChildren =
     ServiceChallengesIdRouteRouteChildren,
   )
 
-interface ServiceEventsIdRouteRouteChildren {
-  ServiceEventsIdChallengesRoute: typeof ServiceEventsIdChallengesRoute
-  ServiceEventsIdInstancesRoute: typeof ServiceEventsIdInstancesRoute
-  ServiceEventsIdScoreboardRoute: typeof ServiceEventsIdScoreboardRoute
-  ServiceEventsIdTrendRoute: typeof ServiceEventsIdTrendRoute
-  ServiceEventsIdIndexRoute: typeof ServiceEventsIdIndexRoute
+interface ServiceEventsJeopardyIdRouteRouteChildren {
+  ServiceEventsJeopardyIdChallengesRoute: typeof ServiceEventsJeopardyIdChallengesRoute
+  ServiceEventsJeopardyIdInstancesRoute: typeof ServiceEventsJeopardyIdInstancesRoute
+  ServiceEventsJeopardyIdScoreboardRoute: typeof ServiceEventsJeopardyIdScoreboardRoute
+  ServiceEventsJeopardyIdTrendRoute: typeof ServiceEventsJeopardyIdTrendRoute
+  ServiceEventsJeopardyIdIndexRoute: typeof ServiceEventsJeopardyIdIndexRoute
 }
 
-const ServiceEventsIdRouteRouteChildren: ServiceEventsIdRouteRouteChildren = {
-  ServiceEventsIdChallengesRoute: ServiceEventsIdChallengesRoute,
-  ServiceEventsIdInstancesRoute: ServiceEventsIdInstancesRoute,
-  ServiceEventsIdScoreboardRoute: ServiceEventsIdScoreboardRoute,
-  ServiceEventsIdTrendRoute: ServiceEventsIdTrendRoute,
-  ServiceEventsIdIndexRoute: ServiceEventsIdIndexRoute,
-}
+const ServiceEventsJeopardyIdRouteRouteChildren: ServiceEventsJeopardyIdRouteRouteChildren =
+  {
+    ServiceEventsJeopardyIdChallengesRoute:
+      ServiceEventsJeopardyIdChallengesRoute,
+    ServiceEventsJeopardyIdInstancesRoute:
+      ServiceEventsJeopardyIdInstancesRoute,
+    ServiceEventsJeopardyIdScoreboardRoute:
+      ServiceEventsJeopardyIdScoreboardRoute,
+    ServiceEventsJeopardyIdTrendRoute: ServiceEventsJeopardyIdTrendRoute,
+    ServiceEventsJeopardyIdIndexRoute: ServiceEventsJeopardyIdIndexRoute,
+  }
 
-const ServiceEventsIdRouteRouteWithChildren =
-  ServiceEventsIdRouteRoute._addFileChildren(ServiceEventsIdRouteRouteChildren)
+const ServiceEventsJeopardyIdRouteRouteWithChildren =
+  ServiceEventsJeopardyIdRouteRoute._addFileChildren(
+    ServiceEventsJeopardyIdRouteRouteChildren,
+  )
 
 interface ServiceRouteRouteChildren {
   ServiceInstancesRoute: typeof ServiceInstancesRoute
@@ -893,12 +902,12 @@ interface ServiceRouteRouteChildren {
   ServiceTopRoute: typeof ServiceTopRoute
   ServiceIndexRoute: typeof ServiceIndexRoute
   ServiceChallengesIdRouteRoute: typeof ServiceChallengesIdRouteRouteWithChildren
-  ServiceEventsIdRouteRoute: typeof ServiceEventsIdRouteRouteWithChildren
   ServiceWriteupsIdRoute: typeof ServiceWriteupsIdRoute
   ServiceChallenge_setsIndexRoute: typeof ServiceChallenge_setsIndexRoute
   ServiceChallengesIndexRoute: typeof ServiceChallengesIndexRoute
   ServiceEventsIndexRoute: typeof ServiceEventsIndexRoute
   ServiceWriteupsIndexRoute: typeof ServiceWriteupsIndexRoute
+  ServiceEventsJeopardyIdRouteRoute: typeof ServiceEventsJeopardyIdRouteRouteWithChildren
   ServiceChallenge_setsIdIndexRoute: typeof ServiceChallenge_setsIdIndexRoute
 }
 
@@ -909,12 +918,13 @@ const ServiceRouteRouteChildren: ServiceRouteRouteChildren = {
   ServiceTopRoute: ServiceTopRoute,
   ServiceIndexRoute: ServiceIndexRoute,
   ServiceChallengesIdRouteRoute: ServiceChallengesIdRouteRouteWithChildren,
-  ServiceEventsIdRouteRoute: ServiceEventsIdRouteRouteWithChildren,
   ServiceWriteupsIdRoute: ServiceWriteupsIdRoute,
   ServiceChallenge_setsIndexRoute: ServiceChallenge_setsIndexRoute,
   ServiceChallengesIndexRoute: ServiceChallengesIndexRoute,
   ServiceEventsIndexRoute: ServiceEventsIndexRoute,
   ServiceWriteupsIndexRoute: ServiceWriteupsIndexRoute,
+  ServiceEventsJeopardyIdRouteRoute:
+    ServiceEventsJeopardyIdRouteRouteWithChildren,
   ServiceChallenge_setsIdIndexRoute: ServiceChallenge_setsIdIndexRoute,
 }
 

@@ -12,11 +12,13 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
-import type { TrendItem } from "./trend";
+import type { TrendItem } from "./jeopardy/trend";
 
-export const Route = createFileRoute("/service/events/$id/scoreboard")({
-  component: RouteComponent,
-});
+export const Route = createFileRoute("/service/events/jeopardy/$id/scoreboard")(
+  {
+    component: RouteComponent,
+  }
+);
 export type ChallengeScoreboard = {
   name: string;
   solved: boolean;

@@ -17,7 +17,7 @@ import dayjs from "dayjs";
 import { type FormEvent, useMemo, useRef, useState } from "react";
 import type { EventInfo } from "..";
 
-export const Route = createFileRoute("/service/events/$id/")({
+export const Route = createFileRoute("/service/events/jeopardy/$id/")({
   component: RouteComponent,
 });
 

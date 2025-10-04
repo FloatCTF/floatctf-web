@@ -1,6 +1,6 @@
 import { eventAdminApi } from "@/api/admin";
 import type { Event } from "@/routes/admin/events";
-import { RouterNavItem } from "@/routes/service/events/$id/route";
+import { RouterNavItem } from "@/routes/service/events/jeopardy.$id/route";
 import { Spinner, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, createFileRoute } from "@tanstack/react-router";

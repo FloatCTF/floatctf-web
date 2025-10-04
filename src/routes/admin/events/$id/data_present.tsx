@@ -1,11 +1,14 @@
 import { eventAdminApi } from "@/api/admin";
 import type { Event } from "@/routes/admin/events";
-import { RemainingTimer } from "@/routes/service/events/$id/route";
+import { RemainingTimer } from "@/routes/service/events/jeopardy.$id/route";
 import {
   ScoreBoard,
   type ScoreboardItem,
-} from "@/routes/service/events/$id/scoreboard";
-import { TrendChart, type TrendItem } from "@/routes/service/events/$id/trend";
+} from "@/routes/service/events/jeopardy.$id/scoreboard";
+import {
+  TrendChart,
+  type TrendItem,
+} from "@/routes/service/events/jeopardy.$id/trend";
 import {
   RocketIcon,
   ScreenFullIcon,

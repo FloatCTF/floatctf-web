@@ -17,7 +17,7 @@ import { useTitle } from "ahooks";
 import { useEffect, useState } from "react";
 import { ServiceRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/service/events/$id")({
+export const Route = createFileRoute("/service/events/jeopardy/$id")({
   component: RouteComponent,
   loader: ServiceRouteGuard,
 });
@@ -58,20 +58,29 @@ function RouteComponent() {
           .format("YYYY-MM-DDTHH:mm:ss")}
       />
       <UnderlineNav aria-label="Repository">
-        <RouterNavItem to="/service/events/$id" params={{ id }}>
+        <RouterNavItem to="/service/events/jeopardy/$id" params={{ id }}>
           Overview
         </RouterNavItem>
-        <RouterNavItem to="/service/events/$id/challenges" params={{ id }}>
+        <RouterNavItem
+          to="/service/events/jeopardy/$id/challenges"
+          params={{ id }}
+        >
           Challenges
         </RouterNavItem>
 
-        <RouterNavItem to="/service/events/$id/instances" params={{ id }}>
+        <RouterNavItem
+          to="/service/events/jeopardy/$id/instances"
+          params={{ id }}
+        >
           Instances
         </RouterNavItem>
-        <RouterNavItem to="/service/events/$id/scoreboard" params={{ id }}>
+        <RouterNavItem
+          to="/service/events/jeopardy/$id/scoreboard"
+          params={{ id }}
+        >
           Scoreboard
         </RouterNavItem>
-        <RouterNavItem to="/service/events/$id/trend" params={{ id }}>
+        <RouterNavItem to="/service/events/jeopardy/$id/trend" params={{ id }}>
           Trend
         </RouterNavItem>
       </UnderlineNav>
