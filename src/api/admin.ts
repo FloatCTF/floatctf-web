@@ -46,6 +46,7 @@ export const settingAdminApi = {
 		return res.data;
 	},
 };
+
 export const challengeAdminApi = {
 	fetch: async (
 		params: QueryParams = {},

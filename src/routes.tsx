@@ -1,5 +1,4 @@
 import {
-  FileIcon,
   FlameIcon,
   GearIcon,
   GoalIcon,
@@ -11,6 +10,7 @@ import {
   TasklistIcon,
   TelescopeIcon,
 } from "@primer/octicons-react";
+
 export type NavRoute = {
   label: string;
   path?: string;
@@ -55,8 +55,6 @@ export const admin_routes: NavRoute[] = [
   },
 ];
 
-export const admin_ignore_routes: string[] = ["/admin", "/admin/"];
-
 export const service_routes: NavRoute[] = [
   { label: "Top Users", path: "/service/top", icon: <GoalIcon size={18} /> },
   {
@@ -95,3 +93,5 @@ export const service_routes: NavRoute[] = [
     icon: <PersonIcon size={18} />,
   },
 ];
+
+export const admin_ignore_routes: string[] = ["/admin", "/admin/"];

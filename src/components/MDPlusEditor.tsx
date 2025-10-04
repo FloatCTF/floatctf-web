@@ -88,7 +88,7 @@ export default function MDPlusEditor({
 }: MDPlusEditorProps) {
   const save: ICommand = {
     name: "Save",
-    keyCommand: "text2image",
+    keyCommand: "Save",
     buttonProps: { "aria-label": "Insert title3" },
     icon: <UploadIcon />,
     execute: () => {
