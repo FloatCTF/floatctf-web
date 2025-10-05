@@ -1,3 +1,4 @@
+import type { NavRoute } from "@/components/SideBar";
 import {
   FlameIcon,
   GearIcon,
@@ -10,13 +11,6 @@ import {
   TasklistIcon,
   TelescopeIcon,
 } from "@primer/octicons-react";
-
-export type NavRoute = {
-  label: string;
-  path?: string;
-  icon: React.ReactNode;
-  children?: NavRoute[];
-};
 
 export const admin_routes: NavRoute[] = [
   { label: "Dashboard", path: "/admin/dashboard", icon: <GoalIcon /> },

@@ -1,27 +1,27 @@
-import { challengeServiceApi } from "@/api/service";
-import type { Challenge } from "@/routes/admin/challenges";
 import { Spinner, Truncate } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import type { ChallengeWriteup } from "./route";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import type { ChallengeWriteup, Challenges } from "@/entity";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/challenges/$id/writeup")({
   component: RouteComponent,
 });
+
 export type ChallengeWriteupResult = {
   id: string;
   nickname: string;
   email: string;
-  challenge: Challenge;
+  challenge: Challenges;
   writeup: ChallengeWriteup;
 };
 function RouteComponent() {
   const { id } = Route.useParams();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["challenge-writeup", id],
-    queryFn: () => challengeServiceApi.getWriteups(id),
+    queryFn: () => serviceApi.challenges.getWriteups(id),
   });
 
   if (isLoading) {
@@ -72,10 +72,7 @@ function RouteComponent() {
 
             {/* 右下角时间 */}
             <div className="position-absolute bottom-2 right-3 text-xs text-muted">
-              {dayjs
-                .utc(writeup.writeup.created_at)
-                .local()
-                .format("YYYY-MM-DD HH:mm:ss")}
+              {DatetimeToShow(writeup.writeup.created_at)}
             </div>
           </div>
         </div>

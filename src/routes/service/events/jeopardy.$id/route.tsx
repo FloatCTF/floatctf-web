@@ -1,4 +1,4 @@
-import { eventServiceApi } from "@/api/service";
+import { RocketIcon } from "@primer/octicons-react";
 import { ProgressBar, Spinner, UnderlineNav } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -7,14 +7,12 @@ import {
   createFileRoute,
   useMatchRoute,
 } from "@tanstack/react-router";
-
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
-
-import { RocketIcon } from "@primer/octicons-react";
 import { useTitle } from "ahooks";
 import { useEffect, useState } from "react";
+
+import { serviceApi } from "@/api";
+import { DatetimeToShow } from "@/util";
+import dayjs from "dayjs";
 import { ServiceRouteGuard } from "../../route";
 
 export const Route = createFileRoute("/service/events/jeopardy/$id")({
@@ -27,7 +25,7 @@ function RouteComponent() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["eventInfo", id],
-    queryFn: () => eventServiceApi.get(id),
+    queryFn: () => serviceApi.events.get(id),
   });
   const eventInfo = data?.data;
 
@@ -48,14 +46,8 @@ function RouteComponent() {
         <h3 className=" font-bold">{eventInfo?.event.title}</h3>
       </div>
       <RemainingTimer
-        start_at={dayjs
-          .utc(eventInfo?.event.start_time)
-          .local()
-          .format("YYYY-MM-DDTHH:mm:ss")}
-        end_at={dayjs
-          .utc(eventInfo?.event.end_time)
-          .local()
-          .format("YYYY-MM-DDTHH:mm:ss")}
+        start_at={DatetimeToShow(eventInfo?.event.start_time)}
+        end_at={DatetimeToShow(eventInfo?.event.end_time)}
       />
       <UnderlineNav aria-label="Repository">
         <RouterNavItem to="/service/events/jeopardy/$id" params={{ id }}>

@@ -1,27 +1,32 @@
-import type { Challenge } from "@/routes/admin/challenges";
-import type { Instance } from "@/routes/admin/instances";
-import type { User } from "@/routes/admin/users";
-import type { ChallengeSet } from "@/routes/service/challenge_sets";
-import type { ChallengeWriteup } from "@/routes/service/challenges/$id/route";
-import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
-import type { EventInfo, EventUser } from "@/routes/service/events";
 import type {
-	Announcement,
-	EventTeam,
-} from "@/routes/service/events/jeopardy.$id";
+	ChallengeSetItems,
+	ChallengeSets,
+	ChallengeSolves,
+	ChallengeWriteup,
+	Challenges,
+	EventAnnouncements,
+	EventInstances,
+	EventTeams,
+	EventUsers,
+	Events,
+	Instances,
+	Users,
+} from "@/entity";
+import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
+import type { EventInfo } from "@/routes/service/events";
 import type { EventChallengeResult } from "@/routes/service/events/jeopardy.$id/challenges";
-import type { EventInstance } from "@/routes/service/events/jeopardy.$id/instances";
+import type { EventInstanceResult } from "@/routes/service/events/jeopardy.$id/instances";
 import type { ScoreboardItem } from "@/routes/service/events/jeopardy.$id/scoreboard";
 import type { TrendItem } from "@/routes/service/events/jeopardy.$id/trend";
-import type { ChallengeSolve } from "@/routes/service/solves";
 import type { TopUser } from "@/routes/service/top";
 import { type QueryParams, type UniResponse, service_api } from "./axios";
+
 export const userServiceApi = {
-	getMe: async (): Promise<UniResponse<User>> => {
+	getMe: async (): Promise<UniResponse<Users>> => {
 		const response = await service_api.get("/users/me");
 		return response.data;
 	},
-	patchMe: async (data: Partial<User>): Promise<UniResponse<User>> => {
+	patchMe: async (data: Partial<Users>): Promise<UniResponse<Users>> => {
 		const response = await service_api.patch("/users/me", data);
 		return response.data;
 	},
@@ -63,7 +68,7 @@ export const eventServiceApi = {
 		const res = await service_api.get("/events", { params });
 		return res.data;
 	},
-	join: async (event_id: string): Promise<UniResponse<EventUser>> => {
+	join: async (event_id: string): Promise<UniResponse<EventUsers>> => {
 		const res = await service_api.post(`/events/${event_id}/join`);
 		return res.data;
 	},
@@ -74,7 +79,7 @@ export const eventServiceApi = {
 	createTeam: async ({
 		event_id,
 		name,
-	}: { event_id: string; name: string }): Promise<UniResponse<EventTeam>> => {
+	}: { event_id: string; name: string }): Promise<UniResponse<EventTeams>> => {
 		const res = await service_api.post(`/events/${event_id}/team`, {
 			name,
 		});
@@ -113,7 +118,7 @@ export const eventServiceApi = {
 	getChallengeInstance: async (
 		event_id: string,
 		challenge_id: string,
-	): Promise<UniResponse<Instance>> => {
+	): Promise<UniResponse<Instances>> => {
 		const res = await service_api.get(
 			`/events/${event_id}/challenges/${challenge_id}/instance`,
 		);
@@ -121,14 +126,14 @@ export const eventServiceApi = {
 	},
 	getInstances: async (
 		event_id: string,
-	): Promise<UniResponse<EventInstance[]>> => {
+	): Promise<UniResponse<EventInstanceResult[]>> => {
 		const res = await service_api.get(`/events/${event_id}/instances`);
 		return res.data;
 	},
 	launchSingleInstance: async (
 		event_id: string,
 		challenge_id: string,
-	): Promise<UniResponse<Instance>> => {
+	): Promise<UniResponse<Instances>> => {
 		const res = await service_api.post("/instances/launch", {
 			challenge_id,
 			event_id,
@@ -147,7 +152,7 @@ export const eventServiceApi = {
 	},
 	getAnnouncements: async (
 		event_id: string,
-	): Promise<UniResponse<Announcement[]>> => {
+	): Promise<UniResponse<EventAnnouncements[]>> => {
 		const res = await service_api.get(`/events/${event_id}/announcements`);
 		return res.data;
 	},
@@ -162,15 +167,15 @@ export const eventServiceApi = {
 export const challengeServiceApi = {
 	fetch: async (
 		params: QueryParams = {},
-	): Promise<UniResponse<Challenge[]>> => {
+	): Promise<UniResponse<Challenges[]>> => {
 		const res = await service_api.get("/challenges", { params });
 		return res.data;
 	},
-	get: async (id: string): Promise<UniResponse<Challenge>> => {
+	get: async (id: string): Promise<UniResponse<Challenges>> => {
 		const res = await service_api.get(`/challenges/${id}`);
 		return res.data;
 	},
-	getInstance: async (id: string): Promise<UniResponse<Instance>> => {
+	getInstance: async (id: string): Promise<UniResponse<Instances>> => {
 		const res = await service_api.get(`/challenges/${id}/instance`);
 		return res.data;
 	},
@@ -212,18 +217,18 @@ export const challengeServiceApi = {
 		const res = await service_api.get("/writeups");
 		return res.data;
 	},
-	getChallengeSets: async (): Promise<UniResponse<ChallengeSet[]>> => {
+	getChallengeSets: async (): Promise<UniResponse<ChallengeSets[]>> => {
 		const res = await service_api.get("/challenge_sets");
 		return res.data;
 	},
-	getChallengeSet: async (id: string): Promise<UniResponse<Challenge[]>> => {
+	getChallengeSet: async (id: string): Promise<UniResponse<Challenges[]>> => {
 		const res = await service_api.get(`/challenge_sets/${id}`);
 		return res.data;
 	},
 };
 
 export const instanceServiceApi = {
-	launch: async (id: string): Promise<UniResponse<Instance>> => {
+	launch: async (id: string): Promise<UniResponse<Instances>> => {
 		const res = await service_api.post("/instances/launch", {
 			challenge_id: id,
 		});
@@ -232,14 +237,16 @@ export const instanceServiceApi = {
 	launchSingle: async (
 		challenge_id: string,
 		event_id: string,
-	): Promise<UniResponse<Instance>> => {
+	): Promise<UniResponse<Instances>> => {
 		const res = await service_api.post("/instances/launch", {
 			challenge_id,
 			event_id,
 		});
 		return res.data;
 	},
-	fetch: async (params: QueryParams = {}): Promise<UniResponse<Instance[]>> => {
+	fetch: async (
+		params: QueryParams = {},
+	): Promise<UniResponse<Instances[]>> => {
 		const res = await service_api.get("/instances", { params });
 		return res.data;
 	},
@@ -254,7 +261,7 @@ export const submitServiceApi = {
 		instance_id,
 		flag,
 	}: { instance_id: string; flag: string }): Promise<
-		UniResponse<ChallengeSolve>
+		UniResponse<ChallengeSolves>
 	> => {
 		const res = await service_api.post("/submit/flag", { instance_id, flag });
 		return res.data;
@@ -289,7 +296,7 @@ export const submitServiceApi = {
 		instance_id,
 		flag,
 	}: { event_id: string; instance_id: string; flag: string }): Promise<
-		UniResponse<ChallengeSolve>
+		UniResponse<ChallengeSolves>
 	> => {
 		const res = await service_api.post("/submit/flag", {
 			event_id,
@@ -303,7 +310,7 @@ export const submitServiceApi = {
 export const solveServiceApi = {
 	fetch: async (
 		params: QueryParams = {},
-	): Promise<UniResponse<ChallengeSolve[]>> => {
+	): Promise<UniResponse<ChallengeSolves[]>> => {
 		const res = await service_api.get("/solves", { params });
 		return res.data;
 	},

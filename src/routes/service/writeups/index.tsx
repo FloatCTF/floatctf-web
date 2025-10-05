@@ -1,13 +1,11 @@
-import { challengeServiceApi } from "@/api/service";
-
-import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useEffect } from "react";
-import type { ChallengeWriteupResult } from "../challenges/$id/writeup";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/writeups/")({
   component: RouteComponent,
 });
@@ -59,9 +57,7 @@ function RouteComponent() {
       field: "writeup.created_at",
       rowHeader: true,
       renderCell: (row: ChallengeWriteupResult) => (
-        <span>
-          {dayjs.utc(row.writeup.created_at).format("YYYY-MM-DD HH:mm:ss")}
-        </span>
+        <span>{DatetimeToShow(row.writeup.created_at)}</span>
       ),
     },
   ];
@@ -69,10 +65,11 @@ function RouteComponent() {
     <GenericTable
       subject={subject}
       columns={columns}
-      queryFn={challengeServiceApi.getAllWriteups}
+      queryFn={serviceApi.challenges.getAllWriteups}
       enableInternalActions={false}
       disableAdd={true}
       disablePagination={true}
+      getRowId={(row: ChallengeWriteupResult) => row.writeup.id}
     />
   );
 }

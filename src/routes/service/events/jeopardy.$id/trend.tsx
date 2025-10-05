@@ -1,12 +1,12 @@
 import type { UniResponse } from "@/api/axios";
-import { eventServiceApi } from "@/api/service";
 import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/events/jeopardy/$id/trend")({
   component: RouteComponent,
 });
@@ -27,7 +27,7 @@ function RouteComponent() {
     AxiosError<{ message: string }>
   >({
     queryKey: ["event_trend", id],
-    queryFn: () => eventServiceApi.getTrend(id),
+    queryFn: () => serviceApi.events.getTrend(id),
     refetchInterval: 30000, // 30秒自动刷新
   });
   if (isLoading) {
@@ -107,16 +107,12 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="time"
-            tickFormatter={(time) =>
-              dayjs.utc(time).local().format("YYYY-MM-DD HH:mm:ss")
-            }
+            tickFormatter={(time) => DatetimeToShow(time)}
           />
           <YAxis />
           <Tooltip
             isAnimationActive={false}
-            labelFormatter={(time) =>
-              dayjs.utc(time).local().format("YYYY-MM-DD HH:mm:ss")
-            }
+            labelFormatter={(time) => DatetimeToShow(time)}
             // biome-ignore lint/suspicious/noExplicitAny: <explanation>
             formatter={(value: number, name: string, props: any) => {
               const label = props.payload[`${name}_label`];
@@ -138,9 +134,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
             dataKey="time"
             height={30}
             stroke="#8884d8"
-            tickFormatter={(time) =>
-              dayjs.utc(time).local().format("YYYY-MM-DD HH:mm:ss")
-            }
+            tickFormatter={(time) => DatetimeToShow(time)}
           />
         </LineChart>
       </ResponsiveContainer>

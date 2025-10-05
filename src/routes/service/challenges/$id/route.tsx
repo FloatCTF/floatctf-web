@@ -1,46 +1,33 @@
-import { Spinner, UnderlineNav } from "@primer/react";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
-
-import { challengeServiceApi } from "@/api/service";
-import MDPlusEditor from "@/components/MDPlusEditor";
-import { useMsgBanner } from "@/components/MsgBanner";
-import { Banner } from "@primer/react/experimental";
+import { UnderlineNav } from "@primer/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useReactive } from "ahooks";
-import type { AxiosError } from "axios";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+
+import { serviceApi } from "@/api";
+import { MDPlusEditor, useMsgBanner } from "@/components";
+import { ServiceRouteGuard } from "@/routes/service/route";
 import { RouterNavItem } from "../../events/jeopardy.$id/route";
-import { ServiceRouteGuard } from "../../route";
+
 export const Route = createFileRoute("/service/challenges/$id")({
   component: RouteComponent,
   loader: ServiceRouteGuard,
 });
-export type ChallengeWriteup = {
-  id: string;
-  challenge_id: string;
-  user_id: string;
 
-  content: string;
-  created_at: string;
-};
 function RouteComponent() {
   const { id } = Route.useParams();
   const [markdown, setMarkdown] = useState<string>("");
   const { data: writeup, isLoading } = useQuery({
     queryKey: ["my-challenge-writeup", id],
-    queryFn: () => challengeServiceApi.getMyWriteup(id),
+    queryFn: () => serviceApi.challenges.getMyWriteup(id),
   });
   const banner = useMsgBanner();
   const wpMutations = useMutation({
-    mutationFn: challengeServiceApi.createMyWriteup,
+    mutationFn: serviceApi.challenges.createMyWriteup,
     onSuccess: () => {
       banner.showBanner("success", "Writeup saved successfully");
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 

@@ -1,29 +1,26 @@
-import { userServiceApi } from "@/api/service";
-import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
-import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useReactive, useTitle } from "ahooks";
-import type { AxiosError } from "axios";
 import { useEffect, useRef } from "react";
-import { ServiceRouteGuardWithRedirect } from "./service/route";
+
+import { serviceApi } from "@/api";
+import { useMsgInlineBanner } from "@/components";
+import { ServiceRouteGuardWithRedirect } from "@/routes/service/route";
+import { useAuthStore } from "@/stores/AuthStore";
 
 export const Route = createFileRoute("/")({
   component: App,
   loader: ServiceRouteGuardWithRedirect,
 });
 
-type MessageVariant = "critical" | "success" | "unavailable" | "warning";
-
 function App() {
   useTitle("Login | FloatCTF");
+  const banner = useMsgInlineBanner();
+
   const form = useReactive({
     username: "",
     password: "",
-    hidden: true,
-    status: "critical" as MessageVariant,
-    message: "",
     buttonMessage: "Sign in",
     buttonDisabled: false,
   });
@@ -32,17 +29,15 @@ function App() {
   const authStore = useAuthStore();
   const navigate = useNavigate();
   const mutation = useMutation({
-    mutationFn: userServiceApi.login,
+    mutationFn: serviceApi.users.login,
     onMutate: () => {
-      form.hidden = true;
+      banner.hideBanner();
       form.buttonMessage = "Signing in...";
       form.buttonDisabled = true;
     },
     onSuccess: (data) => {
       authStore.setToken(data.data!);
-      form.hidden = false;
-      form.status = "success";
-      form.message = "Login success";
+      banner.showBanner("success", "Login success");
       form.buttonMessage = "Redirecting...";
       form.buttonDisabled = true;
 
@@ -51,14 +46,8 @@ function App() {
 
       navigate({ to: "/service" });
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      form.hidden = false;
-      form.status = "critical";
-      form.message = msg;
-
+    onError: (error) => {
+      banner.showErrorBanner(error);
       form.buttonDisabled = false;
       form.buttonMessage = "Sign in";
       authStore.removeToken();
@@ -75,9 +64,7 @@ function App() {
         onSubmit={(e) => {
           e.preventDefault();
           if (form.username === "" || form.password === "") {
-            form.hidden = false;
-            form.status = "critical";
-            form.message = "Username or password is empty";
+            banner.showBanner("critical", "Username or password is empty");
             return;
           }
           mutation.mutate({
@@ -119,9 +106,7 @@ function App() {
         </Button>
       </form>
 
-      {!form.hidden && (
-        <InlineMessage variant={form.status}>{form.message}</InlineMessage>
-      )}
+      <banner.BannerComponent />
     </div>
   );
 }

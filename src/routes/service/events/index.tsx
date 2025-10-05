@@ -1,50 +1,35 @@
+import { CheckIcon } from "@primer/octicons-react";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useTitle } from "ahooks";
+
+import { serviceApi } from "@/api";
+import { GenericTable, useMsgBanner } from "@/components";
+import {
+  type EventTeamMembers,
+  type EventTeams,
+  EventType,
+  type Events,
+} from "@/entity";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/service/events/")({
   component: RouteComponent,
 });
 
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
-import { eventServiceApi } from "@/api/service";
-import { GenericTable } from "@/components/admin/Table";
-import { CheckIcon } from "@primer/octicons-react";
-
-import { useMsgBanner } from "@/components/MsgBanner";
-
-import { useTitle } from "ahooks";
-import { useEffect } from "react";
-import type { Event } from "../../admin/events";
-import type { EventTeam } from "./jeopardy.$id";
-export type EventTeamMember = {
-  event_id: string;
-  team_id: string;
-  user_id: string;
-  role: string;
-  joined_at: string;
-};
-export type EventUser = {
-  event_id: string;
-  user_id: string;
-  joined_at: string;
-  banned: boolean;
-  points: number;
-};
 export type EventInfo = {
   id: string;
-  event: Event;
+  event: Events;
   team_result?: EventTeamResult;
   joined: boolean;
 };
 
 export type EventTeamMemberResult = {
   member_name: string;
-  member: EventTeamMember;
+  member: EventTeamMembers;
 };
 
 export type EventTeamResult = {
-  team: EventTeam;
+  team: EventTeams;
   members: EventTeamMemberResult[];
 };
 
@@ -65,16 +50,20 @@ function RouteComponent() {
       field: "event.title",
       rowHeader: true,
       renderCell: (row: EventInfo) => {
-        if (row.event.type.includes("Jeopardy")) {
-          return (
-            <Link
-              to={"/service/events/jeopardy/$id"}
-              params={{ id: row.event.id }}
-              target="_blank"
-            >
-              {row.event.title}
-            </Link>
-          );
+        switch (row.event.type) {
+          case EventType.JeopardySingle:
+          case EventType.JeopardyTeam:
+            return (
+              <Link
+                to={"/service/events/jeopardy/$id"}
+                params={{ id: row.event.id }}
+                target="_blank"
+              >
+                {row.event.title}
+              </Link>
+            );
+          default:
+            return <span>{row.event.title}</span>;
         }
       },
     },
@@ -101,12 +90,7 @@ function RouteComponent() {
       header: "Start Time",
       field: "start_time",
       renderCell: (row: EventInfo) => (
-        <span>
-          {dayjs
-            .utc(row.event.start_time)
-            .local()
-            .format("YYYY-MM-DD HH:mm:ss")}
-        </span>
+        <span>{DatetimeToShow(row.event.start_time)}</span>
       ),
     },
     {
@@ -114,9 +98,7 @@ function RouteComponent() {
       header: "End Time",
       field: "end_time",
       renderCell: (row: EventInfo) => (
-        <span>
-          {dayjs.utc(row.event.end_time).local().format("YYYY-MM-DD HH:mm:ss")}
-        </span>
+        <span>{DatetimeToShow(row.event.end_time)}</span>
       ),
     },
   ];
@@ -125,10 +107,11 @@ function RouteComponent() {
     <GenericTable
       subject="Events"
       columns={columns}
-      queryFn={eventServiceApi.fetch}
+      queryFn={serviceApi.events.fetch}
       externalBanner={banner}
       enableInternalActions={false}
       disableAdd={true}
+      getRowId={(row: EventInfo) => row.event.id}
     />
   );
 }

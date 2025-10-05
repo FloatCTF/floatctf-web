@@ -1,5 +1,3 @@
-import { eventAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
 import { CheckIcon } from "@primer/octicons-react";
 import {
   Select,
@@ -11,28 +9,18 @@ import {
 } from "@primer/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { AdminRouteGuard } from "../route";
-dayjs.extend(utc);
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import { EventType, type Events } from "@/entity";
+import { AdminRouteGuard } from "@/routes/admin/route";
+import { DatetimeToShow } from "@/util";
+import dayjs from "dayjs"; // TODO: 是否可以用DatetimeToShow
 
 export const Route = createFileRoute("/admin/events/")({
   component: RouteComponent,
   loader: AdminRouteGuard,
 });
-export type Event = {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  hidden: boolean;
-  rules: string;
-  allow_join: boolean;
-  start_time: string;
-  end_time: string;
-  created_at: string;
-  updated_at: string;
-};
 
 function RouteComponent() {
   const columns = [
@@ -41,7 +29,7 @@ function RouteComponent() {
       header: "ID",
       field: "id",
       rowHeader: true,
-      renderCell: (row: Event) => {
+      renderCell: (row: Events) => {
         return (
           <Link to={"/admin/events/$id"} params={{ id: row.id }}>
             {row.id}
@@ -56,7 +44,7 @@ function RouteComponent() {
       header: "Description",
       field: "description",
 
-      renderCell: (row: Event) => {
+      renderCell: (row: Events) => {
         return <Truncate title={row.description ?? ""} />;
       },
     },
@@ -64,7 +52,7 @@ function RouteComponent() {
       accessorKey: "hidden",
       header: "Hidden",
       field: "hidden",
-      renderCell: (row: Event) => {
+      renderCell: (row: Events) => {
         return <span>{row.hidden ? <CheckIcon /> : <></>}</span>;
       },
       sortBy: true,
@@ -73,7 +61,7 @@ function RouteComponent() {
       accessorKey: "allow_join",
       header: "Joinable",
       field: "allow_join",
-      renderCell: (row: Event) => {
+      renderCell: (row: Events) => {
         return <span>{row.allow_join ? <CheckIcon /> : <></>}</span>;
       },
       sortBy: true,
@@ -83,12 +71,8 @@ function RouteComponent() {
       header: "Start Time",
       field: "start_time",
       sortBy: true,
-      renderCell: (row: Event) => {
-        return (
-          <span>
-            {dayjs.utc(row.start_time).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Events) => {
+        return <span>{DatetimeToShow(row.start_time)}</span>;
       },
     },
     {
@@ -96,22 +80,18 @@ function RouteComponent() {
       header: "End Time",
       field: "end_time",
       sortBy: true,
-      renderCell: (row: Event) => {
-        return (
-          <span>
-            {dayjs.utc(row.end_time).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Events) => {
+        return <span>{DatetimeToShow(row.end_time)}</span>;
       },
     },
   ];
-  const mutationEvent = useReactive<Partial<Event>>({
-    type: "JeopardySingle",
+  const mutationEvent = useReactive<Partial<Events>>({
+    type: EventType.JeopardySingle,
     title: "",
     description: "",
     hidden: false,
-    start_time: dayjs().utc().format("YYYY-MM-DDTHH:mm:ss"),
-    end_time: dayjs().utc().format("YYYY-MM-DDTHH:mm:ss"),
+    start_time: DatetimeToShow(""),
+    end_time: DatetimeToShow(""),
     rules: "",
     allow_join: false,
   });
@@ -148,7 +128,7 @@ function RouteComponent() {
         <Select
           value={mutationEvent.type}
           onChange={(e) => {
-            mutationEvent.type = e.target.value;
+            mutationEvent.type = e.target.value as EventType;
           }}
         >
           {eventType.map((type) => (
@@ -211,10 +191,7 @@ function RouteComponent() {
           type="datetime-local"
           step="1"
           // 显示本地时间
-          value={dayjs
-            .utc(mutationEvent.start_time)
-            .local()
-            .format("YYYY-MM-DDTHH:mm:ss")}
+          value={DatetimeToShow(mutationEvent.start_time)}
           onChange={(e) => {
             const localTime = dayjs(e.target.value);
             const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss"); // UTC 不带 Z
@@ -250,10 +227,10 @@ function RouteComponent() {
     <GenericTable
       subject="Events"
       columns={columns}
-      queryFn={eventAdminApi.fetch}
-      createFn={eventAdminApi.create}
-      removeFn={eventAdminApi.remove}
-      patchFn={eventAdminApi.patch}
+      queryFn={adminApi.events.fetch}
+      createFn={adminApi.events.create}
+      removeFn={adminApi.events.remove}
+      patchFn={adminApi.events.patch}
       mutationColumns={mutationColumns}
       mutationData={mutationEvent}
     />

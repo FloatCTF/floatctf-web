@@ -1,20 +1,17 @@
-import { userAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
 import { TextInput } from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
-import { AdminRouteGuard } from "./route";
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { Users } from "@/entity";
+import { AdminRouteGuard } from "@/routes/admin/route";
+
 export const Route = createFileRoute("/admin/users")({
   component: RouteComponent,
   loader: AdminRouteGuard,
 });
-export type User = {
-  id: string; // Uuid
-  username: string;
-  password: string;
-  nickname: string;
-  email: string;
-};
+
 function RouteComponent() {
   const columns = [
     { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
@@ -33,7 +30,7 @@ function RouteComponent() {
     { accessorKey: "email", header: "Email", field: "email", sortBy: true },
   ];
 
-  const mutationUser = useReactive<Partial<User>>({
+  const mutationUser = useReactive<Partial<Users>>({
     username: "",
     email: "",
     password: "",
@@ -95,10 +92,10 @@ function RouteComponent() {
     <GenericTable
       subject="Users"
       columns={columns}
-      queryFn={userAdminApi.fetch}
-      createFn={userAdminApi.create}
-      removeFn={userAdminApi.remove}
-      patchFn={userAdminApi.patch}
+      queryFn={adminApi.users.fetch}
+      createFn={adminApi.users.create}
+      removeFn={adminApi.users.remove}
+      patchFn={adminApi.users.patch}
       mutationColumns={mutationColumns}
       mutationData={mutationUser}
     />

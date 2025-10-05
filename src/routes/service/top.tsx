@@ -1,20 +1,15 @@
-import { solveServiceApi } from "@/api/service";
-
-import { Spinner } from "@primer/react";
-import { DataTable, Table } from "@primer/react/experimental";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useTitle } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useEffect } from "react";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { GenericTable } from "@/components";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/top")({
   component: RouteComponent,
 });
+
 export type TopUser = {
-  id: string;
   no: number;
   nickname: string;
   solved_count: number;
@@ -23,6 +18,8 @@ export type TopUser = {
 
 function RouteComponent() {
   useTitle("Top | FloatCTF");
+  const subject = "top15users";
+
   const columns = [
     {
       accessorKey: "no",
@@ -46,38 +43,21 @@ function RouteComponent() {
       header: "Solved LastAt",
       field: "solved_last_at",
       renderCell: (row: TopUser) => {
-        return (
-          <span>
-            {dayjs
-              .utc(row.solved_last_at)
-              .local()
-              .format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+        return <span>{DatetimeToShow(row.solved_last_at)}</span>;
       },
     },
   ];
-  const { data, isLoading } = useQuery({
-    queryKey: ["top15users"],
-    queryFn: () => solveServiceApi.getTop15Users(),
-  });
-  const table = useReactTable({
-    data: data?.data ?? [],
-    columns: columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-  if (isLoading) {
-    return <Spinner size="large" />;
-  }
 
   return (
-    <Table.Container className="m-2">
-      <DataTable
-        aria-labelledby="repositories-default"
-        // @ts-ignore
-        columns={columns}
-        data={table.getRowModel().rows.map((row) => row.original)}
-      />
-    </Table.Container>
+    <GenericTable
+      subject={subject}
+      columns={columns}
+      queryFn={() => serviceApi.solves.getTop15Users()}
+      getRowId={(row: TopUser) => row.no.toString()}
+      disableAdd={true}
+      disablePagination={true}
+      enableInternalActions={false}
+      hideTitle={true}
+    />
   );
 }

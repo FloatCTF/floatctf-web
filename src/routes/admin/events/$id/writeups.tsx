@@ -1,24 +1,15 @@
-import { eventAdminApi, eventWriteupAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
 import { Button } from "@primer/react";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { EventWriteup } from "@/entity";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/admin/events/$id/writeups")({
   component: RouteComponent,
 });
-
-export type EventWriteup = {
-  id: string;
-  event_id: string;
-  user_id: string;
-  team_id?: string;
-  file_url: string;
-  created_at: string;
-};
 
 function RouteComponent() {
   const { id } = Route.useParams();
@@ -57,16 +48,14 @@ function RouteComponent() {
       header: "Created At",
       field: "created_at",
       renderCell: (row: EventWriteup) => {
-        return (
-          <span>{dayjs(row.created_at).format("YYYY-MM-DD HH:mm:ss")}</span>
-        );
+        return <span>{DatetimeToShow(row.created_at)}</span>;
       },
     },
   ];
 
   const exportMutation = useMutation({
     mutationFn: async () => {
-      const res = await eventAdminApi.exportWriteUps(id);
+      const res = await adminApi.events.exportWriteUps(id);
       return res.data; // 这里是返回的 URL
     },
     onSuccess: (url) => {
@@ -94,12 +83,13 @@ function RouteComponent() {
     <GenericTable
       subject={subject}
       columns={columns}
-      queryFn={eventWriteupAdminApi.fetch(id)}
+      queryFn={adminApi.event_writeups.fetch(id)}
       hideTitle={true}
       disableAdd={true}
       disablePagination={true}
       enableInternalActions={false}
       customActions={custom_actions}
+      getRowId={(row: EventWriteup) => `${row.event_id}-${row.user_id}`}
     />
   );
 }

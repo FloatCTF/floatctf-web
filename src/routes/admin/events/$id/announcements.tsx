@@ -1,24 +1,15 @@
-import { eventAnnouncementAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { EventAnnouncements } from "@/entity";
 
+import { DatetimeToShow } from "@/util";
 import { TextInput, Textarea } from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
 
 export const Route = createFileRoute("/admin/events/$id/announcements")({
   component: RouteComponent,
 });
-
-export type EventAnnouncement = {
-  id: string;
-  event_id: string;
-  title: string;
-  content: string;
-  created_at: string;
-};
 
 function RouteComponent() {
   const { id } = Route.useParams();
@@ -31,14 +22,12 @@ function RouteComponent() {
       accessorKey: "created_at",
       header: "Created At",
       field: "created_at",
-      renderCell: (row: EventAnnouncement) => {
-        return (
-          <span>{dayjs(row.created_at).format("YYYY-MM-DD HH:mm:ss")}</span>
-        );
+      renderCell: (row: EventAnnouncements) => {
+        return <span>{DatetimeToShow(row.created_at)}</span>;
       },
     },
   ];
-  const mutationEventAnnouncement = useReactive<Partial<EventAnnouncement>>({
+  const mutationEventAnnouncement = useReactive<Partial<EventAnnouncements>>({
     title: "",
     content: "",
   });
@@ -73,10 +62,10 @@ function RouteComponent() {
     <GenericTable
       className="m-2"
       subject={subject}
-      queryFn={eventAnnouncementAdminApi.fetch(id)}
-      createFn={eventAnnouncementAdminApi.create(id)}
-      patchFn={eventAnnouncementAdminApi.patch(id)}
-      removeFn={eventAnnouncementAdminApi.remove(id)}
+      queryFn={adminApi.event_announcements.fetch(id)}
+      createFn={adminApi.event_announcements.create(id)}
+      patchFn={adminApi.event_announcements.patch(id)}
+      removeFn={adminApi.event_announcements.remove(id)}
       mutationData={mutationEventAnnouncement}
       columns={columns}
       mutationColumns={mutationColumns}

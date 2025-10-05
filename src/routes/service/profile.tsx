@@ -1,5 +1,3 @@
-import { userServiceApi } from "@/api/service";
-import { useMsgBanner } from "@/components/MsgBanner";
 import { PencilIcon } from "@primer/octicons-react";
 import { Button, FormControl, TextInput } from "@primer/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -7,7 +5,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
 import type { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import type { User } from "../admin/users";
+
+import { serviceApi } from "@/api";
+import { useMsgBanner } from "@/components";
+import type { Users } from "@/entity";
 
 export const Route = createFileRoute("/service/profile")({
   component: RouteComponent,
@@ -17,19 +18,19 @@ function RouteComponent() {
   const [editable, setEditable] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["profile"],
-    queryFn: () => userServiceApi.getMe(),
+    queryFn: () => serviceApi.users.getMe(),
     select: (res) => res.data,
   });
   const banner = useMsgBanner();
 
-  const mutationProfile = useReactive<Partial<User>>({
+  const mutationProfile = useReactive<Partial<Users>>({
     username: "",
     nickname: "",
     email: "",
     password: "",
   });
   const patchMutation = useMutation({
-    mutationFn: userServiceApi.patchMe,
+    mutationFn: serviceApi.users.patchMe,
     onSuccess: () => {
       setEditable(false);
       banner.showBanner("success", "Update profile successfully!");

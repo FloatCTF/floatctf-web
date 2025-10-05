@@ -1,31 +1,27 @@
-import { userServiceApi } from "@/api/service";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
-import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useReactive, useTitle } from "ahooks";
-import type { AxiosError } from "axios";
 import { useEffect, useRef } from "react";
-import { ServiceRouteGuardWithRedirect } from "./service/route";
+
+import { serviceApi } from "@/api";
+import { useMsgInlineBanner } from "@/components";
+import { ServiceRouteGuardWithRedirect } from "@/routes/service/route";
 
 export const Route = createFileRoute("/register")({
   component: Register,
   loader: ServiceRouteGuardWithRedirect,
 });
 
-type MessageVariant = "critical" | "success" | "unavailable" | "warning";
-
 function Register() {
   useTitle("Register | FloatCTF");
+  const banner = useMsgInlineBanner();
   const form = useReactive({
     username: "",
     nickname: "",
     email: "",
     password: "",
     confirmPassword: "",
-    hidden: true,
-    status: "critical" as MessageVariant,
-    message: "",
     buttonMessage: "Register",
     buttonDisabled: false,
   });
@@ -34,30 +30,22 @@ function Register() {
   const navigate = useNavigate();
 
   const mutation = useMutation({
-    mutationFn: userServiceApi.register,
+    mutationFn: serviceApi.users.register,
     onMutate: () => {
-      form.hidden = true;
+      banner.hideBanner();
       form.buttonMessage = "Registering...";
       form.buttonDisabled = true;
     },
     onSuccess: () => {
-      form.hidden = false;
-      form.status = "success";
-      form.message;
-      ("Registration successful! Redirecting to login...");
+      banner.showBanner("success", "Register success, redirecting to login");
       form.buttonMessage = "Success";
 
       setTimeout(() => {
         navigate({ to: "/" });
       }, 1500);
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      form.hidden = false;
-      form.status = "critical";
-      form.message = msg;
-
+    onError: (error) => {
+      banner.showErrorBanner(error);
       form.buttonMessage = "Register";
       form.buttonDisabled = false;
     },
@@ -86,21 +74,15 @@ function Register() {
             !form.password ||
             !form.confirmPassword
           ) {
-            form.hidden = false;
-            form.status = "critical";
-            form.message = "Please fill in all fields";
+            banner.showBanner("critical", "Please fill in all fields");
             return;
           }
           if (!validateEmail(form.email)) {
-            form.hidden = false;
-            form.status = "critical";
-            form.message = "Invalid email format";
+            banner.showBanner("critical", "Please enter a valid email address");
             return;
           }
           if (form.password !== form.confirmPassword) {
-            form.hidden = false;
-            form.status = "critical";
-            form.message = "Passwords do not match";
+            banner.showBanner("critical", "Passwords do not match");
             return;
           }
           mutation.mutate({
@@ -183,9 +165,7 @@ function Register() {
         </Button>
       </form>
 
-      {!form.hidden && (
-        <InlineMessage variant={form.status}>{form.message}</InlineMessage>
-      )}
+      <banner.BannerComponent />
     </div>
   );
 }

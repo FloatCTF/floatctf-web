@@ -1,16 +1,12 @@
-import { eventUserAdminApi, userAdminApi } from "@/api/admin";
-
-import { ActionSelect } from "@/components/admin/ActionSelect";
-import { GenericTable } from "@/components/admin/Table";
-import type { EventUser } from "@/routes/service/events";
 import { CheckIcon } from "@primer/octicons-react";
 import { ActionList } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import type { User } from "../../users";
-dayjs.extend(utc);
+
+import { adminApi } from "@/api";
+import { ActionSelect, GenericTable } from "@/components";
+import type { EventUsers, Users } from "@/entity";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/admin/events/$id/users")({
   component: RouteComponent,
@@ -18,8 +14,8 @@ export const Route = createFileRoute("/admin/events/$id/users")({
 
 export type EventUserResult = {
   id: string;
-  user: User;
-  event_user: EventUser;
+  user: Users;
+  event_user: EventUsers;
 };
 
 function RouteComponent() {
@@ -28,14 +24,14 @@ function RouteComponent() {
 
   const queryClient = useQueryClient();
   const bannedEventUser = useMutation({
-    mutationFn: eventUserAdminApi.banned,
+    mutationFn: adminApi.event_users.banned,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
     },
   });
 
   const unbannedEventUser = useMutation({
-    mutationFn: eventUserAdminApi.unbanned,
+    mutationFn: adminApi.event_users.unbanned,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
     },
@@ -73,14 +69,7 @@ function RouteComponent() {
       header: "Joined At",
       field: "event_user.joined_at",
       renderCell: (row: EventUserResult) => {
-        return (
-          <span>
-            {dayjs
-              .utc(row.event_user.joined_at)
-              .local()
-              .format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+        return <span>{DatetimeToShow(row.event_user.joined_at)}</span>;
       },
       sortBy: true,
     },
@@ -122,8 +111,8 @@ function RouteComponent() {
     <div className="flex gap-2 m-2 items-start">
       <GenericTable
         subject={subject}
-        queryFn={eventUserAdminApi.fetch(id)}
-        removeFn={eventUserAdminApi.delete(id)}
+        queryFn={adminApi.event_users.fetch(id)}
+        removeFn={adminApi.event_users.delete(id)}
         columns={columns}
         disableAdd={true}
         disablePagination={true}
@@ -138,12 +127,12 @@ function RouteComponent() {
         buttonText="Add"
         queryKey={subject}
         mutationFn={({ event_id, ids }) =>
-          eventUserAdminApi.add({ event_id, user_id_list: ids })
+          adminApi.event_users.add({ event_id, user_id_list: ids })
         }
         // @ts-ignore
         fetchFn={userAdminApi.fetch}
-        itemText={(u: User) => `${u.username} - ${u.nickname}`}
-        getId={(u: User) => u.id}
+        itemText={(u: Users) => `${u.username} - ${u.nickname}`}
+        getId={(u: Users) => u.id}
       />
     </div>
   );

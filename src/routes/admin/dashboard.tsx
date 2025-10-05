@@ -1,8 +1,9 @@
-import { monitorApi } from "@/api/admin";
 import { ProgressBar, Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AdminRouteGuard } from "./route";
+
+import { adminApi } from "@/api";
+import { AdminRouteGuard } from "@/routes/admin/route";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: RouteComponent,
@@ -64,7 +65,7 @@ function RouteComponent() {
     isError,
   } = useQuery({
     queryKey: ["system_information"],
-    queryFn: monitorApi,
+    queryFn: adminApi.monitor,
     refetchInterval: 1000 * 60,
   });
   const data = d?.data;

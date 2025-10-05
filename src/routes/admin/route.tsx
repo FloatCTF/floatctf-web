@@ -1,8 +1,3 @@
-import AdminHeader from "@/components/admin/Header";
-import AdminSideBar from "@/components/admin/SideBar";
-import { admin_ignore_routes } from "@/routes";
-import { useAuthStore } from "@/stores/AuthStore";
-
 import {
   Outlet,
   createFileRoute,
@@ -10,6 +5,10 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
+
+import { AdminHeader, GenericSideBar } from "@/components";
+import { admin_ignore_routes, admin_routes } from "@/routes";
+import { useAuthStore } from "@/stores/AuthStore";
 
 export const Route = createFileRoute("/admin")({
   component: RouteComponent,
@@ -29,7 +28,7 @@ function RouteComponent() {
 
       <div className="flex flex-row  h-full ">
         <div className="border-right h-full  pl-2 w-fit">
-          <AdminSideBar />
+          <GenericSideBar routes={admin_routes} />
         </div>
         <div className="p-2 w-full flex-1">
           <Outlet />

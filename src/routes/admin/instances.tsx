@@ -1,28 +1,16 @@
-import { instanceAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
 import { createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { AdminRouteGuard } from "./route";
-dayjs.extend(utc);
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { Instances } from "@/entity";
+import { AdminRouteGuard } from "@/routes/admin/route";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/admin/instances")({
   component: RouteComponent,
   loader: AdminRouteGuard,
 });
 
-export type InstanceStatus = "pending" | "running" | "completed" | "failed";
-export type Instance = {
-  id: string;
-  status: InstanceStatus;
-  ref: string;
-  flag?: string;
-  content?: string;
-  challenge_id: string;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-  destroy_at: string;
-};
 function RouteComponent() {
   const columns = [
     { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
@@ -39,12 +27,8 @@ function RouteComponent() {
       accessorKey: "destroy_at",
       header: "Destroy At",
       field: "destroy_at",
-      renderCell: (row: Instance) => {
-        return (
-          <span>
-            {dayjs.utc(row.destroy_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Instances) => {
+        return <span>{DatetimeToShow(row.destroy_at)}</span>;
       },
     },
   ];
@@ -52,7 +36,7 @@ function RouteComponent() {
     <GenericTable
       subject="Instances"
       columns={columns}
-      queryFn={instanceAdminApi.fetch}
+      queryFn={adminApi.instances.fetch}
       disableAdd={true}
       enableInternalActions={false}
     />

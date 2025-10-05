@@ -1,5 +1,4 @@
 import type { UniResponse } from "@/api/axios";
-import { eventServiceApi } from "@/api/service";
 import {
   CheckIcon,
   SparkleFillIcon,
@@ -12,7 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
-import type { TrendItem } from "./trend";
+
+import { serviceApi } from "@/api";
 
 export const Route = createFileRoute("/service/events/jeopardy/$id/scoreboard")(
   {
@@ -41,7 +41,7 @@ function RouteComponent() {
     AxiosError<{ message: string }>
   >({
     queryKey: ["event_scoreboard", id],
-    queryFn: () => eventServiceApi.getScoreboard(id),
+    queryFn: () => serviceApi.events.getScoreboard(id),
     refetchInterval: 30000, // 30秒自动刷新
   });
   if (isLoading) {

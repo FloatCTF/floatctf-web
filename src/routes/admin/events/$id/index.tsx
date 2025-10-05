@@ -1,23 +1,16 @@
-import {
-  challengeAdminApi,
-  eventAdminApi,
-  eventChallengeAdminApi,
-} from "@/api/admin";
-import { ActionSelect } from "@/components/admin/ActionSelect";
-
 import { CheckIcon, KebabHorizontalIcon } from "@primer/octicons-react";
 import { ActionList, ActionMenu, Button, IconButton } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { useContext } from "react";
-import { type Challenge, CheckButton } from "../../challenges";
-import { EventContext } from "./route";
 
-dayjs.extend(utc);
+import { adminApi } from "@/api";
+import { ActionSelect } from "@/components";
+import type { Challenges } from "@/entity";
+import { CheckButton } from "@/routes/admin/challenges";
+import { EventContext } from "./route";
 
 export const Route = createFileRoute("/admin/events/$id/")({
   component: RouteComponent,
@@ -33,7 +26,7 @@ export type EventChallenge = {
 export type EventChallengeResult = {
   id: string;
   event_challenge: EventChallenge;
-  challenge: Challenge;
+  challenge: Challenges;
 };
 
 function RouteComponent() {
@@ -44,11 +37,11 @@ function RouteComponent() {
   const subject = `event_challenges-${id}`;
   const { data } = useQuery({
     queryKey: [subject],
-    queryFn: () => eventChallengeAdminApi.fetch(id),
+    queryFn: () => adminApi.event_challenges.fetch(id),
   });
 
   const delete_event_challenge = useMutation({
-    mutationFn: eventChallengeAdminApi.remove,
+    mutationFn: adminApi.event_challenges.remove,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [subject],
@@ -56,7 +49,7 @@ function RouteComponent() {
     },
   });
   const open_event_challenge = useMutation({
-    mutationFn: eventChallengeAdminApi.open,
+    mutationFn: adminApi.event_challenges.open,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [subject],
@@ -64,7 +57,7 @@ function RouteComponent() {
     },
   });
   const hidden_event_challenge = useMutation({
-    mutationFn: eventChallengeAdminApi.hidden,
+    mutationFn: adminApi.event_challenges.hidden,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [subject],
@@ -72,7 +65,7 @@ function RouteComponent() {
     },
   });
   const createChallengeSetMutation = useMutation({
-    mutationFn: eventAdminApi.createChallengeSet,
+    mutationFn: adminApi.events.createChallengeSet,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [subject],
@@ -220,12 +213,12 @@ function RouteComponent() {
           buttonText="Add"
           queryKey={subject}
           mutationFn={({ event_id, ids }) =>
-            eventChallengeAdminApi.add({ event_id, challenge_id_list: ids })
+            adminApi.event_challenges.add({ event_id, challenge_id_list: ids })
           }
           // @ts-ignore
           fetchFn={() => challengeAdminApi.fetch()}
-          itemText={(c: Challenge) => `${c.category} - ${c.name}`}
-          getId={(c: Challenge) => c.id}
+          itemText={(c: Challenges) => `${c.category} - ${c.name}`}
+          getId={(c: Challenges) => c.id}
           enableImportJson={true}
         />
         {/* Open Challenges */}
@@ -235,12 +228,12 @@ function RouteComponent() {
           buttonText="Open"
           queryKey={subject}
           mutationFn={({ event_id, ids }) =>
-            eventChallengeAdminApi.open({ event_id, challenge_id_list: ids })
+            adminApi.event_challenges.open({ event_id, challenge_id_list: ids })
           }
           // @ts-ignore
           fetchFn={() => challengeAdminApi.fetch()}
-          itemText={(c: Challenge) => `${c.category} - ${c.name}`}
-          getId={(c: Challenge) => c.id}
+          itemText={(c: Challenges) => `${c.category} - ${c.name}`}
+          getId={(c: Challenges) => c.id}
         />
       </div>
     </div>

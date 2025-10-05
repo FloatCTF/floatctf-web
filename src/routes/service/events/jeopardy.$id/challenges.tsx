@@ -1,11 +1,4 @@
 import {
-  eventServiceApi,
-  instanceServiceApi,
-  submitServiceApi,
-} from "@/api/service";
-import type { Challenge } from "@/routes/admin/challenges";
-import type { Instance } from "@/routes/admin/instances";
-import {
   CheckIcon,
   SparkleFillIcon,
   SparkleIcon,
@@ -15,18 +8,18 @@ import {
 import { Button, Label, SelectPanel, Spinner, TextInput } from "@primer/react";
 
 import type { UniResponse } from "@/api/axios";
-import { useMsgBanner } from "@/components/MsgBanner";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useReactive } from "ahooks";
-import type { AxiosError } from "axios";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RemainingTimer } from "../../challenges/$id";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { useMsgBanner } from "@/components";
+import type { Challenges, Instances } from "@/entity";
+import type { AxiosError } from "axios";
 export const Route = createFileRoute("/service/events/jeopardy/$id/challenges")(
   {
     component: RouteComponent,
@@ -35,7 +28,7 @@ export const Route = createFileRoute("/service/events/jeopardy/$id/challenges")(
 
 export type EventChallengeResult = {
   id: string;
-  challenge: Challenge;
+  challenge: Challenges;
   current_points: number;
   solved_count: number;
   solved: boolean;
@@ -49,7 +42,7 @@ function RouteComponent() {
     AxiosError<{ message: string }>
   >({
     queryKey: ["eventChallenges", id],
-    queryFn: () => eventServiceApi.fetchChallenges(id),
+    queryFn: () => serviceApi.events.fetchChallenges(id),
   });
 
   const challengeDialog = useReactive({
@@ -81,6 +74,7 @@ function RouteComponent() {
         row.challenge.category.toLowerCase() === selected.text.toLowerCase()
     );
   }, [data?.data, selected]);
+  // TODO: add filter to GenericTable
   const filteredItems = categories.filter(
     (item) =>
       item.text === selected?.text || // 保证选中的值始终显示
@@ -220,14 +214,14 @@ function ChallengeDialog({
 
   const challengeStatus = useReactive({
     isRunning: false,
-    instance: {} as Instance,
+    instance: {} as Instances,
     flag: "",
   });
   // 拉取现有 instance
   const { data: instance_data, refetch: refetch_instance } = useQuery({
     queryKey: ["event_instance", challenge?.id],
     queryFn: () =>
-      eventServiceApi.getChallengeInstance(eventId, challenge?.id ?? ""),
+      serviceApi.events.getChallengeInstance(eventId, challenge?.id ?? ""),
     enabled: open && !!challenge?.id,
   });
 
@@ -240,7 +234,7 @@ function ChallengeDialog({
         challengeStatus.instance = instance_data.data;
       } else {
         challengeStatus.isRunning = false;
-        challengeStatus.instance = {} as Instance;
+        challengeStatus.instance = {} as Instances;
       }
     }
   }, [instance_data, open]);
@@ -248,46 +242,35 @@ function ChallengeDialog({
   // Launch mutation
   const launchMutation = useMutation({
     mutationFn: (challenge_id: string) =>
-      eventServiceApi.launchSingleInstance(eventId, challenge_id),
+      serviceApi.events.launchSingleInstance(eventId, challenge_id),
     onSuccess: (data) => {
       challengeStatus.isRunning = true;
       challengeStatus.instance = data.data!;
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const destroyInstance = useMutation({
-    mutationFn: instanceServiceApi.destroy,
+    mutationFn: serviceApi.instances.destroy,
     onSuccess: (_data) => {
       challengeStatus.isRunning = false;
-      challengeStatus.instance = {} as Instance;
+      challengeStatus.instance = {} as Instances;
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const submitFlag = useMutation({
-    mutationFn: submitServiceApi.submitSingle,
+    mutationFn: serviceApi.submit.submitSingle,
     onSuccess: (_data) => {
       banner.showBanner("success", "Flag is correct!");
       // close in the backend
       challengeStatus.isRunning = false;
-      challengeStatus.instance = {} as Instance;
+      challengeStatus.instance = {} as Instances;
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 

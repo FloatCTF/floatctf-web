@@ -1,12 +1,14 @@
-import { challengeAdminApi } from "@/api/admin";
-import { ActionSelect } from "@/components/admin/ActionSelect";
-import { GenericTable } from "@/components/admin/Table";
 import { CheckIcon } from "@primer/octicons-react";
 import { createFileRoute } from "@tanstack/react-router";
-import type { Challenge } from "../challenges";
+
+import { adminApi } from "@/api";
+import { ActionSelect, GenericTable } from "@/components";
+import type { Challenges } from "@/entity";
+import { AdminRouteGuard } from "@/routes/admin/route";
 
 export const Route = createFileRoute("/admin/challenge_sets/$id")({
   component: RouteComponent,
+  loader: AdminRouteGuard,
 });
 
 function RouteComponent() {
@@ -26,19 +28,20 @@ function RouteComponent() {
       header: "Hidden",
       field: "hidden",
 
-      renderCell: (row: Challenge) => {
+      renderCell: (row: Challenges) => {
         return <span>{row.hidden ? <CheckIcon /> : <></>}</span>;
       },
       sortBy: true,
     },
   ];
+
   return (
     <div className="flex gap-2 m-2 items-start">
       <GenericTable
         subject={subject}
         columns={columns}
-        queryFn={challengeAdminApi.getChallengeSet(id)}
-        removeFn={challengeAdminApi.removeChallengeFromSet(id)}
+        queryFn={adminApi.challenges.getChallengeSet(id)}
+        removeFn={adminApi.challenges.removeChallengeFromSet(id)}
         disableAdd={true}
         disablePagination={true}
         getRowId={(row) => row.id}
@@ -50,15 +53,14 @@ function RouteComponent() {
           buttonText="Add"
           queryKey={subject}
           mutationFn={({ event_id, ids }) =>
-            challengeAdminApi.addChallengeToSet({
+            adminApi.challenges.addChallengeToSet({
               set_id: event_id,
               challenge_id_list: ids,
             })
           }
-          // @ts-ignore
-          fetchFn={() => challengeAdminApi.fetch()}
-          itemText={(c: Challenge) => `${c.category} - ${c.name}`}
-          getId={(c: Challenge) => c.id}
+          fetchFn={() => adminApi.challenges.fetch()}
+          itemText={(c: Challenges) => `${c.category} - ${c.name}`}
+          getId={(c: Challenges) => c.id}
         />
       </div>
     </div>

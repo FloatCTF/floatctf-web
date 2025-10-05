@@ -1,5 +1,6 @@
 import { Banner } from "@primer/react/experimental";
 import { useReactive } from "ahooks";
+import type { AxiosError } from "axios";
 
 export type BannerVariant =
   | "critical"
@@ -14,7 +15,7 @@ export interface UseMsgBannerOptions {
   variant?: BannerVariant; // 默认类型
 }
 
-export function useMsgBanner(options: UseMsgBannerOptions = {}) {
+export const useMsgBanner = (options: UseMsgBannerOptions = {}) => {
   // 用传入的初始值覆盖默认值
   const mutationBanner = useReactive({
     isShown: options.isShown ?? false,
@@ -26,6 +27,14 @@ export function useMsgBanner(options: UseMsgBannerOptions = {}) {
     mutationBanner.isShown = true;
     mutationBanner.variant = variant;
     mutationBanner.description = description;
+  };
+
+  const showErrorBanner = (error: unknown) => {
+    const msg =
+      (error as AxiosError<{ message: string }>)?.response?.data?.message ||
+      (error as Error).message ||
+      "Unknown error";
+    showBanner("critical", msg);
   };
 
   const hideBanner = () => {
@@ -44,5 +53,5 @@ export function useMsgBanner(options: UseMsgBannerOptions = {}) {
       />
     ) : null;
 
-  return { BannerComponent, showBanner, hideBanner };
-}
+  return { BannerComponent, showBanner, showErrorBanner, hideBanner };
+};

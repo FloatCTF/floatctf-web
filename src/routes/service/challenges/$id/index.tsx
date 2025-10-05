@@ -1,21 +1,16 @@
-import {
-  challengeServiceApi,
-  instanceServiceApi,
-  submitServiceApi,
-} from "@/api/service";
-import { useMsgBanner } from "@/components/MsgBanner";
-
-import type { Instance } from "@/routes/admin/instances";
 import { Button, Label, ProgressBar, Spinner, TextInput } from "@primer/react";
-import { Banner } from "@primer/react/experimental";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useReactive, useTitle } from "ahooks";
-import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect, useRef, useState } from "react";
 dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { useMsgBanner } from "@/components";
+import type { Instances } from "@/entity";
+
 export const Route = createFileRoute("/service/challenges/$id/")({
   component: RouteComponent,
 });
@@ -28,7 +23,7 @@ function RouteComponent() {
     isError,
   } = useQuery({
     queryKey: ["challenge", id],
-    queryFn: () => challengeServiceApi.get(id),
+    queryFn: () => serviceApi.challenges.get(id),
   });
   const banner = useMsgBanner();
 
@@ -36,54 +31,44 @@ function RouteComponent() {
   const challengeStatus = useReactive({
     flag: "",
     isRunning: false,
-    instance: {} as Instance,
+    instance: {} as Instances,
   });
 
   const { data: instance_data } = useQuery({
     queryKey: ["instance", id],
-    queryFn: () => challengeServiceApi.getInstance(id),
+    queryFn: () => serviceApi.challenges.getInstance(id),
   });
 
   const mutationInstance = useMutation({
-    mutationFn: instanceServiceApi.launch,
+    mutationFn: serviceApi.instances.launch,
     onSuccess: (data) => {
       challengeStatus.isRunning = true;
       challengeStatus.instance = data.data!;
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const destroyInstance = useMutation({
-    mutationFn: instanceServiceApi.destroy,
+    mutationFn: serviceApi.instances.destroy,
     onSuccess: (_data) => {
       challengeStatus.isRunning = false;
-      challengeStatus.instance = {} as Instance;
+      challengeStatus.instance = {} as Instances;
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const submitFlag = useMutation({
-    mutationFn: submitServiceApi.submit,
+    mutationFn: serviceApi.submit.submit,
     onSuccess: (_data) => {
       banner.showBanner("success", "Flag is correct!");
       // close in the backend
       challengeStatus.isRunning = false;
-      challengeStatus.instance = {} as Instance;
+      challengeStatus.instance = {} as Instances;
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const navigate = useNavigate();
@@ -94,7 +79,7 @@ function RouteComponent() {
       challengeStatus.instance = instance_data.data;
     } else {
       challengeStatus.isRunning = false;
-      challengeStatus.instance = {} as Instance;
+      challengeStatus.instance = {} as Instances;
     }
   }, [instance_data]);
   // 顶层调用 Hook

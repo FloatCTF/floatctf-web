@@ -1,47 +1,43 @@
-import { adminLoginFn } from "@/api/admin";
-
-import { useAuthStore } from "@/stores/AuthStore";
 import { Avatar, Button, FormControl, Heading, TextInput } from "@primer/react";
-import { InlineMessage } from "@primer/react/experimental";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useReactive, useTitle } from "ahooks";
-import * as React from "react";
-import { AdminRouteGuardWithRedirect } from "./route";
+import { useEffect, useRef } from "react";
+
+import { adminApi } from "@/api";
+import { useMsgInlineBanner } from "@/components";
+import { AdminRouteGuardWithRedirect } from "@/routes/admin/route";
+import { useAuthStore } from "@/stores/AuthStore";
 
 export const Route = createFileRoute("/admin/")({
   component: RouteComponent,
   loader: AdminRouteGuardWithRedirect,
 });
 
-type MessageVariant = "critical" | "success" | "unavailable" | "warning";
-
 function RouteComponent() {
   useTitle("Admin Login | FloatCTF");
   const authStore = useAuthStore();
   const navigate = useNavigate();
+  const banner = useMsgInlineBanner();
+
   const form = useReactive({
     username: "",
     password: "",
-    hidden: true,
-    status: "critical" as MessageVariant,
-    message: "",
+
     buttonMessage: "Sign in",
     buttonDisabled: false,
   });
 
   const mutation = useMutation({
-    mutationFn: adminLoginFn,
+    mutationFn: adminApi.login,
     onMutate: () => {
-      form.hidden = true;
+      banner.hideBanner();
       form.buttonDisabled = true;
       form.buttonMessage = "Signing in...";
     },
     onSuccess: (data) => {
       authStore.setAdminToken(data.data!);
-      form.hidden = false;
-      form.status = "success";
-      form.message = "Login successful";
+      banner.showBanner("success", "Login successful");
       form.buttonDisabled = true;
       form.buttonMessage = "Redirecting...";
       // redirect to admin dashboard
@@ -49,9 +45,7 @@ function RouteComponent() {
     },
     onError: (error) => {
       console.log(error);
-      form.hidden = true;
-      form.status = "critical";
-      form.message = "Invalid username or password";
+      banner.showBanner("critical", error.message);
 
       form.buttonDisabled = false;
       form.buttonMessage = "Sign in";
@@ -59,9 +53,9 @@ function RouteComponent() {
     },
   });
 
-  const usernameRef = React.useRef<HTMLInputElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     usernameRef.current?.focus();
   }, []);
 
@@ -74,10 +68,7 @@ function RouteComponent() {
           e.preventDefault();
           console.log("submit");
           if (form.username === "" || form.password === "") {
-            form.hidden = true;
-            form.status = "critical";
-            form.message = "Please fill in all fields";
-
+            banner.showBanner("critical", "Please fill in all fields");
             return;
           }
           mutation.mutate({
@@ -118,9 +109,7 @@ function RouteComponent() {
         </Button>
       </form>
 
-      {!form.hidden && (
-        <InlineMessage variant={form.status}>{form.message}</InlineMessage>
-      )}
+      <banner.BannerComponent />
     </div>
   );
 }

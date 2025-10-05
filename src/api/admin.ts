@@ -1,21 +1,26 @@
 import type {
+	ChallengeSets,
+	Challenges,
+	EventAnnouncements,
+	EventChallenges,
+	EventWriteup,
+	Events,
+	Instances,
+	Settings,
+	Users,
+} from "@/entity";
+
+import type {
 	BuildChallengeResult,
-	Challenge,
 	ChallengeCheckResult,
 } from "@/routes/admin/challenges";
 import type { SystemInformation } from "@/routes/admin/dashboard";
-import type { Event } from "@/routes/admin/events";
-import type { EventChallenge } from "@/routes/admin/events/$id";
-import type { EventAnnouncement } from "@/routes/admin/events/$id/announcements";
+
 import type { DataPresent } from "@/routes/admin/events/$id/data_present";
 import type { TeamResult } from "@/routes/admin/events/$id/teams";
 import type { EventUserResult } from "@/routes/admin/events/$id/users";
-import type { EventWriteup } from "@/routes/admin/events/$id/writeups";
-import type { Instance } from "@/routes/admin/instances";
-import type { Setting } from "@/routes/admin/settings";
-import type { User } from "@/routes/admin/users";
-import type { ChallengeSet } from "@/routes/service/challenge_sets";
-import { type QueryParams, type UniResponse, admin_api } from "../api/axios";
+
+import { type QueryParams, type UniResponse, admin_api } from "@/api/axios";
 
 export const adminLoginFn = async ({
 	username,
@@ -29,11 +34,13 @@ export const monitorApi = async (): Promise<UniResponse<SystemInformation>> => {
 	return response.data;
 };
 export const settingAdminApi = {
-	fetch: async (): Promise<UniResponse<Setting[]>> => {
+	fetch: async (): Promise<UniResponse<Settings[]>> => {
 		const res = await admin_api.get("/settings");
 		return res.data;
 	},
-	create: async (setting: Partial<Setting>): Promise<UniResponse<Setting>> => {
+	create: async (
+		setting: Partial<Settings>,
+	): Promise<UniResponse<Settings>> => {
 		const res = await admin_api.post("/settings", setting);
 		return res.data;
 	},
@@ -41,7 +48,7 @@ export const settingAdminApi = {
 		const res = await admin_api.delete(`/settings/${id}`);
 		return res.data;
 	},
-	patch: async (setting: Partial<Setting>): Promise<UniResponse<Setting>> => {
+	patch: async (setting: Partial<Settings>): Promise<UniResponse<Settings>> => {
 		const res = await admin_api.patch(`/settings/${setting.id}`, setting);
 		return res.data;
 	},
@@ -50,19 +57,19 @@ export const settingAdminApi = {
 export const challengeAdminApi = {
 	fetch: async (
 		params: QueryParams = {},
-	): Promise<UniResponse<Challenge[]>> => {
+	): Promise<UniResponse<Challenges[]>> => {
 		const res = await admin_api.get("/challenges", { params });
 		return res.data;
 	},
 	create: async (
-		challenge: Partial<Challenge>,
-	): Promise<UniResponse<Challenge>> => {
+		challenge: Partial<Challenges>,
+	): Promise<UniResponse<Challenges>> => {
 		const res = await admin_api.post("/challenges", challenge);
 		return res.data;
 	},
 	patch: async (
-		challenge: Partial<Challenge>,
-	): Promise<UniResponse<Challenge>> => {
+		challenge: Partial<Challenges>,
+	): Promise<UniResponse<Challenges>> => {
 		const res = await admin_api.patch(`/challenges/${challenge.id}`, challenge);
 		return res.data;
 	},
@@ -101,13 +108,13 @@ export const challengeAdminApi = {
 		});
 		return res.data;
 	},
-	getChallengeSets: async (): Promise<UniResponse<ChallengeSet[]>> => {
+	getChallengeSets: async (): Promise<UniResponse<ChallengeSets[]>> => {
 		const res = await admin_api.get("/challenge_sets");
 		return res.data;
 	},
 	createChallengeSet: async (
-		challenge_set: Partial<ChallengeSet>,
-	): Promise<UniResponse<ChallengeSet>> => {
+		challenge_set: Partial<ChallengeSets>,
+	): Promise<UniResponse<ChallengeSets>> => {
 		const res = await admin_api.post("/challenge_sets", challenge_set);
 		return res.data;
 	},
@@ -116,7 +123,7 @@ export const challengeAdminApi = {
 		return res.data;
 	},
 	getChallengeSet: (id: string) => {
-		return async (): Promise<UniResponse<Challenge[]>> => {
+		return async (): Promise<UniResponse<Challenges[]>> => {
 			const res = await admin_api.get(`/challenge_sets/${id}`);
 			return res.data;
 		};
@@ -142,8 +149,8 @@ export const challengeAdminApi = {
 		return res.data;
 	},
 	patchChallengeSet: async (
-		challenge_set: Partial<ChallengeSet>,
-	): Promise<UniResponse<ChallengeSet>> => {
+		challenge_set: Partial<ChallengeSets>,
+	): Promise<UniResponse<ChallengeSets>> => {
 		const res = await admin_api.patch(
 			`/challenge_sets/${challenge_set.id}`,
 			challenge_set,
@@ -153,16 +160,16 @@ export const challengeAdminApi = {
 };
 
 export const userAdminApi = {
-	fetch: async (params: QueryParams = {}): Promise<UniResponse<User[]>> => {
+	fetch: async (params: QueryParams = {}): Promise<UniResponse<Users[]>> => {
 		const res = await admin_api.get("/users", { params });
 		console.log(res.data);
 		return res.data;
 	},
-	create: async (user: Partial<User>): Promise<UniResponse<User>> => {
+	create: async (user: Partial<Users>): Promise<UniResponse<Users>> => {
 		const res = await admin_api.post("/users", user);
 		return res.data;
 	},
-	patch: async (user: Partial<User>): Promise<UniResponse<User>> => {
+	patch: async (user: Partial<Users>): Promise<UniResponse<Users>> => {
 		const res = await admin_api.patch(`/users/${user.id}`, user);
 		return res.data;
 	},
@@ -173,15 +180,15 @@ export const userAdminApi = {
 };
 
 export const eventAdminApi = {
-	fetch: async (params: QueryParams = {}): Promise<UniResponse<Event[]>> => {
+	fetch: async (params: QueryParams = {}): Promise<UniResponse<Events[]>> => {
 		const res = await admin_api.get("/events", { params });
 		return res.data;
 	},
-	create: async (event: Partial<Event>): Promise<UniResponse<Event>> => {
+	create: async (event: Partial<Events>): Promise<UniResponse<Events>> => {
 		const res = await admin_api.post("/events", event);
 		return res.data;
 	},
-	patch: async (event: Partial<Event>): Promise<UniResponse<Event>> => {
+	patch: async (event: Partial<Events>): Promise<UniResponse<Events>> => {
 		const res = await admin_api.patch(`/events/${event.id}`, event);
 		return res.data;
 	},
@@ -189,7 +196,7 @@ export const eventAdminApi = {
 		const res = await admin_api.delete(`/events/${id}`);
 		return res.data;
 	},
-	get: async (id: string): Promise<UniResponse<Event>> => {
+	get: async (id: string): Promise<UniResponse<Events>> => {
 		const res = await admin_api.get(`/events/${id}`);
 		return res.data;
 	},
@@ -220,7 +227,9 @@ export const eventAdminApi = {
 };
 
 export const instanceAdminApi = {
-	fetch: async (params: QueryParams = {}): Promise<UniResponse<Instance[]>> => {
+	fetch: async (
+		params: QueryParams = {},
+	): Promise<UniResponse<Instances[]>> => {
 		const res = await admin_api.get("/instances", { params });
 		return res.data;
 	},
@@ -240,7 +249,7 @@ export const eventChallengeAdminApi = {
 		event_id: string;
 		challenge_id_list?: string[];
 		challenge_id?: string;
-	}): Promise<UniResponse<EventChallenge[]>> => {
+	}): Promise<UniResponse<EventChallenges[]>> => {
 		const res = await admin_api.post(`/events/${event_id}/challenges`, {
 			challenge_id_list,
 			challenge_id,
@@ -269,7 +278,7 @@ export const eventChallengeAdminApi = {
 		event_id: string;
 		challenge_id_list?: string[];
 		challenge_id?: string;
-	}): Promise<UniResponse<EventChallenge[]>> => {
+	}): Promise<UniResponse<EventChallenges[]>> => {
 		const res = await admin_api.post(`/events/${event_id}/challenges/open`, {
 			challenge_id_list,
 			challenge_id,
@@ -284,7 +293,7 @@ export const eventChallengeAdminApi = {
 		event_id: string;
 		challenge_id_list?: string[];
 		challenge_id?: string;
-	}): Promise<UniResponse<EventChallenge[]>> => {
+	}): Promise<UniResponse<EventChallenges[]>> => {
 		const res = await admin_api.post(`/events/${event_id}/challenges/hidden`, {
 			challenge_id_list,
 			challenge_id,
@@ -350,7 +359,7 @@ export const eventAnnouncementAdminApi = {
 	fetch: (event_id: string) => {
 		return async (
 			params: QueryParams = {},
-		): Promise<UniResponse<EventAnnouncement[]>> => {
+		): Promise<UniResponse<EventAnnouncements[]>> => {
 			const res = await admin_api.get(`/events/${event_id}/announcements`, {
 				params,
 			});
@@ -359,7 +368,7 @@ export const eventAnnouncementAdminApi = {
 	},
 
 	create: (event_id: string) => {
-		return async (announcement: Partial<EventAnnouncement>) => {
+		return async (announcement: Partial<EventAnnouncements>) => {
 			const res = await admin_api.post(
 				`/events/${event_id}/announcements`,
 				announcement,
@@ -368,7 +377,7 @@ export const eventAnnouncementAdminApi = {
 		};
 	},
 	patch: (event_id: string) => {
-		return async (announcement: Partial<EventAnnouncement>) => {
+		return async (announcement: Partial<EventAnnouncements>) => {
 			const res = await admin_api.patch(
 				`/events/${event_id}/announcements/${announcement.id}`,
 				announcement,

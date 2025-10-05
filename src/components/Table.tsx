@@ -7,7 +7,13 @@ import {
   FormControl,
   IconButton,
 } from "@primer/react";
-import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
+import {
+  Banner,
+  DataTable,
+  Dialog,
+  Table,
+  type UniqueRow,
+} from "@primer/react/experimental";
 import {
   type UseQueryResult,
   useMutation,
@@ -23,7 +29,7 @@ import {
   useCallback,
   useState,
 } from "react";
-import { type BannerVariant, useMsgBanner } from "../MsgBanner";
+import { type BannerVariant, useMsgBanner } from "./MsgBanner";
 export type PaginationResponse<T> = {
   data: T[];
   meta: { total: number; page: number; limit: number };
@@ -45,6 +51,10 @@ export type BannerState = {
   description: string;
   variant: BannerVariant;
 };
+type RequireGetRowId<T> = T extends { id: string }
+  ? // biome-ignore lint/complexity/noBannedTypes: <explanation>
+    {}
+  : { getRowId: (row: T) => string };
 
 type GenericTableProps<T> = {
   subject: string; // 用作 queryKey
@@ -65,9 +75,10 @@ type GenericTableProps<T> = {
   className?: string;
   subtitle?: string;
   getRowId?: (row: T) => string;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & RequireGetRowId<T> &
+  React.HTMLAttributes<HTMLDivElement>;
 
-export const GenericTable = <T extends { id: string }>({
+export const GenericTable = <T extends object>({
   subject,
   columns,
   queryFn,
@@ -84,10 +95,21 @@ export const GenericTable = <T extends { id: string }>({
   hideTitle = false,
   disablePagination = false,
   subtitle,
-  getRowId = (row) => row.id,
+  getRowId,
   ...rest
 }: GenericTableProps<T>) => {
   // add actions to columns
+  const safeGetRowId = (row: T) => {
+    function hasIdField(obj: unknown): obj is { id: string } {
+      return typeof obj === "object" && obj !== null && "id" in obj;
+    }
+    if (getRowId) return getRowId(row);
+    if (hasIdField(row)) return row.id;
+
+    throw new Error(
+      `GenericTable: 行数据没有 id 字段，请传 getRowId: ${JSON.stringify(row)}`
+    );
+  };
 
   const tableColumns: Column<T>[] = (() => {
     if (!enableInternalActions) {
@@ -115,8 +137,8 @@ export const GenericTable = <T extends { id: string }>({
         <ActionMenu>
           <ActionMenu.Anchor>
             <IconButton
-              aria-label={getRowId(row)}
-              title={getRowId(row)}
+              aria-label={safeGetRowId(row)}
+              title={safeGetRowId(row)}
               icon={KebabHorizontalIcon}
               variant="invisible"
             />
@@ -131,7 +153,7 @@ export const GenericTable = <T extends { id: string }>({
               )}
               {patchFn && (
                 <ActionList.Item
-                  key={`${getRowId(row)}-edit`}
+                  key={`${safeGetRowId(row)}-edit`}
                   onClick={() => {
                     setDialogMode("modify");
                     setIsOpen(true);
@@ -148,10 +170,10 @@ export const GenericTable = <T extends { id: string }>({
                 <>
                   <ActionList.Divider />
                   <ActionList.Item
-                    key={`${getRowId(row)}-delete`}
+                    key={`${safeGetRowId(row)}-delete`}
                     variant="danger"
                     onClick={() => {
-                      deleteMutation?.mutate(getRowId(row));
+                      deleteMutation?.mutate(safeGetRowId(row));
                       onDialogClose?.();
                     }}
                   >
@@ -201,12 +223,8 @@ export const GenericTable = <T extends { id: string }>({
       queryClient.invalidateQueries({ queryKey: [subject] });
       banner.showBanner("success", `Delete ${subject} successfully`);
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 
@@ -216,11 +234,8 @@ export const GenericTable = <T extends { id: string }>({
       queryClient.invalidateQueries({ queryKey: [subject] });
       banner.showBanner("success", `Create ${subject} successfully`);
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 
@@ -230,12 +245,8 @@ export const GenericTable = <T extends { id: string }>({
       queryClient.invalidateQueries({ queryKey: [subject] });
       banner.showBanner("success", `Update ${subject} successfully`);
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 
@@ -244,7 +255,7 @@ export const GenericTable = <T extends { id: string }>({
       <Table.Skeleton
         aria-labelledby="repositories-loading"
         rows={limit}
-        columns={tableColumns}
+        columns={tableColumns as Column<UniqueRow>[]}
       />
     );
   }
@@ -295,7 +306,9 @@ export const GenericTable = <T extends { id: string }>({
                     variant="danger"
                     onClick={() => {
                       if (mutationData)
-                        deleteMutation.mutate(mutationData.id as string);
+                        deleteMutation.mutate(
+                          safeGetRowId(mutationData as T) as string
+                        );
                       setIsOpen(false);
                     }}
                   >
@@ -342,8 +355,13 @@ export const GenericTable = <T extends { id: string }>({
         <DataTable
           aria-labelledby="repositories-default-headerAction"
           aria-describedby="repositories-subtitle-headerAction"
-          data={table.getRowModel().rows.map((row) => row.original)}
-          columns={tableColumns}
+          data={
+            table
+              .getRowModel()
+              .rows.map((r) => r.original) as unknown as UniqueRow[]
+          }
+          columns={tableColumns as Column<UniqueRow>[]}
+          getRowId={(row) => safeGetRowId(row as T)}
         />
         {!disablePagination && (
           <Table.Pagination

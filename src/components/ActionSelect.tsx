@@ -17,14 +17,14 @@ interface ActionSelectProps<T> {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   mutationFn: (params: add_params) => Promise<UniResponse<any>>;
-  fetchFn: () => Promise<UniResponse<[]>>; // 通用获取数据函数
+  fetchFn: () => Promise<UniResponse<T[]>>; // 通用获取数据函数
   itemText: (item: T) => string; // 渲染 item 显示的文本
   getId: (item: T) => string; // 提取 id
   onChange?: (selected: T[]) => void;
   enableImportJson?: boolean; // 是否支持 JSON 导入
 }
 
-export function ActionSelect<T>({
+export const ActionSelect = <T,>({
   event_id,
   label,
   maxHeight = 240,
@@ -36,7 +36,7 @@ export function ActionSelect<T>({
   getId,
   onChange,
   enableImportJson = false,
-}: ActionSelectProps<T>) {
+}: ActionSelectProps<T>) => {
   const queryClient = useQueryClient();
 
   // 获取数据
@@ -149,4 +149,4 @@ export function ActionSelect<T>({
       )}
     </FormControl>
   );
-}
+};

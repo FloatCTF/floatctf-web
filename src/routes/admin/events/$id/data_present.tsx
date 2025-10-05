@@ -1,14 +1,3 @@
-import { eventAdminApi } from "@/api/admin";
-import type { Event } from "@/routes/admin/events";
-import { RemainingTimer } from "@/routes/service/events/jeopardy.$id/route";
-import {
-  ScoreBoard,
-  type ScoreboardItem,
-} from "@/routes/service/events/jeopardy.$id/scoreboard";
-import {
-  TrendChart,
-  type TrendItem,
-} from "@/routes/service/events/jeopardy.$id/trend";
 import {
   RocketIcon,
   ScreenFullIcon,
@@ -18,8 +7,20 @@ import {
 import { Label, LabelGroup, Spinner, Text, Timeline } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
 import { useState } from "react";
+
+import { adminApi } from "@/api";
+import type { Events } from "@/entity";
+import { RemainingTimer } from "@/routes/service/events/jeopardy.$id/route";
+import {
+  ScoreBoard,
+  type ScoreboardItem,
+} from "@/routes/service/events/jeopardy.$id/scoreboard";
+import {
+  TrendChart,
+  type TrendItem,
+} from "@/routes/service/events/jeopardy.$id/trend";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/admin/events/$id/data_present")({
   component: RouteComponent,
@@ -43,7 +44,7 @@ export type DataEventChallengeSolve = {
 
 // 你需要在别处定义 Event, ScoreboardItem, TrendItem 的 TS 类型
 export type DataPresent = {
-  event: Event; // 对应 events::Model
+  event: Events; // 对应 events::Model
   user_count: number;
   team_count: number;
   solved_recent_15: DataEventChallengeSolve[];
@@ -57,7 +58,7 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["event_data_present", id],
-    queryFn: async () => eventAdminApi.getData(id),
+    queryFn: async () => adminApi.events.getData(id),
     refetchInterval: 1000 * 30,
   });
   const dp: DataPresent | undefined = data?.data;
@@ -161,13 +162,7 @@ function RouteComponent() {
                         </Text>
                         <br />
                         <Text sx={{ color: "fg.muted" }}>
-                          @{" "}
-                          <span>
-                            {dayjs
-                              .utc(solve.created_at)
-                              .local()
-                              .format("YYYY-MM-DD HH:mm:ss")}
-                          </span>
+                          @ <span>{DatetimeToShow(solve.created_at)}</span>
                         </Text>
                       </Text>
                     </Timeline.Body>

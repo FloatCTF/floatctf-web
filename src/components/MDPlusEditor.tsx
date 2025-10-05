@@ -80,12 +80,12 @@ export interface MDPlusEditorProps {
   onSave?: () => void;
 }
 
-export default function MDPlusEditor({
+export const MDPlusEditor = ({
   value,
   setValue,
   className,
   onSave,
-}: MDPlusEditorProps) {
+}: MDPlusEditorProps) => {
   const save: ICommand = {
     name: "Save",
     keyCommand: "Save",
@@ -111,4 +111,4 @@ export default function MDPlusEditor({
       }}
     />
   );
-}
+};

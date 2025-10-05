@@ -1,30 +1,15 @@
-import { settingAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
 import { Select, Stack, TextInput, ToggleSwitch } from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useReactive, useTitle } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import { SettingValueType, type Settings } from "@/entity";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/admin/settings")({
   component: RouteComponent,
 });
-export enum SettingValueType {
-  String = "String",
-  Integer = "Integer",
-  Boolean = "Boolean",
-  Float = "Float",
-}
-export type Setting = {
-  id: string;
-  key: string;
-  value: string;
-  type: SettingValueType;
-  description: string;
-  protected: boolean;
-  updated_at: string;
-};
 
 function RouteComponent() {
   useTitle("Settings | FloatCTF");
@@ -61,16 +46,12 @@ function RouteComponent() {
       header: "Updated At",
       field: "updated_at",
       sortBy: true,
-      renderCell: (row: Setting) => {
-        return (
-          <span>
-            {dayjs.utc(row.updated_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Settings) => {
+        return <span>{DatetimeToShow(row.updated_at)}</span>;
       },
     },
   ];
-  const mutationSetting = useReactive<Partial<Setting>>({
+  const mutationSetting = useReactive<Partial<Settings>>({
     key: "",
     value: "",
     type: SettingValueType.String,
@@ -154,10 +135,10 @@ function RouteComponent() {
       columns={columns}
       mutationColumns={mutationColumns}
       mutationData={mutationSetting}
-      queryFn={settingAdminApi.fetch}
-      createFn={settingAdminApi.create}
-      removeFn={settingAdminApi.remove}
-      patchFn={settingAdminApi.patch}
+      queryFn={adminApi.settings.fetch}
+      createFn={adminApi.settings.create}
+      removeFn={adminApi.settings.remove}
+      patchFn={adminApi.settings.patch}
       disablePagination={true}
     />
   );

@@ -1,6 +1,4 @@
-import { challengeAdminApi } from "@/api/admin";
-
-import { GenericTable } from "@/components/admin/Table";
+import { CheckIcon } from "@primer/octicons-react";
 import {
   Button,
   Checkbox,
@@ -10,32 +8,18 @@ import {
   Textarea,
   ToggleSwitch,
 } from "@primer/react";
-import { createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-
-import { CheckIcon } from "@primer/octicons-react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useReactive } from "ahooks";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { AdminRouteGuard } from "./route";
 
-dayjs.extend(utc);
-
-export type Challenge = {
-  id: string; // Uuid
-  name: string;
-  safe_name: string;
-  category: string;
-  description: string;
-  attachment?: string; // Option<String>
-  hidden: boolean;
-  toml_str: string;
-  created_at: Date; // DateTime
-  updated_at: Date; // DateTime
-};
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { Challenges } from "@/entity";
+import { AdminRouteGuard } from "@/routes/admin/route";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/admin/challenges")({
   component: RouteComponent,
@@ -57,7 +41,7 @@ function RouteComponent() {
       header: "Hidden",
       field: "hidden",
 
-      renderCell: (row: Challenge) => {
+      renderCell: (row: Challenges) => {
         return <span>{row.hidden ? <CheckIcon /> : <></>}</span>;
       },
       sortBy: true,
@@ -66,29 +50,21 @@ function RouteComponent() {
       accessorKey: "created_at",
       header: "Created At",
       field: "created_at",
-      renderCell: (row: Challenge) => {
-        return (
-          <span>
-            {dayjs.utc(row.created_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Challenges) => {
+        return <span>{DatetimeToShow(row.created_at)}</span>;
       },
     },
     {
       accessorKey: "updated_at",
       header: "Updated At",
       field: "updated_at",
-      renderCell: (row: Challenge) => {
-        return (
-          <span>
-            {dayjs.utc(row.updated_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Challenges) => {
+        return <span>{DatetimeToShow(row.updated_at)}</span>;
       },
     },
   ];
 
-  const mutationChallenge = useReactive<Partial<Challenge>>({
+  const mutationChallenge = useReactive<Partial<Challenges>>({
     name: "",
     category: "",
     description: "",
@@ -186,10 +162,10 @@ function RouteComponent() {
     <GenericTable
       subject="Challenges"
       columns={columns}
-      queryFn={challengeAdminApi.fetch}
-      createFn={challengeAdminApi.create}
-      removeFn={challengeAdminApi.remove}
-      patchFn={challengeAdminApi.patch}
+      queryFn={adminApi.challenges.fetch}
+      createFn={adminApi.challenges.create}
+      removeFn={adminApi.challenges.remove}
+      patchFn={adminApi.challenges.patch}
       mutationColumns={mutationColumns}
       mutationData={mutationChallenge}
       customActions={custom_actions}
@@ -210,7 +186,7 @@ function ImportButton() {
 
   const importMutation = useMutation({
     mutationFn: (vars: { file: File; isBatch: boolean }) =>
-      challengeAdminApi.importChallenge(vars.file, vars.isBatch),
+      adminApi.challenges.importChallenge(vars.file, vars.isBatch),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["Challenges"] });
       setMessage({ type: "success", text: "上传成功 🎉" });
@@ -317,7 +293,7 @@ export function CheckButton({
   // 数据获取
   const { data, isLoading } = useQuery({
     queryKey: ["ChallengeCheck"],
-    queryFn: () => challengeAdminApi.checkChallenges(challenge_id_list),
+    queryFn: () => adminApi.challenges.checkChallenges(challenge_id_list),
     enabled: isOpen,
     refetchOnWindowFocus: false,
     staleTime: 60_000, // 1 分钟内重复打开不会再请求
@@ -327,7 +303,7 @@ export function CheckButton({
 
   const buildChallengeMutation = useMutation({
     mutationFn: (challenge_id_list?: string[]) =>
-      challengeAdminApi.buildChallenges(challenge_id_list),
+      adminApi.challenges.buildChallenges(challenge_id_list),
     onSuccess: (data) => {
       setBuilding(false);
       alert(data.data?.map((r) => r.message).join("\n"));

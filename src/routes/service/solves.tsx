@@ -1,33 +1,24 @@
-import { solveServiceApi } from "@/api/service";
-
-import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useEffect } from "react";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { ChallengeSolves } from "@/entity";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/solves")({
   component: RouteComponent,
 });
-export type ChallengeSolve = {
-  id: string;
-  event_id: string | null;
-  challenge_id: string;
-  user_id: string;
-  created_at: string;
-};
 
 function RouteComponent() {
   useTitle("Solves | FloatCTF");
   const columns = [
     { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
-    { accessorKey: "event_id", header: "Event ID", field: "event_id" },
     {
       accessorKey: "challenge_id",
       header: "Challenge ID",
       field: "challenge_id",
-      renderCell: (row: ChallengeSolve) => (
+      renderCell: (row: ChallengeSolves) => (
         <Link to={"/service/challenges/$id"} params={{ id: row.challenge_id }}>
           {row.challenge_id}
         </Link>
@@ -37,10 +28,8 @@ function RouteComponent() {
       accessorKey: "created_at",
       header: "Created At",
       field: "created_at",
-      renderCell: (row: ChallengeSolve) => (
-        <span>
-          {dayjs.utc(row.created_at).local().format("YYYY-MM-DD HH:mm:ss")}
-        </span>
+      renderCell: (row: ChallengeSolves) => (
+        <span>{DatetimeToShow(row.created_at)}</span>
       ),
     },
   ];
@@ -48,7 +37,7 @@ function RouteComponent() {
     <GenericTable
       subject="Challenge Solves"
       columns={columns}
-      queryFn={solveServiceApi.fetch}
+      queryFn={serviceApi.solves.fetch}
       enableInternalActions={false}
       disableAdd={true}
     />

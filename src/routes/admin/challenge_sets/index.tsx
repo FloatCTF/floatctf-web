@@ -1,13 +1,16 @@
-import { challengeAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
-import type { ChallengeSet } from "@/routes/service/challenge_sets";
 import { TextInput, Truncate } from "@primer/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
-import dayjs from "dayjs";
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { ChallengeSets } from "@/entity";
+import { AdminRouteGuard } from "@/routes/admin/route";
+import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/admin/challenge_sets/")({
   component: RouteComponent,
+  loader: AdminRouteGuard,
 });
 
 function RouteComponent() {
@@ -18,7 +21,7 @@ function RouteComponent() {
       header: "ID",
       field: "id",
       rowHeader: true,
-      renderCell: (row: ChallengeSet) => {
+      renderCell: (row: ChallengeSets) => {
         return (
           <Link to="/admin/challenge_sets/$id" params={{ id: row.id }}>
             {row.id}
@@ -30,7 +33,7 @@ function RouteComponent() {
       accessorKey: "name",
       header: "Name",
       field: "name",
-      renderCell: (row: ChallengeSet) => {
+      renderCell: (row: ChallengeSets) => {
         return (
           <Link to="/admin/challenge_sets/$id" params={{ id: row.id }}>
             {row.name}
@@ -44,7 +47,7 @@ function RouteComponent() {
       header: "Description",
       field: "description",
       sortBy: true,
-      renderCell: (row: ChallengeSet) => {
+      renderCell: (row: ChallengeSets) => {
         return <Truncate title={row.description ?? ""} />;
       },
     },
@@ -53,16 +56,12 @@ function RouteComponent() {
       header: "Created At",
       field: "created_at",
       sortBy: true,
-      renderCell: (row: ChallengeSet) => {
-        return (
-          <span>
-            {dayjs.utc(row.created_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: ChallengeSets) => {
+        return <span>{DatetimeToShow(row.created_at)}</span>;
       },
     },
   ];
-  const mutationChallengeSet = useReactive<Partial<ChallengeSet>>({
+  const mutationChallengeSet = useReactive<Partial<ChallengeSets>>({
     name: "",
     description: "",
   });
@@ -92,14 +91,15 @@ function RouteComponent() {
       ),
     },
   ];
+
   return (
     <GenericTable
       subject={subject}
       columns={columns}
-      queryFn={challengeAdminApi.getChallengeSets}
-      createFn={challengeAdminApi.createChallengeSet}
-      removeFn={challengeAdminApi.deleteChallengeSet}
-      patchFn={challengeAdminApi.patchChallengeSet}
+      queryFn={adminApi.challenges.getChallengeSets}
+      createFn={adminApi.challenges.createChallengeSet}
+      removeFn={adminApi.challenges.deleteChallengeSet}
+      patchFn={adminApi.challenges.patchChallengeSet}
       mutationColumns={mutationColumns}
       mutationData={mutationChallengeSet}
       disablePagination={true}

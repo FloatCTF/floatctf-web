@@ -1,13 +1,22 @@
 import { service_routes } from "@/routes";
 import { NavList } from "@primer/react";
 import { useLocation } from "@tanstack/react-router";
+export type NavRoute = {
+  label: string;
+  path?: string;
+  icon: React.ReactNode;
+  children?: NavRoute[];
+};
+export interface GenericSideBarProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  routes: NavRoute[];
+}
 
-export default (props: React.HTMLAttributes<HTMLDivElement>) => {
+export const GenericSideBar = ({ routes, ...props }: GenericSideBarProps) => {
   const location = useLocation();
-
   return (
     <NavList {...props}>
-      {service_routes.map((route, index) => (
+      {routes.map((route, index) => (
         <NavList.Item
           key={`${route.path}-${index}`}
           href={route.path}

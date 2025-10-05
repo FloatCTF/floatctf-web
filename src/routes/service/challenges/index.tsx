@@ -1,14 +1,12 @@
-import { challengeServiceApi } from "@/api/service";
-
-import { GenericTable } from "@/components/admin/Table";
-import type { Challenge } from "@/routes/admin/challenges";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useEffect } from "react";
-import { ServiceRouteGuard } from "../route";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { Challenges } from "@/entity";
+import { ServiceRouteGuard } from "@/routes/service/route";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/challenges/")({
   component: RouteComponent,
   loader: ServiceRouteGuard,
@@ -22,7 +20,7 @@ function RouteComponent() {
       header: "ID",
       field: "id",
       rowHeader: true,
-      renderCell: (row: Challenge) => {
+      renderCell: (row: Challenges) => {
         return (
           <Link to={"/service/challenges/$id"} params={{ id: row.id }}>
             {row.id}
@@ -35,7 +33,7 @@ function RouteComponent() {
       header: "Name",
       field: "name",
       rowHeader: true,
-      renderCell: (row: Challenge) => {
+      renderCell: (row: Challenges) => {
         return (
           <Link to={"/service/challenges/$id"} params={{ id: row.id }}>
             {row.name}
@@ -53,12 +51,8 @@ function RouteComponent() {
       accessorKey: "updated_at",
       header: "Updated At",
       field: "updated_at",
-      renderCell: (row: Challenge) => {
-        return (
-          <span>
-            {dayjs.utc(row.updated_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Challenges) => {
+        return <span>{DatetimeToShow(row.updated_at)}</span>;
       },
     },
   ];
@@ -67,7 +61,7 @@ function RouteComponent() {
       subject="Challenges"
       subtitle="If you want submit yours, pls visit https://github.com/FloatCTF/challenge-template"
       columns={columns}
-      queryFn={challengeServiceApi.fetch}
+      queryFn={serviceApi.challenges.fetch}
       enableInternalActions={false}
       disableAdd={true}
     />

@@ -1,19 +1,19 @@
 import type { UniResponse } from "@/api/axios";
-import { eventServiceApi, instanceServiceApi } from "@/api/service";
-import { useMsgBanner } from "@/components/MsgBanner";
-import type { Instance } from "@/routes/admin/instances";
 import { Button, Spinner } from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
-export type EventInstance = {
+
+import { serviceApi } from "@/api";
+import { useMsgBanner } from "@/components";
+import type { Instances } from "@/entity";
+import { DatetimeToShow } from "@/util";
+
+export type EventInstanceResult = {
   id: string;
-  instance: Instance;
+  instance: Instances;
   challenge_name: string;
   user_nickname: string;
 };
@@ -26,24 +26,21 @@ function RouteComponent() {
   const banner = useMsgBanner();
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useQuery<
-    UniResponse<EventInstance[]>,
+    UniResponse<EventInstanceResult[]>,
     AxiosError<{ message: string }>
   >({
     queryKey: ["event_instances", id],
-    queryFn: () => eventServiceApi.getInstances(id),
+    queryFn: () => serviceApi.events.getInstances(id),
   });
 
   const mutationInstance = useMutation({
-    mutationFn: instanceServiceApi.destroy,
+    mutationFn: serviceApi.instances.destroy,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event_instances"] });
       banner.showBanner("success", "Instance destroyed successfully");
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 
@@ -73,22 +70,15 @@ function RouteComponent() {
       accessorKey: "instance.destroy_at",
       header: "Destroy At",
       field: "destroy_at",
-      renderCell: (row: EventInstance) => {
-        return (
-          <span>
-            {dayjs
-              .utc(row.instance.destroy_at)
-              .local()
-              .format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: EventInstanceResult) => {
+        return <span>{DatetimeToShow(row.instance.destroy_at)}</span>;
       },
     },
     {
       accessorKey: "action",
       header: "Action",
       field: "action",
-      renderCell: (row: EventInstance) => {
+      renderCell: (row: EventInstanceResult) => {
         return (
           <Button
             variant="invisible"

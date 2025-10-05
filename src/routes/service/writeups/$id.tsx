@@ -1,15 +1,12 @@
-import { challengeServiceApi } from "@/api/service";
-
 import { Spinner } from "@primer/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
 import { useTitle } from "ahooks";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useEffect } from "react";
 
-dayjs.extend(utc);
+import { serviceApi } from "@/api";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/writeups/$id")({
   component: RouteComponent,
 });
@@ -18,7 +15,7 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["writeup", id],
-    queryFn: () => challengeServiceApi.getWriteup(id),
+    queryFn: () => serviceApi.challenges.getWriteup(id),
   });
   const writeup = data?.data;
   useTitle(`${writeup?.challenge.name ?? "Writeup"} | FloatCTF`);
@@ -50,10 +47,7 @@ function RouteComponent() {
           <span>
             Created at{" "}
             <span className="text-bold">
-              {dayjs
-                .utc(writeup?.writeup.created_at)
-                .local()
-                .format("YYYY-MM-DD HH:mm:ss")}
+              {DatetimeToShow(writeup?.writeup.created_at)}
             </span>
           </span>
           <div>

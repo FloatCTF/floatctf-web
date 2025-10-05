@@ -1,36 +1,20 @@
-import { eventServiceApi, submitServiceApi } from "@/api/service";
-import {
-  Button,
-  FormControl,
-  Heading,
-  Label,
-  Text,
-  TextInput,
-} from "@primer/react";
+import { Button, FormControl, Heading, Label, TextInput } from "@primer/react";
 import { Banner, InlineMessage } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
-import { useReactive } from "ahooks";
-import type { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { type FormEvent, useMemo, useRef, useState } from "react";
+import { match } from "ts-pattern";
+
+import { serviceApi } from "@/api";
+import { useMsgInlineBanner } from "@/components";
+import { EventType } from "@/entity";
 import type { EventInfo } from "..";
 
 export const Route = createFileRoute("/service/events/jeopardy/$id/")({
   component: RouteComponent,
 });
-
-export type EventTeam = {
-  id: string;
-  event_id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-  points: number;
-  banned: boolean;
-};
 
 function parseMs(iso?: string): number {
   if (!iso) return Number.NaN;
@@ -58,14 +42,11 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
 
-  const msg = useReactive({
-    hidden: true,
-    message: "",
-  });
+  const banner = useMsgInlineBanner();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["event", id],
-    queryFn: () => eventServiceApi.get(id),
+    queryFn: () => serviceApi.events.get(id),
   });
 
   const eventData: EventInfo | undefined = data?.data;
@@ -87,42 +68,30 @@ function RouteComponent() {
 
   // 统一命名 join/leave mutation；把隐藏消息放到 onMutate（清空）和 onError（展示）
   const joinEventMutation = useMutation({
-    mutationFn: eventServiceApi.join,
+    mutationFn: serviceApi.events.join,
     onMutate: () => {
-      msg.hidden = true;
-      msg.message = "";
+      banner.hideBanner();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
     },
 
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg1 =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      msg.hidden = false;
-      msg.message = msg1;
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 
   const leaveEventMutation = useMutation({
-    mutationFn: eventServiceApi.leave,
+    mutationFn: serviceApi.events.leave,
     onMutate: () => {
-      msg.hidden = true;
-      msg.message = "";
+      banner.hideBanner();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
     },
 
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg1 =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      msg.hidden = false;
-      msg.message = msg1;
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
 
@@ -130,49 +99,34 @@ function RouteComponent() {
   const [teamId, setTeamId] = useState("");
   const [teamName, setTeamName] = useState("");
   const createEventTeamMutation = useMutation({
-    mutationFn: eventServiceApi.createTeam,
+    mutationFn: serviceApi.events.createTeam,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
       // join success
     },
 
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg1 =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      msg.hidden = false;
-      msg.message = msg1;
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const quitEventTeamMutation = useMutation({
-    mutationFn: eventServiceApi.quitTeam,
+    mutationFn: serviceApi.events.quitTeam,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
     },
 
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg1 =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      msg.hidden = false;
-      msg.message = msg1;
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const joinEventTeamMutation = useMutation({
-    mutationFn: eventServiceApi.joinTeam,
+    mutationFn: serviceApi.events.joinTeam,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
     },
 
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg1 =
-        error.response?.data?.message || error.message || "Unknown error";
-
-      msg.hidden = false;
-      msg.message = msg1;
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
   const handleJoinSingle = () => {
@@ -223,152 +177,152 @@ function RouteComponent() {
       <MDEditor.Markdown source={ev.rules} className="border rounded p-4" />
 
       <div className="flex flex-col gap-3">
-        {" "}
         {/* 右侧：操作 */}
         <div className="flex flex-col gap-3 min-w-[320px]">
-          {ev.type === "JeopardySingle" && (
-            <section className="p-3 rounded border flex  items-center min-h-[72px]">
-              {status === "upcoming" && (
-                <Button
-                  className="w-28"
-                  variant={eventData.joined ? "danger" : "primary"}
-                  onClick={
-                    eventData.joined ? handleLeaveSingle : handleJoinSingle
-                  }
-                  disabled={eventData.joined ? isLeaving : isJoining}
-                  aria-label={eventData.joined ? "Leave event" : "Join event"}
-                >
-                  {eventData.joined
-                    ? isLeaving
-                      ? "Leaving…"
-                      : "Leave"
-                    : isJoining
-                    ? "Joining…"
-                    : "Join"}
-                </Button>
-              )}
-              {status !== "upcoming" && eventData.joined && (
-                <SubmitWriteup eventId={id} />
-              )}
-            </section>
-          )}
+          {match(ev.type)
+            .with(EventType.JeopardySingle, () => (
+              <section className="p-3 rounded border flex  items-center min-h-[72px]">
+                {status === "upcoming" && (
+                  <Button
+                    className="w-28"
+                    variant={eventData.joined ? "danger" : "primary"}
+                    onClick={
+                      eventData.joined ? handleLeaveSingle : handleJoinSingle
+                    }
+                    disabled={eventData.joined ? isLeaving : isJoining}
+                    aria-label={eventData.joined ? "Leave event" : "Join event"}
+                  >
+                    {eventData.joined
+                      ? isLeaving
+                        ? "Leaving…"
+                        : "Leave"
+                      : isJoining
+                      ? "Joining…"
+                      : "Join"}
+                  </Button>
+                )}
+                {status !== "upcoming" && eventData.joined && (
+                  <SubmitWriteup eventId={id} />
+                )}
+              </section>
+            ))
+            .with(EventType.JeopardyTeam, () => (
+              <section className="p-3 rounded border flex gap-5">
+                {status !== "upcoming" && eventData.joined && (
+                  <SubmitWriteup
+                    eventId={id}
+                    teamId={eventData.team_result?.team.id}
+                  />
+                )}
+                {eventData.joined && (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Heading as="h2">
+                        {eventData.team_result?.team.name}
+                      </Heading>
+                      {eventData.team_result?.team.banned && (
+                        <Label variant="danger">Banned</Label>
+                      )}
+                    </div>
+                    <dl className="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2">
+                      <dt className="font-bold">ID</dt>
+                      <dd className="font-medium break-all">
+                        {eventData.team_result?.team.id}
+                      </dd>
 
-          {ev.type === "JeopardyTeam" && (
-            <section className="p-3 rounded border flex gap-5">
-              {status !== "upcoming" && eventData.joined && (
-                <SubmitWriteup
-                  eventId={id}
-                  teamId={eventData.team_result?.team.id}
-                />
-              )}
-              {eventData.joined && (
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Heading as="h2">
-                      {eventData.team_result?.team.name}
-                    </Heading>
-                    {eventData.team_result?.team.banned && (
-                      <Label variant="danger">Banned</Label>
+                      {eventData.team_result?.members.map((member) => (
+                        <>
+                          <dt key={member.member.user_id} className="font-bold">
+                            {member.member.role}
+                          </dt>
+                          <dd
+                            key={member.member.user_id}
+                            className="font-medium  break-all"
+                          >
+                            {member.member_name} @{" "}
+                            {dayjs
+                              .utc(member.member.joined_at)
+                              .local()
+                              .format("YYYY-MM-DD HH:mm:ss")}
+                          </dd>
+                        </>
+                      ))}
+                    </dl>
+                    {/* 已加入未开始 */}
+                    {status === "upcoming" && (
+                      <Button
+                        className="w-28"
+                        variant="danger"
+                        onClick={() =>
+                          quitEventTeamMutation.mutate({
+                            event_id: id,
+                            team_id: eventData.team_result?.team.id ?? "",
+                          })
+                        }
+                        disabled={isLeaving}
+                        aria-label="Leave event"
+                      >
+                        {isLeaving ? "Leaving…" : "Leave"}
+                      </Button>
                     )}
                   </div>
-                  <dl className="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2">
-                    <dt className="font-bold">ID</dt>
-                    <dd className="font-medium break-all">
-                      {eventData.team_result?.team.id}
-                    </dd>
-
-                    {eventData.team_result?.members.map((member) => (
-                      <>
-                        <dt key={member.member.user_id} className="font-bold">
-                          {member.member.role}
-                        </dt>
-                        <dd
-                          key={member.member.user_id}
-                          className="font-medium  break-all"
-                        >
-                          {member.member_name} @{" "}
-                          {dayjs
-                            .utc(member.member.joined_at)
-                            .local()
-                            .format("YYYY-MM-DD HH:mm:ss")}
-                        </dd>
-                      </>
-                    ))}
-                  </dl>
-                  {/* 已加入未开始 */}
-                  {status === "upcoming" && (
-                    <Button
-                      className="w-28"
-                      variant="danger"
-                      onClick={() =>
-                        quitEventTeamMutation.mutate({
+                )}
+                {/* 未开始未加入 */}
+                {status === "upcoming" && !eventData.joined && (
+                  <>
+                    <form
+                      className="flex w-full flex-col gap-2"
+                      onSubmit={(e: FormEvent) => {
+                        e.preventDefault();
+                        joinEventTeamMutation.mutate({
                           event_id: id,
-                          team_id: eventData.team_result?.team.id ?? "",
-                        })
-                      }
-                      disabled={isLeaving}
-                      aria-label="Leave event"
+                          team_id: teamId,
+                        });
+                      }}
                     >
-                      {isLeaving ? "Leaving…" : "Leave"}
-                    </Button>
-                  )}
-                </div>
-              )}
-              {/* 未开始未加入 */}
-              {status === "upcoming" && !eventData.joined && (
-                <>
-                  <form
-                    className="flex w-full flex-col gap-2"
-                    onSubmit={(e: FormEvent) => {
-                      e.preventDefault();
-                      joinEventTeamMutation.mutate({
-                        event_id: id,
-                        team_id: teamId,
-                      });
-                    }}
-                  >
-                    <FormControl required>
-                      <FormControl.Label>Team ID</FormControl.Label>
-                      <TextInput
-                        value={teamId}
-                        onChange={(e) => setTeamId(e.target.value)}
-                        aria-label="Team ID"
-                      />
-                    </FormControl>
-                    <Button variant="primary" type="submit">
-                      Join
-                    </Button>
-                  </form>
-                  <form
-                    className="flex w-full flex-col gap-2"
-                    onSubmit={(e: FormEvent) => {
-                      e.preventDefault();
-                      createEventTeamMutation.mutate({
-                        event_id: id,
-                        name: teamName,
-                      });
-                    }}
-                  >
-                    <FormControl required>
-                      <FormControl.Label>Team Name</FormControl.Label>
-                      <TextInput
-                        value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        aria-label="Team Name"
-                      />
-                    </FormControl>
-                    <Button variant="primary" type="submit">
-                      Create
-                    </Button>
-                  </form>
-                </>
-              )}
-            </section>
-          )}
+                      <FormControl required>
+                        <FormControl.Label>Team ID</FormControl.Label>
+                        <TextInput
+                          value={teamId}
+                          onChange={(e) => setTeamId(e.target.value)}
+                          aria-label="Team ID"
+                        />
+                      </FormControl>
+                      <Button variant="primary" type="submit">
+                        Join
+                      </Button>
+                    </form>
+                    <form
+                      className="flex w-full flex-col gap-2"
+                      onSubmit={(e: FormEvent) => {
+                        e.preventDefault();
+                        createEventTeamMutation.mutate({
+                          event_id: id,
+                          name: teamName,
+                        });
+                      }}
+                    >
+                      <FormControl required>
+                        <FormControl.Label>Team Name</FormControl.Label>
+                        <TextInput
+                          value={teamName}
+                          onChange={(e) => setTeamName(e.target.value)}
+                          aria-label="Team Name"
+                        />
+                      </FormControl>
+                      <Button variant="primary" type="submit">
+                        Create
+                      </Button>
+                    </form>
+                  </>
+                )}
+              </section>
+            ))
+            .otherwise(() => (
+              <span>Unsupported event type</span>
+            ))}
 
-          {!msg.hidden && (
-            <InlineMessage variant="critical">{msg.message}</InlineMessage>
-          )}
+          <banner.BannerComponent />
         </div>
         <section className="p-3 rounded border">
           <div className="flex items-center gap-2 mb-2">
@@ -408,38 +362,31 @@ function RouteComponent() {
     </div>
   );
 }
-export type Announcement = {
-  id: string;
-  event_id: string;
-  title: string;
-  content: string;
-  created_at: string;
-};
 
 function Announcements({ eventId }: { eventId: string }) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["announcements", eventId],
-    queryFn: () => eventServiceApi.getAnnouncements(eventId),
+    queryFn: () => serviceApi.events.getAnnouncements(eventId),
     refetchInterval: 1000 * 60, // 1 min
   });
+  const banner = useMsgInlineBanner();
 
   if (isLoading) {
     return <div className="p-4">Loading…</div>;
   }
   if (isError) {
+    banner.showErrorBanner(error);
     return (
       <div className="p-4">
-        <InlineMessage variant="critical">
-          {/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
-          {(error as any)?.message ?? "Failed to load announcements."}
-        </InlineMessage>
+        <banner.BannerComponent />
       </div>
     );
   }
   if (!data?.data) {
+    banner.showBanner("warning", "No announcements.");
     return (
       <div className="p-4">
-        <InlineMessage variant="warning">No announcements.</InlineMessage>
+        <banner.BannerComponent />
       </div>
     );
   }
@@ -476,12 +423,12 @@ function SubmitWriteup({
   const queryClient = useQueryClient();
   const { data: createdDate } = useQuery({
     queryKey: ["writeup_created_date", eventId],
-    queryFn: () => eventServiceApi.getWriteUpCreatedDate(eventId),
+    queryFn: () => serviceApi.events.getWriteUpCreatedDate(eventId),
   });
 
   const submitMutation = useMutation({
     mutationFn: (file: File) =>
-      submitServiceApi.submitWriteup(file, eventId, teamId),
+      serviceApi.submit.submitWriteup(file, eventId, teamId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["Challenges"] });
       setMessage({ type: "success", text: "提交成功 🎉" });

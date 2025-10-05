@@ -1,18 +1,14 @@
-import { challengeServiceApi } from "@/api/service";
-import { GenericTable } from "@/components/admin/Table";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { ChallengeSets } from "@/entity";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/challenge_sets/")({
   component: RouteComponent,
 });
-export type ChallengeSet = {
-  id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-};
+
 function RouteComponent() {
   const subject = "Challenge Sets";
   const columns = [
@@ -21,7 +17,7 @@ function RouteComponent() {
       header: "ID",
       field: "id",
       rowHeader: true,
-      renderCell: (row: ChallengeSet) => {
+      renderCell: (row: ChallengeSets) => {
         return (
           <Link to="/service/challenge_sets/$id" params={{ id: row.id }}>
             {row.id}
@@ -33,7 +29,7 @@ function RouteComponent() {
       accessorKey: "name",
       header: "Name",
       field: "name",
-      renderCell: (row: ChallengeSet) => {
+      renderCell: (row: ChallengeSets) => {
         return (
           <Link to="/service/challenge_sets/$id" params={{ id: row.id }}>
             {row.name}
@@ -53,12 +49,8 @@ function RouteComponent() {
       header: "Created At",
       field: "created_at",
       sortBy: true,
-      renderCell: (row: ChallengeSet) => {
-        return (
-          <span>
-            {dayjs.utc(row.created_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: ChallengeSets) => {
+        return <span>{DatetimeToShow(row.created_at)}</span>;
       },
     },
   ];
@@ -66,7 +58,7 @@ function RouteComponent() {
     <GenericTable
       subject={subject}
       columns={columns}
-      queryFn={challengeServiceApi.getChallengeSets}
+      queryFn={serviceApi.challenges.getChallengeSets}
       disableAdd={true}
       disablePagination={true}
       enableInternalActions={false}

@@ -1,17 +1,14 @@
-import { instanceServiceApi } from "@/api/service";
-import { useMsgBanner } from "@/components/MsgBanner";
-
-import { GenericTable } from "@/components/admin/Table";
 import { Button } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useReactive, useTitle } from "ahooks";
+import { useTitle } from "ahooks";
 import type { AxiosError } from "axios";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useEffect } from "react";
-import type { Instance } from "../admin/instances";
-dayjs.extend(utc);
+
+import { serviceApi } from "@/api";
+import { GenericTable, useMsgBanner } from "@/components";
+import type { Instances } from "@/entity";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/service/instances")({
   component: RouteComponent,
 });
@@ -24,7 +21,7 @@ function RouteComponent() {
   const queryClient = useQueryClient();
 
   const mutationInstance = useMutation({
-    mutationFn: instanceServiceApi.destroy,
+    mutationFn: serviceApi.instances.destroy,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
       banner.showBanner("success", "Instance destroyed successfully");
@@ -42,7 +39,7 @@ function RouteComponent() {
       header: "Challenge",
       field: "challenge_id",
       rowHeader: true,
-      renderCell: (row: Instance) => {
+      renderCell: (row: Instances) => {
         return (
           <Link
             to={"/service/challenges/$id"}
@@ -72,19 +69,15 @@ function RouteComponent() {
       accessorKey: "destroy_at",
       header: "Destroy At",
       field: "destroy_at",
-      renderCell: (row: Instance) => {
-        return (
-          <span>
-            {dayjs.utc(row.destroy_at).local().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+      renderCell: (row: Instances) => {
+        return <span>{DatetimeToShow(row.destroy_at)}</span>;
       },
     },
     {
       accessorKey: "action",
       header: "Action",
       field: "action",
-      renderCell: (row: Instance) => {
+      renderCell: (row: Instances) => {
         return (
           <Button
             variant="invisible"
@@ -103,7 +96,7 @@ function RouteComponent() {
     <GenericTable
       subject={subject}
       columns={columns}
-      queryFn={instanceServiceApi.fetch}
+      queryFn={serviceApi.instances.fetch}
       enableInternalActions={false}
       externalBanner={banner}
       disableAdd={true}

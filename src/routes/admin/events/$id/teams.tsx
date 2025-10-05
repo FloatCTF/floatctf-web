@@ -1,21 +1,17 @@
-import { eventAdminApi, eventTeamAdminApi } from "@/api/admin";
-import { GenericTable } from "@/components/admin/Table";
-import type { EventTeam } from "@/routes/service/events/jeopardy.$id";
 import { CheckIcon } from "@primer/octicons-react";
 import { ActionList, TreeView } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
+
+import { adminApi } from "@/api";
+import { GenericTable } from "@/components";
+import type { EventTeamMemberRole, EventTeams } from "@/entity";
+import { DatetimeToShow } from "@/util";
+
 export const Route = createFileRoute("/admin/events/$id/teams")({
   component: RouteComponent,
 });
-export enum EventTeamMemberRole {
-  Captain = "Captain",
-  Member = "Member",
-}
 
 export type TeamMemberResult = {
   username: string;
@@ -26,7 +22,7 @@ export type TeamMemberResult = {
 
 export type TeamResult = {
   id: string;
-  team: EventTeam;
+  team: EventTeams;
   captain: string;
   members: TeamMemberResult[];
 };
@@ -36,14 +32,14 @@ function RouteComponent() {
   const subject = `EventTeams-${id}`;
   const queryClient = useQueryClient();
   const bannedEventTeam = useMutation({
-    mutationFn: eventTeamAdminApi.banned,
+    mutationFn: adminApi.event_teams.banned,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
     },
   });
 
   const unbannedEventTeam = useMutation({
-    mutationFn: eventTeamAdminApi.unbanned,
+    mutationFn: adminApi.event_teams.unbanned,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subject] });
     },
@@ -113,11 +109,7 @@ function RouteComponent() {
       header: "Created At",
       field: "team.created_at",
       renderCell: (row: TeamResult) => {
-        return (
-          <span>
-            {dayjs(row.team.created_at).utc().format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        );
+        return <span>{DatetimeToShow(row.team.created_at)}</span>;
       },
     },
   ];
@@ -157,8 +149,8 @@ function RouteComponent() {
     <GenericTable
       subject={subject}
       columns={columns}
-      queryFn={eventTeamAdminApi.getTeams(id)}
-      removeFn={eventTeamAdminApi.remove(id)}
+      queryFn={adminApi.event_teams.getTeams(id)}
+      removeFn={adminApi.event_teams.remove(id)}
       disableAdd={true}
       hideTitle={true}
       disablePagination={true}
