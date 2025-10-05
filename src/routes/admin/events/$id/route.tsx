@@ -10,6 +10,7 @@ export const Route = createFileRoute("/admin/events/$id")({
   component: RouteComponent,
 });
 export const EventContext = createContext<Event | null>(null);
+
 export type EventChallenge = {
   event_id: string;
   challenge_id: string;

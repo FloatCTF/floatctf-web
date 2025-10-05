@@ -1,7 +1,7 @@
 import { challengeAdminApi } from "@/api/admin";
 import { GenericTable } from "@/components/admin/Table";
 import type { ChallengeSet } from "@/routes/service/challenge_sets";
-import { TextInput } from "@primer/react";
+import { TextInput, Truncate } from "@primer/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
 import dayjs from "dayjs";
@@ -44,6 +44,9 @@ function RouteComponent() {
       header: "Description",
       field: "description",
       sortBy: true,
+      renderCell: (row: ChallengeSet) => {
+        return <Truncate title={row.description ?? ""} />;
+      },
     },
     {
       accessorKey: "created_at",

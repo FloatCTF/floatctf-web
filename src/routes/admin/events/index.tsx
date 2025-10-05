@@ -7,6 +7,7 @@ import {
   TextInput,
   Textarea,
   ToggleSwitch,
+  Truncate,
 } from "@primer/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
@@ -50,7 +51,15 @@ function RouteComponent() {
     },
     { accessorKey: "type", header: "Type", field: "type", sortBy: true },
     { accessorKey: "title", header: "Title", field: "title" },
-    { accessorKey: "description", header: "Description", field: "description" },
+    {
+      accessorKey: "description",
+      header: "Description",
+      field: "description",
+
+      renderCell: (row: Event) => {
+        return <Truncate title={row.description ?? ""} />;
+      },
+    },
     {
       accessorKey: "hidden",
       header: "Hidden",
