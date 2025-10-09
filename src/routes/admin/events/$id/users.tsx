@@ -129,8 +129,7 @@ function RouteComponent() {
         mutationFn={({ event_id, ids }) =>
           adminApi.event_users.add({ event_id, user_id_list: ids })
         }
-        // @ts-ignore
-        fetchFn={userAdminApi.fetch}
+        fetchFn={adminApi.users.fetch}
         itemText={(u: Users) => `${u.username} - ${u.nickname}`}
         getId={(u: Users) => u.id}
       />
