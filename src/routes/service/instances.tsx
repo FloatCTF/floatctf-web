@@ -2,7 +2,6 @@ import { Button } from "@primer/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
-import type { AxiosError } from "axios";
 
 import { serviceApi } from "@/api";
 import { GenericTable, useMsgBanner } from "@/components";
@@ -26,13 +25,11 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: [subject] });
       banner.showBanner("success", "Instance destroyed successfully");
     },
-    onError: (error: AxiosError<{ message: string }>) => {
-      // 这里可以拿到后端返回的 message
-      const msg =
-        error.response?.data?.message || error.message || "Unknown error";
-      banner.showBanner("critical", msg);
+    onError: (error) => {
+      banner.showErrorBanner(error);
     },
   });
+
   const columns = [
     {
       accessorKey: "challenge_id",
@@ -92,6 +89,7 @@ function RouteComponent() {
       },
     },
   ];
+
   return (
     <GenericTable
       subject={subject}

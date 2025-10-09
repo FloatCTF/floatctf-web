@@ -1,6 +1,6 @@
-@import "tailwindcss";
 @import "@primer/primitives/dist/css/functional/themes/light.css";
 @import "@primer/css/dist/primer.css";
+@import "tailwindcss";
 
 body {
 	@apply m-0;
