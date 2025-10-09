@@ -93,6 +93,7 @@ function RouteComponent() {
     start_time: DatetimeToShow(""),
     end_time: DatetimeToShow(""),
     rules: "",
+    flag_prefix: "flag",
     allow_join: false,
   });
   const eventType = ["JeopardySingle", "JeopardyTeam", "AwdTeam"];
@@ -122,6 +123,19 @@ function RouteComponent() {
       ),
     },
     {
+      header: "Flag Prefix",
+      field: "flag_prefix",
+      render: (
+        <TextInput
+          value={mutationEvent.flag_prefix}
+          onChange={(e) => {
+            mutationEvent.flag_prefix = e.target.value;
+          }
+          }
+        />
+      ),
+    },
+    {
       header: "Type",
       field: "type",
       render: (
@@ -139,7 +153,6 @@ function RouteComponent() {
         </Select>
       ),
     },
-
     {
       header: "Hidden",
       field: "hidden",
