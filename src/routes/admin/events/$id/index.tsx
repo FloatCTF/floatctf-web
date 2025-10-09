@@ -215,8 +215,7 @@ function RouteComponent() {
           mutationFn={({ event_id, ids }) =>
             adminApi.event_challenges.add({ event_id, challenge_id_list: ids })
           }
-          // @ts-ignore
-          fetchFn={() => challengeAdminApi.fetch()}
+          fetchFn={() => adminApi.challenges.fetch()}
           itemText={(c: Challenges) => `${c.category} - ${c.name}`}
           getId={(c: Challenges) => c.id}
           enableImportJson={true}
@@ -230,10 +229,18 @@ function RouteComponent() {
           mutationFn={({ event_id, ids }) =>
             adminApi.event_challenges.open({ event_id, challenge_id_list: ids })
           }
-          // @ts-ignore
-          fetchFn={() => challengeAdminApi.fetch()}
-          itemText={(c: Challenges) => `${c.category} - ${c.name}`}
-          getId={(c: Challenges) => c.id}
+          fetchFn={async () => {
+            const res = await adminApi.event_challenges.fetch(id);
+            // ✅ 这里过滤掉 hidden 的 challenge
+            res.data = res.data.filter(
+              (c: EventChallengeResult) => c.event_challenge.hidden
+            );
+            return res;
+          }}
+          itemText={(c: EventChallengeResult) =>
+            `${c.challenge.category} - ${c.challenge.name}`
+          }
+          getId={(c: EventChallengeResult) => c.challenge.id}
         />
       </div>
     </div>
