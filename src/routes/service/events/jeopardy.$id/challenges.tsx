@@ -9,7 +9,7 @@ import { Button, Label, SelectPanel, Spinner, TextInput } from "@primer/react";
 
 import type { UniResponse } from "@/api/axios";
 import { Banner, DataTable, Dialog, Table } from "@primer/react/experimental";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useReactive } from "ahooks";
@@ -211,6 +211,7 @@ function ChallengeDialog({
   eventId,
 }: ChallengeDialogProps) {
   const challenge = event_challenge_result?.challenge;
+  const queryClient = useQueryClient();
 
   const challengeStatus = useReactive({
     isRunning: false,
@@ -265,6 +266,9 @@ function ChallengeDialog({
     mutationFn: serviceApi.submit.submitSingle,
     onSuccess: (_data) => {
       banner.showBanner("success", "Flag is correct!");
+      queryClient.invalidateQueries({
+        queryKey: ["eventChallenges", eventId],
+      });
       // close in the backend
       challengeStatus.isRunning = false;
       challengeStatus.instance = {} as Instances;
@@ -279,7 +283,10 @@ function ChallengeDialog({
   return (
     <Dialog
       title={challenge?.name ?? title}
-      onClose={onClose}
+      onClose={() => {
+        banner.hideBanner();
+        onClose();
+      }}
       className="max-w-lg"
     >
       <div className="flex flex-col gap-2 text-sm text-gray-800">
