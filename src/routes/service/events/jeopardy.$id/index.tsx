@@ -174,7 +174,10 @@ function RouteComponent() {
 
   return (
     <div className="flex p-3 w-full gap-3 justify-between">
-      <MDEditor.Markdown source={ev.rules} className="border rounded p-4" />
+      <MDEditor.Markdown
+        source={ev.rules}
+        className="border rounded p-4  flex-1"
+      />
 
       <div className="flex flex-col gap-3">
         {/* 右侧：操作 */}
