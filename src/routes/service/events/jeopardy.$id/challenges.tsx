@@ -378,7 +378,10 @@ function ChallengeDialog({
           ) : (
             <Button
               variant="primary"
-              onClick={() => launchMutation.mutate(challenge?.id ?? "")}
+              onClick={() => {
+                challengeStatus.flag = "";
+                launchMutation.mutate(challenge?.id ?? "");
+              }}
             >
               Launch
             </Button>
