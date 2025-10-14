@@ -1,5 +1,6 @@
 import type { NavRoute } from "@/components/SideBar";
 import {
+  DatabaseIcon,
   FlameIcon,
   GearIcon,
   GoalIcon,
@@ -10,6 +11,7 @@ import {
   PersonIcon,
   TasklistIcon,
   TelescopeIcon,
+  TerminalIcon,
 } from "@primer/octicons-react";
 
 export const admin_routes: NavRoute[] = [
@@ -41,6 +43,16 @@ export const admin_routes: NavRoute[] = [
     label: "Events",
     path: "/admin/events",
     icon: <ListUnorderedIcon />,
+  },
+  {
+    label: "Terminal",
+    path: "/admin/terminal",
+    icon: <TerminalIcon />,
+  },
+  {
+    label: "Database",
+    path: "/admin/database",
+    icon: <DatabaseIcon />,
   },
   {
     label: "Settings",

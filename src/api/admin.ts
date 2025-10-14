@@ -21,6 +21,7 @@ import type { TeamResult } from "@/routes/admin/events/$id/teams";
 import type { EventUserResult } from "@/routes/admin/events/$id/users";
 
 import { type QueryParams, type UniResponse, admin_api } from "@/api/axios";
+import type { SqlResult, SqlStatement } from "@/routes/admin/database";
 
 export const adminLoginFn = async ({
 	username,
@@ -443,6 +444,16 @@ export const eventTeamAdminApi = {
 		const res = await admin_api.post(
 			`/events/${event_id}/teams/${team_id}/unbanned`,
 		);
+		return res.data;
+	},
+};
+
+export const databaseAdminApi = {
+	exec_sql: async ({ sql }: SqlStatement): Promise<UniResponse<SqlResult>> => {
+		const res = await admin_api.post("/database/exec_sql", {
+			sql,
+		});
+
 		return res.data;
 	},
 };

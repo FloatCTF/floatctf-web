@@ -4,11 +4,14 @@ import { useReactive, useTitle } from "ahooks";
 
 import { adminApi } from "@/api";
 import { GenericTable } from "@/components";
+import { MyTruncate } from "@/components/Truncate";
 import { SettingValueType, type Settings } from "@/entity";
 import { DatetimeToShow } from "@/util";
+import { AdminRouteGuard } from "./route";
 
 export const Route = createFileRoute("/admin/settings")({
   component: RouteComponent,
+  loader: AdminRouteGuard,
 });
 
 function RouteComponent() {
@@ -26,7 +29,7 @@ function RouteComponent() {
       accessorKey: "value",
       header: "Value",
       field: "value",
-      sortBy: true,
+      renderCell: (s: Settings) => <MyTruncate value={s.value} />,
     },
 
     {
