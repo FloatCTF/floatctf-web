@@ -112,8 +112,8 @@ function RouteComponent() {
             </LabelGroup>
           </div>
           <RemainingTimer
-            start_at={dp?.event.start_time}
-            end_at={dp?.event.end_time}
+            start_at={DatetimeToShow(dp?.event.start_time)}
+            end_at={DatetimeToShow(dp?.event.end_time)}
           />
           <div className="flex">
             <div id="top-box" className="flex flex-col flex-8">

@@ -45,11 +45,6 @@ export const admin_routes: NavRoute[] = [
     icon: <ListUnorderedIcon />,
   },
   {
-    label: "Terminal",
-    path: "/admin/terminal",
-    icon: <TerminalIcon />,
-  },
-  {
     label: "Database",
     path: "/admin/database",
     icon: <DatabaseIcon />,
