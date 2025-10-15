@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { serviceApi } from "@/api";
 import { useMsgBanner } from "@/components";
 import type { Users } from "@/entity";
+import { diffToPatch } from "@/util";
 
 export const Route = createFileRoute("/service/profile")({
   component: RouteComponent,
@@ -21,6 +22,8 @@ function RouteComponent() {
     queryFn: () => serviceApi.users.getMe(),
     select: (res) => res.data,
   });
+
+  const [originalProfile, setOriginalProfile] = useState<Partial<Users>>({});
   const banner = useMsgBanner();
 
   const mutationProfile = useReactive<Partial<Users>>({
@@ -29,6 +32,7 @@ function RouteComponent() {
     email: "",
     password: "",
   });
+
   const patchMutation = useMutation({
     mutationFn: serviceApi.users.patchMe,
     onSuccess: () => {
@@ -43,10 +47,8 @@ function RouteComponent() {
   });
   useEffect(() => {
     if (data) {
-      mutationProfile.username = data.username;
-      mutationProfile.nickname = data.nickname;
-      mutationProfile.email = data.email;
-      // 其他字段按需赋值
+      Object.assign(mutationProfile, data);
+      setOriginalProfile(data);
     }
   }, [data, mutationProfile]);
   if (isLoading) {
@@ -117,7 +119,8 @@ function RouteComponent() {
             <Button
               variant="primary"
               onClick={() => {
-                patchMutation.mutate(mutationProfile);
+                const payload = diffToPatch(originalProfile, mutationProfile);
+                patchMutation.mutate(payload);
               }}
             >
               Save

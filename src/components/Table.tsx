@@ -1,4 +1,5 @@
 import type { QueryParams, UniResponse } from "@/api/axios";
+import { diffToPatch } from "@/util";
 import { KebabHorizontalIcon } from "@primer/octicons-react";
 import {
   ActionList,
@@ -156,6 +157,7 @@ export const GenericTable = <T extends object>({
                   key={`${safeGetRowId(row)}-edit`}
                   onClick={() => {
                     setDialogMode("modify");
+                    setOriginalRow(row);
                     setIsOpen(true);
                     if (mutationData) {
                       Object.assign(mutationData, row);
@@ -208,7 +210,7 @@ export const GenericTable = <T extends object>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
   });
-
+  const [originalRow, setOriginalRow] = useState<Partial<T> | null>(null);
   const banner = externalBanner ?? useMsgBanner();
 
   // add or modify
@@ -295,7 +297,12 @@ export const GenericTable = <T extends object>({
                     className="w-full"
                     variant="primary"
                     onClick={() => {
-                      if (mutationData) patchMutation.mutate(mutationData);
+                      if (mutationData && originalRow) {
+                        const payload = diffToPatch(originalRow, mutationData);
+                        patchMutation.mutate(payload); // ✅ 只 PATCH 改动字段
+                      } else if (mutationData) {
+                        patchMutation.mutate(mutationData); // fallback
+                      }
                       setIsOpen(false);
                     }}
                   >
