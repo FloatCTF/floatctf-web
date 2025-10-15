@@ -23,7 +23,9 @@ export const GenericSideBar = ({ routes, ...props }: GenericSideBarProps) => {
           defaultOpen={route.children?.some(
             (c) => c.path === location.pathname
           )}
-          aria-current={location.pathname === route.path ? "page" : undefined}
+          aria-current={
+            location.pathname.startsWith(route.path ?? "") ? "page" : undefined
+          }
         >
           <NavList.LeadingVisual>{route.icon}</NavList.LeadingVisual>
           {route.label}

@@ -1,5 +1,6 @@
 import type { NavRoute } from "@/components/SideBar";
 import {
+  ContainerIcon,
   DatabaseIcon,
   FlameIcon,
   GearIcon,
@@ -43,6 +44,11 @@ export const admin_routes: NavRoute[] = [
     label: "Events",
     path: "/admin/events",
     icon: <ListUnorderedIcon />,
+  },
+  {
+    label: "Docker",
+    path: "/admin/docker",
+    icon: <ContainerIcon />,
   },
   {
     label: "Database",
