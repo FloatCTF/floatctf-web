@@ -13,6 +13,7 @@ import {
   TasklistIcon,
   TelescopeIcon,
   TerminalIcon,
+  ZapIcon,
 } from "@primer/octicons-react";
 
 export const admin_routes: NavRoute[] = [
@@ -46,6 +47,11 @@ export const admin_routes: NavRoute[] = [
     icon: <ListUnorderedIcon />,
   },
   {
+    label: "Terminal",
+    path: "/admin/terminal",
+    icon: <TerminalIcon />,
+  },
+  {
     label: "Docker",
     path: "/admin/docker",
     icon: <ContainerIcon />,
@@ -59,6 +65,11 @@ export const admin_routes: NavRoute[] = [
     label: "Settings",
     path: "/admin/settings",
     icon: <GearIcon />,
+  },
+  {
+    label: "Upgrade",
+    path: "/admin/upgrade",
+    icon: <ZapIcon />,
   },
 ];
 
