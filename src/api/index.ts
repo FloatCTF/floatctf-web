@@ -10,8 +10,8 @@ import {
 	eventUserAdminApi,
 	eventWriteupAdminApi,
 	instanceAdminApi,
-	monitorApi,
 	settingAdminApi,
+	systemAdminApi,
 	userAdminApi,
 	weaponsAdminApi,
 } from "@/api/admin";
@@ -28,7 +28,7 @@ import {
 
 export const adminApi = {
 	login: adminLoginFn,
-	monitor: monitorApi,
+	system: systemAdminApi,
 	settings: settingAdminApi,
 	challenges: challengeAdminApi,
 	users: userAdminApi,
