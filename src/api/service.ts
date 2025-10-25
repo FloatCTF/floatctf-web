@@ -12,6 +12,7 @@ import type {
 	Instances,
 	Users,
 } from "@/entity";
+import type { Weapons } from "@/entity/weapons";
 import type { ChallengeWriteupResult } from "@/routes/service/challenges/$id/writeup";
 import type { EventInfo } from "@/routes/service/events";
 import type { EventChallengeResult } from "@/routes/service/events/jeopardy.$id/challenges";
@@ -316,6 +317,13 @@ export const solveServiceApi = {
 	},
 	getTop15Users: async (): Promise<UniResponse<TopUser[]>> => {
 		const res = await service_api.get("/solves/top15users");
+		return res.data;
+	},
+};
+
+export const weaponsServiceApi = {
+	fetch: async (): Promise<UniResponse<Weapons[]>> => {
+		const res = await service_api.get("/weapons");
 		return res.data;
 	},
 };

@@ -13,6 +13,7 @@ import {
 	monitorApi,
 	settingAdminApi,
 	userAdminApi,
+	weaponsAdminApi,
 } from "@/api/admin";
 
 import {
@@ -22,6 +23,7 @@ import {
 	solveServiceApi,
 	submitServiceApi,
 	userServiceApi,
+	weaponsServiceApi,
 } from "./service";
 
 export const adminApi = {
@@ -38,6 +40,7 @@ export const adminApi = {
 	event_writeups: eventWriteupAdminApi,
 	event_teams: eventTeamAdminApi,
 	database: databaseAdminApi,
+	weapons: weaponsAdminApi,
 };
 
 export const serviceApi = {
@@ -47,4 +50,5 @@ export const serviceApi = {
 	instances: instanceServiceApi,
 	submit: submitServiceApi,
 	solves: solveServiceApi,
+	weapons: weaponsServiceApi,
 };
