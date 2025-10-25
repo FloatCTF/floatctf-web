@@ -53,12 +53,6 @@ function RouteComponent() {
 			},
 		},
 		{
-			accessorKey: "download_count",
-			header: "Download Count",
-			field: "download_count",
-			sortBy: true,
-		},
-		{
 			accessorKey: "updated_at",
 			header: "Updated At",
 			field: "updated_at",

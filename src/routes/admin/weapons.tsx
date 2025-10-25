@@ -54,12 +54,6 @@ function RouteComponent() {
 			},
 		},
 		{
-			accessorKey: "download_count",
-			header: "Download Count",
-			field: "download_count",
-			sortBy: true,
-		},
-		{
 			accessorKey: "updated_at",
 			header: "Updated At",
 			field: "updated_at",
@@ -138,18 +132,6 @@ function RouteComponent() {
 					value={mutationWeapon.file_url}
 					onChange={(e) => {
 						mutationWeapon.file_url = e.target.value;
-					}}
-				/>
-			),
-		},
-		{
-			header: "Download Count",
-			field: "download_count",
-			render: (
-				<TextInput
-					value={mutationWeapon.download_count}
-					onChange={(e) => {
-						mutationWeapon.download_count = Number.parseInt(e.target.value);
 					}}
 				/>
 			),
