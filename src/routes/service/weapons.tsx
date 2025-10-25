@@ -21,6 +21,11 @@ function RouteComponent() {
 			sortBy: true,
 		},
 		{
+			accessorKey: "description",
+			header: "Description",
+			field: "description",
+		},
+		{
 			accessorKey: "has_file",
 			header: "Has File",
 			field: "has_file",
