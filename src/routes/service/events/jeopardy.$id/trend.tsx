@@ -48,7 +48,7 @@ function RouteComponent() {
 	);
 }
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
 	Brush,
 	CartesianGrid,
@@ -74,61 +74,79 @@ type ChartPoint = {
 };
 
 export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
-	// 构造 Recharts 可识别的数据格式
-	const chartData: ChartPoint[] = [];
-
-	// 收集所有时间点
-	const allTimesSet = new Set<string>();
-	for (const user of data) {
-		for (const p of user.points) {
-			allTimesSet.add(p.time);
+	const stringToHue = (str: string) => {
+		let hash = 0;
+		for (let i = 0; i < str.length; i++) {
+			hash = str.charCodeAt(i) + ((hash << 5) - hash);
+			hash = hash & hash; // 转成32位整数
 		}
-	}
-	const allTimes = Array.from(allTimesSet).sort();
+		return Math.abs(hash) % 360; // 返回 0~359
+	};
 
-	// 构造 chartData
-	for (const time of allTimes) {
-		const point: ChartPoint = { time };
+	// 根据名字生成固定颜色
+	const getColor = (name: string) => `hsl(${stringToHue(name)}, 65%, 50%)`;
+
+	// 缓存 chartData
+	const chartData = useMemo(() => {
+		if (!data || data.length === 0) return [];
+
+		// 1. 构造时间集合
+		const allTimesSet = new Set<string>();
+		const userPointsMap: Record<string, Map<string, number>> = {};
+
 		for (const user of data) {
-			const userPoint = user.points.find((p) => p.time === time);
-			point[user.name] = userPoint?.score ?? 0;
-
-			// 只在最后一个时间点显示 name
-			if (time === allTimes[allTimes.length - 1]) {
-				point[`${user.name}_right_label`] = user.name;
+			const map = new Map<string, number>();
+			for (const p of user.points) {
+				allTimesSet.add(p.time);
+				map.set(p.time, p.score);
 			}
+			userPointsMap[user.name] = map;
 		}
-		chartData.push(point);
-	}
 
-	const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300"];
+		const allTimes = Array.from(allTimesSet).sort();
+		const lastTime = allTimes[allTimes.length - 1];
+
+		// 2. 构造 chartData
+		const chartData: ChartPoint[] = allTimes.map((time) => {
+			const point: ChartPoint = { time };
+			for (const user of data) {
+				point[user.name] = userPointsMap[user.name].get(time) ?? 0;
+
+				if (time === lastTime) {
+					point[`${user.name}_right_label`] = user.name;
+				}
+			}
+			return point;
+		});
+
+		return chartData;
+	}, [data]);
 
 	// 处理图例点击/双击逻辑
 	const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set());
 	const [singleLine, setSingleLine] = useState<string | null>(null);
 
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const handleLegendClick = (entry: any) => {
 		const name = entry.value;
+
 		if (singleLine === name) {
-			// 双击 → 取消单条显示
 			setSingleLine(null);
 			setHiddenLines(new Set());
 		} else if (singleLine === null && hiddenLines.size === 0) {
-			// 单击 → 单条显示
 			setSingleLine(name);
 			setHiddenLines(
 				new Set(data.map((u) => u.name).filter((n) => n !== name)),
 			);
 		} else {
-			// 单击切换显示/隐藏
 			const newHidden = new Set(hiddenLines);
-			if (hiddenLines.has(name)) {
-				newHidden.delete(name);
-			} else {
-				newHidden.add(name);
-			}
+			if (newHidden.has(name)) newHidden.delete(name);
+			else newHidden.add(name);
+
+			if (newHidden.size === data.length) newHidden.clear();
+
 			setHiddenLines(newHidden);
-			setSingleLine(null); // 重置单条模式
+			setSingleLine(null);
 		}
 	};
 
@@ -148,10 +166,10 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
 					<Tooltip
 						isAnimationActive={false}
 						labelFormatter={(time) => DatetimeToShow(time)}
-						formatter={(value: number, name: string, props: any) => {
-							const label = props.payload[`${name}_label`];
-							return [`${value.toFixed(2)}`, name];
-						}}
+						formatter={(value: number, name: string, props) => [
+							`${value.toFixed(2)}`,
+							name,
+						]}
 						itemSorter={(item) => -(item.value ?? 0)}
 					/>
 					<Legend onClick={handleLegendClick} />
@@ -160,7 +178,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
 							key={user.name}
 							type="monotone"
 							dataKey={user.name}
-							stroke={colors[idx % colors.length]}
+							stroke={getColor(user.name)}
 							dot={false}
 							connectNulls
 							hide={hiddenLines.has(user.name)}
@@ -169,6 +187,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, className }) => {
 								dataKey={`${user.name}_right_label`}
 								position="right"
 								formatter={(v) => v}
+								style={{ fill: getColor(user.name) }}
 							/>
 						</Line>
 					))}
