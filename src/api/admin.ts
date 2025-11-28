@@ -54,8 +54,8 @@ export const settingAdminApi = {
 		const res = await admin_api.post("/settings", setting);
 		return res.data;
 	},
-	remove: async (id: string): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/settings/${id}`);
+	remove: async (id_list: string[]): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete("/settings", { data: { id_list } });
 		return res.data;
 	},
 	patch: async (setting: Partial<Settings>): Promise<UniResponse<Settings>> => {
@@ -83,8 +83,9 @@ export const challengeAdminApi = {
 		const res = await admin_api.patch(`/challenges/${challenge.id}`, challenge);
 		return res.data;
 	},
-	remove: async (id: string): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/challenges/${id}`);
+	// todo: 批量删除
+	remove: async (id_list: string[]): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete("/challenges", { data: { id_list } });
 		return res.data;
 	},
 	importChallenge: async (
@@ -128,8 +129,12 @@ export const challengeAdminApi = {
 		const res = await admin_api.post("/challenge_sets", challenge_set);
 		return res.data;
 	},
-	deleteChallengeSet: async (id: string): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/challenge_sets/${id}`);
+	deleteChallengeSet: async (
+		id_list: string[],
+	): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete("/challenge_sets", {
+			data: { id_list },
+		});
 		return res.data;
 	},
 	getChallengeSet: (id: string) => {
@@ -139,10 +144,10 @@ export const challengeAdminApi = {
 		};
 	},
 	removeChallengeFromSet: (id: string) => {
-		return async (challenge_id: string): Promise<UniResponse<number>> => {
-			const res = await admin_api.delete(
-				`/challenge_sets/${id}/challenges/${challenge_id}`,
-			);
+		return async (id_list: string[]): Promise<UniResponse<number>> => {
+			const res = await admin_api.delete(`/challenge_sets/${id}/challenges`, {
+				data: { id_list },
+			});
 			return res.data;
 		};
 	},
@@ -183,8 +188,8 @@ export const userAdminApi = {
 		const res = await admin_api.patch(`/users/${user.id}`, user);
 		return res.data;
 	},
-	remove: async (id: string): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/users/${id}`);
+	remove: async (id_list: string[]): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete("/users", { data: { id_list } });
 		return res.data;
 	},
 };
@@ -202,8 +207,8 @@ export const eventAdminApi = {
 		const res = await admin_api.patch(`/events/${event.id}`, event);
 		return res.data;
 	},
-	remove: async (id: string): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/events/${id}`);
+	remove: async (id_list: string[]): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete("/events", { data: { id_list } });
 		return res.data;
 	},
 	get: async (id: string): Promise<UniResponse<Events>> => {
@@ -268,15 +273,13 @@ export const eventChallengeAdminApi = {
 	},
 	remove: async ({
 		event_id,
-		challenge_id_list,
-		challenge_id,
+		id_list,
 	}: {
 		event_id: string;
-		challenge_id_list?: string[];
-		challenge_id?: string;
+		id_list?: string[];
 	}): Promise<UniResponse<number>> => {
 		const res = await admin_api.delete(`/events/${event_id}/challenges`, {
-			data: { challenge_id_list, challenge_id },
+			data: { id_list },
 		});
 		return res.data;
 	},
@@ -332,10 +335,10 @@ export const eventUserAdminApi = {
 		});
 	},
 	delete: (event_id: string) => {
-		return async (user_id: string): Promise<UniResponse<number>> => {
-			const res = await admin_api.delete(
-				`/events/${event_id}/users/${user_id}`,
-			);
+		return async (id_list: string[]): Promise<UniResponse<number>> => {
+			const res = await admin_api.delete(`/events/${event_id}/users`, {
+				data: { id_list },
+			});
 			return res.data;
 		};
 	},
@@ -396,10 +399,10 @@ export const eventAnnouncementAdminApi = {
 		};
 	},
 	remove: (event_id: string) => {
-		return async (id: string) => {
-			const res = await admin_api.delete(
-				`/events/${event_id}/announcements/${id}`,
-			);
+		return async (id_list: string[]) => {
+			const res = await admin_api.delete(`/events/${event_id}/announcements`, {
+				data: { id_list },
+			});
 			return res.data;
 		};
 	},
@@ -426,8 +429,10 @@ export const eventTeamAdminApi = {
 		};
 	},
 	remove: (id: string) => {
-		return async (team_id: string): Promise<UniResponse<number>> => {
-			const res = await admin_api.delete(`/events/${id}/teams/${team_id}`);
+		return async (id_list: string[]): Promise<UniResponse<number>> => {
+			const res = await admin_api.delete(`/events/${id}/teams`, {
+				data: { id_list },
+			});
 			return res.data;
 		};
 	},
@@ -480,8 +485,8 @@ export const weaponsAdminApi = {
 		const res = await admin_api.patch(`/weapons/${weapon.id}`, weapon);
 		return res.data;
 	},
-	remove: async (id: string): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/weapons/${id}`);
+	remove: async (id_list: string[]): Promise<UniResponse<number>> => {
+		const res = await admin_api.delete("/weapons", { data: { id_list } });
 		return res.data;
 	},
 	upload: async (

@@ -2,386 +2,485 @@ import type { QueryParams, UniResponse } from "@/api/axios";
 import { diffToPatch } from "@/util";
 import { KebabHorizontalIcon } from "@primer/octicons-react";
 import {
-  ActionList,
-  ActionMenu,
-  Button,
-  FormControl,
-  IconButton,
+	ActionList,
+	ActionMenu,
+	Button,
+	Checkbox,
+	ConfirmationDialog,
+	FormControl,
+	IconButton,
+	Select,
 } from "@primer/react";
 import {
-  Banner,
-  DataTable,
-  Dialog,
-  Table,
-  type UniqueRow,
+	Banner,
+	DataTable,
+	Dialog,
+	Table,
+	type UniqueRow,
 } from "@primer/react/experimental";
 import {
-  type UseQueryResult,
-  useMutation,
-  useQuery,
-  useQueryClient,
+	type UseQueryResult,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { AxiosError } from "axios";
 import {
-  type ReactElement,
-  type ReactNode,
-  cloneElement,
-  useCallback,
-  useState,
+	type ReactElement,
+	type ReactNode,
+	cloneElement,
+	useCallback,
+	useState,
 } from "react";
 import { type BannerVariant, useMsgBanner } from "./MsgBanner";
 export type PaginationResponse<T> = {
-  data: T[];
-  meta: { total: number; page: number; limit: number };
+	data: T[];
+	meta: { total: number; page: number; limit: number };
 };
 export type Column<T> = {
-  accessorKey: string; // 对应数据字段
-  header: string | (() => ReactNode); // 表头，可自定义渲染
-  id?: string; // 可选 id
-  rowHeader?: boolean; // 用于标记行头
-  renderCell?: (row: T) => ReactNode; // 自定义单元格渲染
+	accessorKey: string; // 对应数据字段
+	header: string | (() => ReactNode); // 表头，可自定义渲染
+	id?: string; // 可选 id
+	rowHeader?: boolean; // 用于标记行头
+	renderCell?: (row: T) => ReactNode; // 自定义单元格渲染
+	maxWidth?: string;
 };
 export type MutationColumn = {
-  header: string;
-  field: string;
-  render: ReactElement;
+	header: string;
+	field: string;
+	render: ReactElement;
 };
 export type BannerState = {
-  isShown: boolean;
-  description: string;
-  variant: BannerVariant;
+	isShown: boolean;
+	description: string;
+	variant: BannerVariant;
 };
 type RequireGetRowId<T> = T extends { id: string }
-  ? // biome-ignore lint/complexity/noBannedTypes: <explanation>
-    {}
-  : { getRowId: (row: T) => string };
+	? // biome-ignore lint/complexity/noBannedTypes: <explanation>
+		{}
+	: { getRowId: (row: T) => string };
 
 type GenericTableProps<T> = {
-  subject: string; // 用作 queryKey
-  columns: Column<T>[];
-  queryFn: (params?: QueryParams) => Promise<UniResponse<T[]>>;
-  createFn?: (data: Partial<T>) => Promise<UniResponse<T>>;
-  removeFn?: (id: string) => Promise<UniResponse<number>>;
-  patchFn?: (data: Partial<T>) => Promise<UniResponse<T>>;
-  mutationColumns?: MutationColumn[];
-  mutationData?: Partial<T>;
-  customActions?: ReactNode;
-  columnActions?: (row: T) => ReactNode;
-  externalBanner?: ReturnType<typeof useMsgBanner>;
-  enableInternalActions?: boolean;
-  disableAdd?: boolean;
-  hideTitle?: boolean;
-  disablePagination?: boolean;
-  className?: string;
-  subtitle?: string;
-  getRowId?: (row: T) => string;
+	subject: string; // 用作 queryKey
+	columns: Column<T>[];
+	queryFn: (params?: QueryParams) => Promise<UniResponse<T[]>>;
+	createFn?: (data: Partial<T>) => Promise<UniResponse<T>>;
+	removeFn?: (id_list: string[]) => Promise<UniResponse<number>>;
+	patchFn?: (data: Partial<T>) => Promise<UniResponse<T>>;
+	mutationColumns?: MutationColumn[];
+	mutationData?: Partial<T>;
+	customActions?: ReactNode;
+	columnActions?: (row: T) => ReactNode;
+	externalBanner?: ReturnType<typeof useMsgBanner>;
+	enableInternalActions?: boolean;
+	disableAdd?: boolean;
+	hideTitle?: boolean;
+	disablePagination?: boolean;
+	className?: string;
+	subtitle?: string;
+	getRowId?: (row: T) => string;
 } & RequireGetRowId<T> &
-  React.HTMLAttributes<HTMLDivElement>;
+	React.HTMLAttributes<HTMLDivElement>;
 
 export const GenericTable = <T extends object>({
-  subject,
-  columns,
-  queryFn,
-  createFn,
-  removeFn,
-  patchFn,
-  mutationColumns,
-  mutationData,
-  customActions,
-  columnActions,
-  externalBanner,
-  enableInternalActions = true,
-  disableAdd = false,
-  hideTitle = false,
-  disablePagination = false,
-  subtitle,
-  getRowId,
-  ...rest
+	subject,
+	columns,
+	queryFn,
+	createFn,
+	removeFn,
+	patchFn,
+	mutationColumns,
+	mutationData,
+	customActions,
+	columnActions,
+	externalBanner,
+	enableInternalActions = true,
+	disableAdd = false,
+	hideTitle = false,
+	disablePagination = false,
+	subtitle,
+	getRowId,
+	...rest
 }: GenericTableProps<T>) => {
-  // add actions to columns
-  const safeGetRowId = (row: T) => {
-    function hasIdField(obj: unknown): obj is { id: string } {
-      return typeof obj === "object" && obj !== null && "id" in obj;
-    }
-    if (getRowId) return getRowId(row);
-    if (hasIdField(row)) return row.id;
+	const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set());
 
-    throw new Error(
-      `GenericTable: 行数据没有 id 字段，请传 getRowId: ${JSON.stringify(row)}`
-    );
-  };
+	// query
+	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(disablePagination ? 100 : 10);
+	const queryClient = useQueryClient();
 
-  const tableColumns: Column<T>[] = (() => {
-    if (!enableInternalActions) {
-      return columns;
-    }
-    // 没有 actions，添加默认 actions 列
-    const actionsColumn: Column<T> = {
-      accessorKey: "actions",
-      id: "actions",
-      header: () => (
-        <span
-          style={{
-            clipPath: "inset(50%)",
-            height: "1px",
-            overflow: "hidden",
-            position: "absolute",
-            whiteSpace: "nowrap",
-            width: "1px",
-          }}
-        >
-          Actions
-        </span>
-      ),
-      renderCell: (row: T) => (
-        <ActionMenu>
-          <ActionMenu.Anchor>
-            <IconButton
-              aria-label={safeGetRowId(row)}
-              title={safeGetRowId(row)}
-              icon={KebabHorizontalIcon}
-              variant="invisible"
-            />
-          </ActionMenu.Anchor>
-          <ActionMenu.Overlay>
-            {columnActions?.(row)}
-            <ActionList>
-              {columns.find((column) => column.accessorKey === "actions") ? (
-                <></>
-              ) : (
-                <></>
-              )}
-              {patchFn && (
-                <ActionList.Item
-                  key={`${safeGetRowId(row)}-edit`}
-                  onClick={() => {
-                    setDialogMode("modify");
-                    setOriginalRow(row);
-                    setIsOpen(true);
-                    if (mutationData) {
-                      Object.assign(mutationData, row);
-                    }
-                  }}
-                >
-                  Edit row
-                </ActionList.Item>
-              )}
+	const { data, isLoading }: UseQueryResult<UniResponse<T[]>> = useQuery({
+		queryKey: [subject, page, limit],
+		queryFn: () => queryFn({ page, limit }),
+	});
+	// add actions to columns
+	const safeGetRowId = (row: T) => {
+		function hasIdField(obj: unknown): obj is { id: string } {
+			return typeof obj === "object" && obj !== null && "id" in obj;
+		}
+		if (getRowId) return getRowId(row);
+		if (hasIdField(row)) return row.id;
 
-              {removeFn && (
-                <>
-                  <ActionList.Divider />
-                  <ActionList.Item
-                    key={`${safeGetRowId(row)}-delete`}
-                    variant="danger"
-                    onClick={() => {
-                      deleteMutation?.mutate(safeGetRowId(row));
-                      onDialogClose?.();
-                    }}
-                  >
-                    Delete row
-                  </ActionList.Item>
-                </>
-              )}
-            </ActionList>
-          </ActionMenu.Overlay>
-        </ActionMenu>
-      ),
-    };
+		throw new Error(
+			`GenericTable: 行数据没有 id 字段，请传 getRowId: ${JSON.stringify(row)}`,
+		);
+	};
 
-    return [...columns, actionsColumn];
-  })();
+	const tableColumns: Column<T>[] = (() => {
+		if (!enableInternalActions) {
+			return columns;
+		}
+		// 没有 actions，添加默认 actions 列
+		const actionsColumn: Column<T> = {
+			accessorKey: "actions",
+			id: "actions",
+			header: "Actions",
+			renderCell: (row: T) => (
+				<ActionMenu>
+					<ActionMenu.Anchor>
+						<IconButton
+							aria-label={safeGetRowId(row)}
+							title={safeGetRowId(row)}
+							icon={KebabHorizontalIcon}
+							variant="invisible"
+						/>
+					</ActionMenu.Anchor>
+					<ActionMenu.Overlay>
+						{columnActions?.(row)}
+						<ActionList>
+							{columns.find((column) => column.accessorKey === "actions") ? (
+								<></>
+							) : (
+								<></>
+							)}
+							{patchFn && (
+								<ActionList.Item
+									key={`${safeGetRowId(row)}-edit`}
+									onClick={() => {
+										setDialogMode("modify");
+										setOriginalRow(row);
+										setIsOpen(true);
+										if (mutationData) {
+											Object.assign(mutationData, row);
+										}
+									}}
+								>
+									Edit row
+								</ActionList.Item>
+							)}
 
-  // query
-  const [page, setPage] = useState(1);
-  let limit = 10;
-  if (disablePagination) {
-    limit = 100;
-  }
-  const queryClient = useQueryClient();
+							{removeFn && (
+								<>
+									<ActionList.Divider />
+									<ActionList.Item
+										key={`${safeGetRowId(row)}-delete`}
+										variant="danger"
+										onClick={() => {
+											deleteMutation?.mutate([safeGetRowId(row)]);
+											onDialogClose?.();
+										}}
+									>
+										Delete row
+									</ActionList.Item>
+								</>
+							)}
+						</ActionList>
+					</ActionMenu.Overlay>
+				</ActionMenu>
+			),
+		};
 
-  const { data, isLoading }: UseQueryResult<UniResponse<T[]>> = useQuery({
-    queryKey: [subject, page],
-    queryFn: () => queryFn({ page, limit }),
-  });
-  const total = data?.meta?.total ?? 1;
-  const table = useReactTable({
-    data: data?.data ?? [],
-    columns: tableColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-  const [originalRow, setOriginalRow] = useState<Partial<T> | null>(null);
-  const banner = externalBanner ?? useMsgBanner();
+		const selectedColumn: Column<T> = {
+			accessorKey: "selected",
+			id: "selected",
+			header: () => (
+				<Checkbox
+					checked={
+						data?.data?.length
+							? selectedRowIds.size === data.data.length
+							: false
+					}
+					onChange={(e) => {
+						if (e.target.checked) {
+							// 全选
+							setSelectedRowIds(new Set(data?.data?.map(safeGetRowId) ?? []));
+						} else {
+							setSelectedRowIds(new Set());
+						}
+					}}
+				/>
+			),
+			renderCell: (row: T) => {
+				const rowId = safeGetRowId(row);
+				return (
+					<Checkbox
+						checked={selectedRowIds.has(rowId)}
+						onChange={(e) => {
+							setSelectedRowIds((prev) => {
+								const newSet = new Set(prev);
+								if (e.target.checked) {
+									newSet.add(rowId);
+								} else {
+									newSet.delete(rowId);
+								}
+								return newSet;
+							});
+						}}
+					/>
+				);
+			},
+			maxWidth: "30px",
+		};
 
-  // add or modify
-  const [isOpen, setIsOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<"add" | "modify">("add");
-  const onDialogClose = useCallback(() => setIsOpen(false), []);
+		return [selectedColumn, ...columns, actionsColumn];
+	})();
 
-  // mutation
-  const deleteMutation = useMutation({
-    mutationFn: removeFn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [subject] });
-      banner.showBanner("success", `Delete ${subject} successfully`);
-    },
-    onError: (error) => {
-      banner.showErrorBanner(error);
-    },
-  });
+	const total = data?.meta?.total ?? 1;
+	const table = useReactTable({
+		data: data?.data ?? [],
+		columns: tableColumns,
+		getCoreRowModel: getCoreRowModel(),
+	});
+	const [originalRow, setOriginalRow] = useState<Partial<T> | null>(null);
+	const banner = externalBanner ?? useMsgBanner();
 
-  const createMutation = useMutation({
-    mutationFn: createFn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [subject] });
-      banner.showBanner("success", `Create ${subject} successfully`);
-    },
-    onError: (error) => {
-      banner.showErrorBanner(error);
-    },
-  });
+	// add or modify
+	const [isOpen, setIsOpen] = useState(false);
+	const [dialogMode, setDialogMode] = useState<"add" | "modify">("add");
+	const onDialogClose = useCallback(() => setIsOpen(false), []);
 
-  const patchMutation = useMutation({
-    mutationFn: patchFn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [subject] });
-      banner.showBanner("success", `Update ${subject} successfully`);
-    },
-    onError: (error) => {
-      banner.showErrorBanner(error);
-    },
-  });
+	// mutation
+	const deleteMutation = useMutation({
+		mutationFn: removeFn,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [subject] });
+			banner.showBanner("success", `Delete ${subject} successfully`);
+		},
+		onError: (error) => {
+			banner.showErrorBanner(error);
+		},
+	});
 
-  if (isLoading) {
-    return (
-      <Table.Skeleton
-        aria-labelledby="repositories-loading"
-        rows={limit}
-        columns={tableColumns as Column<UniqueRow>[]}
-      />
-    );
-  }
+	const createMutation = useMutation({
+		mutationFn: createFn,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [subject] });
+			banner.showBanner("success", `Create ${subject} successfully`);
+		},
+		onError: (error) => {
+			banner.showErrorBanner(error);
+		},
+	});
 
-  return (
-    <div className="w-full" {...rest}>
-      {isOpen && (
-        <Dialog
-          title={dialogMode === "add" ? `Add ${subject}` : `Modify ${subject}`}
-          onClose={onDialogClose}
-          position="right"
-        >
-          <div className="w-full gap-1 flex-col flex">
-            {mutationColumns?.map((column) => (
-              <FormControl key={column.field} className="w-full">
-                <FormControl.Label>{column.field}</FormControl.Label>
-                {cloneElement(
-                  column.render as ReactElement<{ className?: string }>,
-                  { className: "w-full" }
-                )}
-              </FormControl>
-            ))}
-            {(dialogMode === "add" && (
-              <Button
-                className="w-full"
-                variant="primary"
-                onClick={() => {
-                  if (mutationData) createMutation.mutate(mutationData);
-                }}
-              >
-                Create
-              </Button>
-            )) ||
-              (dialogMode === "modify" && (
-                <div className="flex gap-1">
-                  <Button
-                    className="w-full"
-                    variant="primary"
-                    onClick={() => {
-                      if (mutationData && originalRow) {
-                        const payload = diffToPatch(originalRow, mutationData);
-                        patchMutation.mutate(payload); // ✅ 只 PATCH 改动字段
-                      } else if (mutationData) {
-                        patchMutation.mutate(mutationData); // fallback
-                      }
-                      setIsOpen(false);
-                    }}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    className="w-full"
-                    variant="danger"
-                    onClick={() => {
-                      if (mutationData)
-                        deleteMutation.mutate(
-                          safeGetRowId(mutationData as T) as string
-                        );
-                      setIsOpen(false);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ))}
-          </div>
-        </Dialog>
-      )}
+	const patchMutation = useMutation({
+		mutationFn: patchFn,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [subject] });
+			banner.showBanner("success", `Update ${subject} successfully`);
+		},
+		onError: (error) => {
+			banner.showErrorBanner(error);
+		},
+	});
 
-      {/* table */}
-      <Table.Container>
-        {!hideTitle && (
-          <Table.Title id="repositories-headerAction">{subject}</Table.Title>
-        )}
-        {subtitle && (
-          <Table.Subtitle id="repositories-subtitle-headerAction">
-            {subtitle}
-          </Table.Subtitle>
-        )}
-        <Table.Actions>
-          {customActions}
-          {!disableAdd && (
-            <Button
-              onClick={() => {
-                if (mutationData) {
-                  Object.assign(mutationData, {});
-                }
-                setDialogMode("add");
-                setIsOpen(true);
-              }}
-            >
-              Add
-            </Button>
-          )}
-        </Table.Actions>
+	if (isLoading) {
+		return (
+			<Table.Skeleton
+				aria-labelledby="repositories-loading"
+				rows={limit}
+				columns={tableColumns as Column<UniqueRow>[]}
+			/>
+		);
+	}
 
-        {!customActions && !disableAdd && <Table.Divider />}
+	return (
+		<div className="w-full" {...rest}>
+			{isOpen && (
+				<Dialog
+					title={dialogMode === "add" ? `Add ${subject}` : `Modify ${subject}`}
+					onClose={onDialogClose}
+					position="right"
+				>
+					<div className="w-full gap-1 flex-col flex">
+						{mutationColumns?.map((column) => (
+							<FormControl key={column.field} className="w-full">
+								<FormControl.Label>{column.field}</FormControl.Label>
+								{cloneElement(
+									column.render as ReactElement<{ className?: string }>,
+									{ className: "w-full" },
+								)}
+							</FormControl>
+						))}
+						{(dialogMode === "add" && (
+							<Button
+								className="w-full"
+								variant="primary"
+								onClick={() => {
+									if (mutationData) createMutation.mutate(mutationData);
+								}}
+							>
+								Create
+							</Button>
+						)) ||
+							(dialogMode === "modify" && (
+								<div className="flex gap-1">
+									<Button
+										className="w-full"
+										variant="primary"
+										onClick={() => {
+											if (mutationData && originalRow) {
+												const payload = diffToPatch(originalRow, mutationData);
+												patchMutation.mutate(payload); // ✅ 只 PATCH 改动字段
+											} else if (mutationData) {
+												patchMutation.mutate(mutationData); // fallback
+											}
+											setIsOpen(false);
+										}}
+									>
+										Update
+									</Button>
+									<Button
+										className="w-full"
+										variant="danger"
+										onClick={() => {
+											if (mutationData)
+												deleteMutation.mutate([
+													safeGetRowId(mutationData as T) as string,
+												]);
+											setIsOpen(false);
+										}}
+									>
+										Delete
+									</Button>
+								</div>
+							))}
+					</div>
+				</Dialog>
+			)}
 
-        <Table.Subtitle id="repositories-subtitle-headerAction">
-          <banner.BannerComponent />
-        </Table.Subtitle>
-        <DataTable
-          aria-labelledby="repositories-default-headerAction"
-          aria-describedby="repositories-subtitle-headerAction"
-          data={
-            table
-              .getRowModel()
-              .rows.map((r) => r.original) as unknown as UniqueRow[]
-          }
-          columns={tableColumns as Column<UniqueRow>[]}
-          getRowId={(row) => safeGetRowId(row as T)}
-        />
-        {!disablePagination && (
-          <Table.Pagination
-            aria-label="Pagination"
-            pageSize={limit}
-            totalCount={total}
-            defaultPageIndex={page - 1}
-            onChange={({ pageIndex }) => {
-              setPage(pageIndex + 1);
-            }}
-          />
-        )}
-      </Table.Container>
-    </div>
-  );
+			{/* table */}
+			<Table.Container>
+				{!hideTitle && (
+					<Table.Title id="repositories-headerAction">{subject}</Table.Title>
+				)}
+				{subtitle && (
+					<Table.Subtitle id="repositories-subtitle-headerAction">
+						{subtitle}
+					</Table.Subtitle>
+				)}
+
+				<Table.Actions>
+					{customActions}
+					{selectedRowIds.size !== 0 && (
+						<BulkDeleteButton
+							selectedRowIds={Array.from(selectedRowIds)}
+							setSelectedRowIds={setSelectedRowIds}
+							onConfirmDelete={(ids) => deleteMutation.mutate(ids)}
+						/>
+					)}
+					{!disableAdd && (
+						<Button
+							onClick={() => {
+								if (mutationData) {
+									Object.assign(mutationData, {});
+								}
+								setDialogMode("add");
+								setIsOpen(true);
+							}}
+						>
+							Add
+						</Button>
+					)}
+					{!disablePagination && (
+						<Select
+							value={String(limit)}
+							onChange={(e) => {
+								setLimit(Number(e.target.value));
+								setPage(1);
+							}}
+						>
+							<Select.Option value="10">10 / page</Select.Option>
+							<Select.Option value="20">20 / page</Select.Option>
+							<Select.Option value="50">50 / page</Select.Option>
+							<Select.Option value="100">100 / page</Select.Option>
+						</Select>
+					)}
+				</Table.Actions>
+
+				{!customActions && !disableAdd && <Table.Divider />}
+
+				<Table.Subtitle id="repositories-subtitle-headerAction">
+					<banner.BannerComponent />
+				</Table.Subtitle>
+
+				<DataTable
+					aria-labelledby="repositories-default-headerAction"
+					aria-describedby="repositories-subtitle-headerAction"
+					data={
+						table
+							.getRowModel()
+							.rows.map((r) => r.original) as unknown as UniqueRow[]
+					}
+					columns={tableColumns as Column<UniqueRow>[]}
+					getRowId={(row) => safeGetRowId(row as T)}
+				/>
+
+				{!disablePagination && (
+					<Table.Pagination
+						aria-label="Pagination"
+						pageSize={limit}
+						totalCount={total}
+						defaultPageIndex={page - 1}
+						onChange={({ pageIndex }) => {
+							setPage(pageIndex + 1);
+						}}
+					/>
+				)}
+			</Table.Container>
+		</div>
+	);
+};
+
+export const BulkDeleteButton = ({
+	selectedRowIds,
+	setSelectedRowIds,
+	onConfirmDelete,
+}: {
+	selectedRowIds: string[];
+	setSelectedRowIds: (ids: Set<string>) => void;
+	onConfirmDelete: (ids: string[]) => void;
+}) => {
+	const [open, setOpen] = useState(false);
+
+	if (selectedRowIds.length === 0) return null;
+
+	return (
+		<>
+			<Button variant="danger" onClick={() => setOpen(true)}>
+				Delete {selectedRowIds.length} selected
+			</Button>
+
+			{open && (
+				<ConfirmationDialog
+					onClose={(gesture) => {
+						switch (gesture) {
+							case "confirm":
+								onConfirmDelete(selectedRowIds);
+								setSelectedRowIds(new Set());
+								break;
+						}
+						setOpen(false);
+					}}
+					title="Delete Challenges"
+					confirmButtonContent="Delete"
+					cancelButtonContent="Cancel"
+					confirmButtonType="danger"
+				>
+					Are you sure you want to delete {selectedRowIds.length} item
+					{selectedRowIds.length > 1 ? "s" : ""}? This action cannot be undone.
+				</ConfirmationDialog>
+			)}
+		</>
+	);
 };
