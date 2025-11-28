@@ -60,6 +60,34 @@ export const userServiceApi = {
 		});
 		return response.data;
 	},
+	resetPassword: async ({
+		username,
+		email,
+	}: {
+		username?: string;
+		email?: string;
+	}): Promise<UniResponse<string>> => {
+		const response = await service_api.post("/users/reset_password", {
+			username,
+			email,
+		});
+		return response.data;
+	},
+	reset: async ({
+		token,
+		password,
+		confirmed_password,
+	}: {
+		token: string;
+		password: string;
+		confirmed_password: string;
+	}): Promise<UniResponse<string>> => {
+		const response = await service_api.post(`/users/reset?token=${token}`, {
+			password,
+			confirmed_password,
+		});
+		return response.data;
+	},
 };
 
 export const eventServiceApi = {

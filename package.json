@@ -40,6 +40,7 @@
     "rehype-rewrite": "^4.0.2",
     "styled-components": "^6.1.19",
     "ts-pattern": "^5.8.0",
+    "zod": "^4.1.13",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
