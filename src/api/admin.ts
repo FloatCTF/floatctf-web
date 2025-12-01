@@ -23,6 +23,7 @@ import type { EventUserResult } from "@/routes/admin/events/$id/users";
 import { type QueryParams, type UniResponse, admin_api } from "@/api/axios";
 import type { Weapons } from "@/entity/weapons";
 import type { SqlResult, SqlStatement } from "@/routes/admin/database";
+import type { EventChallengeResult } from "@/routes/admin/events/$id";
 
 export const adminLoginFn = async ({
 	username,
@@ -251,9 +252,15 @@ export const instanceAdminApi = {
 };
 
 export const eventChallengeAdminApi = {
-	fetch: async (event_id: string) => {
-		const res = await admin_api.get(`/events/${event_id}/challenges`);
-		return res.data;
+	fetch: (event_id: string) => {
+		return async (
+			params: QueryParams = {},
+		): Promise<UniResponse<EventChallengeResult[]>> => {
+			const res = await admin_api.get(`/events/${event_id}/challenges`, {
+				params,
+			});
+			return res.data;
+		};
 	},
 
 	add: async ({
@@ -271,17 +278,14 @@ export const eventChallengeAdminApi = {
 		});
 		return res.data;
 	},
-	remove: async ({
-		event_id,
-		id_list,
-	}: {
-		event_id: string;
-		id_list?: string[];
-	}): Promise<UniResponse<number>> => {
-		const res = await admin_api.delete(`/events/${event_id}/challenges`, {
-			data: { id_list },
-		});
-		return res.data;
+	remove: (event_id: string) => {
+		return async (id_list: string[]): Promise<UniResponse<number>> => {
+			console.log(id_list);
+			const res = await admin_api.delete(`/events/${event_id}/challenges`, {
+				data: { id_list },
+			});
+			return res.data;
+		};
 	},
 	open: async ({
 		event_id,
@@ -317,8 +321,10 @@ export const eventChallengeAdminApi = {
 
 export const eventUserAdminApi = {
 	fetch: (event_id: string) => {
-		return async (): Promise<UniResponse<EventUserResult[]>> => {
-			const res = await admin_api.get(`/events/${event_id}/users`);
+		return async (
+			params: QueryParams = {},
+		): Promise<UniResponse<EventUserResult[]>> => {
+			const res = await admin_api.get(`/events/${event_id}/users`, { params });
 			return res.data;
 		};
 	},

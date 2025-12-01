@@ -10,6 +10,7 @@ import {
 	FormControl,
 	IconButton,
 	Select,
+	TextInput,
 } from "@primer/react";
 import {
 	Banner,
@@ -77,9 +78,12 @@ type GenericTableProps<T> = {
 	disableAdd?: boolean;
 	hideTitle?: boolean;
 	disablePagination?: boolean;
+	disableSelect?: boolean;
 	className?: string;
 	subtitle?: string;
 	getRowId?: (row: T) => string;
+	selectedRowIds?: Set<string>;
+	onSelectedRowIdsChange?: (ids: Set<string>) => void;
 } & RequireGetRowId<T> &
 	React.HTMLAttributes<HTMLDivElement>;
 
@@ -97,13 +101,32 @@ export const GenericTable = <T extends object>({
 	externalBanner,
 	enableInternalActions = true,
 	disableAdd = false,
+	disableSelect = false,
 	hideTitle = false,
 	disablePagination = false,
 	subtitle,
 	getRowId,
+	selectedRowIds: externalSelectedRowIds,
+	onSelectedRowIdsChange,
 	...rest
 }: GenericTableProps<T>) => {
-	const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set());
+	const [internalSelectedRowIds, setInternalSelectedRowIds] = useState<
+		Set<string>
+	>(new Set());
+
+	// 当前真正使用的状态 — 外部优先
+	const selectedRowIds = externalSelectedRowIds ?? internalSelectedRowIds;
+
+	const setSelectedRowIds = useCallback(
+		(ids: Set<string>) => {
+			if (onSelectedRowIdsChange) {
+				onSelectedRowIdsChange(ids); // 父组件控制
+			} else {
+				setInternalSelectedRowIds(ids); // 内部自己控制
+			}
+		},
+		[onSelectedRowIdsChange],
+	);
 
 	// query
 	const [page, setPage] = useState(1);
@@ -128,9 +151,54 @@ export const GenericTable = <T extends object>({
 	};
 
 	const tableColumns: Column<T>[] = (() => {
+		if (disableSelect) return columns;
+
+		const selectedColumn: Column<T> = {
+			accessorKey: "selected",
+			id: "selected",
+			header: () => (
+				<Checkbox
+					checked={
+						data?.data?.length
+							? selectedRowIds.size === data.data.length
+							: false
+					}
+					onChange={(e) => {
+						if (e.target.checked) {
+							// 全选
+							setSelectedRowIds(new Set(data?.data?.map(safeGetRowId) ?? []));
+						} else {
+							setSelectedRowIds(new Set());
+						}
+					}}
+				/>
+			),
+			renderCell: (row: T) => {
+				const rowId = safeGetRowId(row);
+				return (
+					<Checkbox
+						checked={selectedRowIds.has(rowId)}
+						onChange={(e) => {
+							const newSet = new Set<string>(selectedRowIds);
+
+							if (e.target.checked) {
+								newSet.add(rowId);
+							} else {
+								newSet.delete(rowId);
+							}
+
+							setSelectedRowIds(newSet); // ✅ 只传 Set
+						}}
+					/>
+				);
+			},
+			maxWidth: "30px",
+		};
+
 		if (!enableInternalActions) {
-			return columns;
+			return [selectedColumn, ...columns];
 		}
+
 		// 没有 actions，添加默认 actions 列
 		const actionsColumn: Column<T> = {
 			accessorKey: "actions",
@@ -148,6 +216,7 @@ export const GenericTable = <T extends object>({
 					</ActionMenu.Anchor>
 					<ActionMenu.Overlay>
 						{columnActions?.(row)}
+						<ActionList.Divider />
 						<ActionList>
 							{columns.find((column) => column.accessorKey === "actions") ? (
 								<></>
@@ -189,48 +258,6 @@ export const GenericTable = <T extends object>({
 					</ActionMenu.Overlay>
 				</ActionMenu>
 			),
-		};
-
-		const selectedColumn: Column<T> = {
-			accessorKey: "selected",
-			id: "selected",
-			header: () => (
-				<Checkbox
-					checked={
-						data?.data?.length
-							? selectedRowIds.size === data.data.length
-							: false
-					}
-					onChange={(e) => {
-						if (e.target.checked) {
-							// 全选
-							setSelectedRowIds(new Set(data?.data?.map(safeGetRowId) ?? []));
-						} else {
-							setSelectedRowIds(new Set());
-						}
-					}}
-				/>
-			),
-			renderCell: (row: T) => {
-				const rowId = safeGetRowId(row);
-				return (
-					<Checkbox
-						checked={selectedRowIds.has(rowId)}
-						onChange={(e) => {
-							setSelectedRowIds((prev) => {
-								const newSet = new Set(prev);
-								if (e.target.checked) {
-									newSet.add(rowId);
-								} else {
-									newSet.delete(rowId);
-								}
-								return newSet;
-							});
-						}}
-					/>
-				);
-			},
-			maxWidth: "30px",
 		};
 
 		return [selectedColumn, ...columns, actionsColumn];
@@ -364,23 +391,25 @@ export const GenericTable = <T extends object>({
 				{!hideTitle && (
 					<Table.Title id="repositories-headerAction">{subject}</Table.Title>
 				)}
-				{subtitle && (
-					<Table.Subtitle id="repositories-subtitle-headerAction">
-						{subtitle}
-					</Table.Subtitle>
-				)}
+
+				<Table.Subtitle id="repositories-subtitle-headerAction">
+					{subtitle && <p>{subtitle}</p>}
+					<TextInput />
+					<banner.BannerComponent />
+				</Table.Subtitle>
 
 				<Table.Actions>
-					{customActions}
-					{selectedRowIds.size !== 0 && (
+					{selectedRowIds.size !== 0 && removeFn && (
 						<BulkDeleteButton
 							selectedRowIds={Array.from(selectedRowIds)}
 							setSelectedRowIds={setSelectedRowIds}
 							onConfirmDelete={(ids) => deleteMutation.mutate(ids)}
 						/>
 					)}
+
 					{!disableAdd && (
 						<Button
+							variant="primary"
 							onClick={() => {
 								if (mutationData) {
 									Object.assign(mutationData, {});
@@ -392,6 +421,9 @@ export const GenericTable = <T extends object>({
 							Add
 						</Button>
 					)}
+
+					{customActions}
+
 					{!disablePagination && (
 						<Select
 							value={String(limit)}
@@ -409,10 +441,6 @@ export const GenericTable = <T extends object>({
 				</Table.Actions>
 
 				{!customActions && !disableAdd && <Table.Divider />}
-
-				<Table.Subtitle id="repositories-subtitle-headerAction">
-					<banner.BannerComponent />
-				</Table.Subtitle>
 
 				<DataTable
 					aria-labelledby="repositories-default-headerAction"

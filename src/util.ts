@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useState } from "react";
 dayjs.extend(utc);
 
 export function DatetimeToShow(datetime: string | undefined | null) {
@@ -54,4 +55,8 @@ export const diffToPatch = <T extends Record<string, any>>(
 	}
 
 	return result;
+};
+
+export const useSelectedRowIds = () => {
+	return useState<Set<string>>(new Set());
 };

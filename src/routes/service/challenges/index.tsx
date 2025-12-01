@@ -8,62 +8,63 @@ import { ServiceRouteGuard } from "@/routes/service/route";
 import { DatetimeToShow } from "@/util";
 
 export const Route = createFileRoute("/service/challenges/")({
-  component: RouteComponent,
-  loader: ServiceRouteGuard,
+	component: RouteComponent,
+	loader: ServiceRouteGuard,
 });
 
 function RouteComponent() {
-  useTitle("Challenges | FloatCTF");
-  const columns = [
-    {
-      accessorKey: "id",
-      header: "ID",
-      field: "id",
-      rowHeader: true,
-      renderCell: (row: Challenges) => {
-        return (
-          <Link to={"/service/challenges/$id"} params={{ id: row.id }}>
-            {row.id}
-          </Link>
-        );
-      },
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
-      field: "name",
-      rowHeader: true,
-      renderCell: (row: Challenges) => {
-        return (
-          <Link to={"/service/challenges/$id"} params={{ id: row.id }}>
-            {row.name}
-          </Link>
-        );
-      },
-    },
+	useTitle("Challenges | FloatCTF");
+	const columns = [
+		{
+			accessorKey: "id",
+			header: "ID",
+			field: "id",
+			rowHeader: true,
+			renderCell: (row: Challenges) => {
+				return (
+					<Link to={"/service/challenges/$id"} params={{ id: row.id }}>
+						{row.id}
+					</Link>
+				);
+			},
+		},
+		{
+			accessorKey: "name",
+			header: "Name",
+			field: "name",
+			rowHeader: true,
+			renderCell: (row: Challenges) => {
+				return (
+					<Link to={"/service/challenges/$id"} params={{ id: row.id }}>
+						{row.name}
+					</Link>
+				);
+			},
+		},
 
-    {
-      accessorKey: "category",
-      header: "Category",
-      field: "category",
-    },
-    {
-      accessorKey: "updated_at",
-      header: "Updated At",
-      field: "updated_at",
-      renderCell: (row: Challenges) => {
-        return <span>{DatetimeToShow(row.updated_at)}</span>;
-      },
-    },
-  ];
-  return (
-    <GenericTable
-      subject="Challenges"
-      subtitle="If you want submit yours, pls visit https://github.com/FloatCTF/challenge-template"
-      columns={columns}
-      queryFn={serviceApi.challenges.fetch}
-      enableInternalActions={false}
-      disableAdd={true}
-    />
-  );
+		{
+			accessorKey: "category",
+			header: "Category",
+			field: "category",
+		},
+		{
+			accessorKey: "updated_at",
+			header: "Updated At",
+			field: "updated_at",
+			renderCell: (row: Challenges) => {
+				return <span>{DatetimeToShow(row.updated_at)}</span>;
+			},
+		},
+	];
+	return (
+		<GenericTable
+			subject="Challenges"
+			subtitle="If you want submit yours, pls visit https://github.com/FloatCTF/challenge-template"
+			columns={columns}
+			queryFn={serviceApi.challenges.fetch}
+			enableInternalActions={false}
+			disableAdd={true}
+			disableSelect={true}
+		/>
+	);
 }

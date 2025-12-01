@@ -1,15 +1,23 @@
 import { CheckIcon, KebabHorizontalIcon } from "@primer/octicons-react";
-import { ActionList, ActionMenu, Button, IconButton } from "@primer/react";
+import {
+	ActionList,
+	ActionMenu,
+	Button,
+	ButtonGroup,
+	Dialog,
+	IconButton,
+} from "@primer/react";
 import { DataTable, Table } from "@primer/react/experimental";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useContext } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 
 import { adminApi } from "@/api";
-import { ActionSelect } from "@/components";
+import { ActionSelect, GenericTable, useMsgBanner } from "@/components";
 import type { Challenges } from "@/entity";
 import { CheckButton } from "@/routes/admin/challenges";
+import { DatetimeToShow, useSelectedRowIds } from "@/util";
 import { EventContext } from "./route";
 
 export const Route = createFileRoute("/admin/events/$id/")({
@@ -32,22 +40,9 @@ export type EventChallengeResult = {
 function RouteComponent() {
 	const event = useContext(EventContext);
 	const { id } = Route.useParams();
-	// const subject = `event_challenges-${id}`;
 	const queryClient = useQueryClient();
 	const subject = `event_challenges-${id}`;
-	const { data } = useQuery({
-		queryKey: [subject],
-		queryFn: () => adminApi.event_challenges.fetch(id),
-	});
-
-	const delete_event_challenge = useMutation({
-		mutationFn: adminApi.event_challenges.remove,
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: [subject],
-			});
-		},
-	});
+	const banner = useMsgBanner();
 	const open_event_challenge = useMutation({
 		mutationFn: adminApi.event_challenges.open,
 		onSuccess: () => {
@@ -62,15 +57,6 @@ function RouteComponent() {
 			queryClient.invalidateQueries({
 				queryKey: [subject],
 			});
-		},
-	});
-	const createChallengeSetMutation = useMutation({
-		mutationFn: adminApi.events.createChallengeSet,
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: [subject],
-			});
-			alert("Create Challenge Set Success");
 		},
 	});
 
@@ -111,138 +97,243 @@ function RouteComponent() {
 			},
 			sortBy: true,
 		},
+	];
+
+	const columns_action = (row: EventChallengeResult) => {
+		return (
+			<ActionList>
+				<ActionList.Item
+					key={`${row.id}-edit`}
+					onClick={() => {
+						if (row.event_challenge.hidden) {
+							open_event_challenge.mutate({
+								event_id: id,
+								challenge_id: row.challenge.id,
+							});
+						} else {
+							hidden_event_challenge.mutate({
+								event_id: id,
+								challenge_id: row.challenge.id,
+							});
+						}
+					}}
+				>
+					{row.event_challenge.hidden ? "Open" : "Hide"}
+				</ActionList.Item>
+			</ActionList>
+		);
+	};
+
+	const [eventChallengeSelectedRowIds, setEventChallengeSelectedRowIds] =
+		useSelectedRowIds();
+	const custom_actions = (
+		<div className="flex gap-1">
+			<OpenChallengesButton
+				event_id={id}
+				refresh_query_key={subject}
+				banner={banner}
+				challenge_id_list={Array.from(eventChallengeSelectedRowIds)}
+			/>
+			<CreateChallengeSetButton
+				name={event?.title ?? "Challenge Set"}
+				description={event?.description ?? "Challenge Description"}
+				banner={banner}
+				challenge_id_list={Array.from(eventChallengeSelectedRowIds)}
+			/>
+			<AddChallengeButton event_id={id} refresh_query_key={subject} />
+		</div>
+	);
+	return (
+		<div className="flex gap-2 m-2 items-start">
+			<GenericTable
+				subject={subject}
+				columns={columns}
+				getRowId={(row) => row.challenge.id}
+				queryFn={adminApi.event_challenges.fetch(id)}
+				removeFn={adminApi.event_challenges.remove(id)}
+				selectedRowIds={eventChallengeSelectedRowIds}
+				onSelectedRowIdsChange={setEventChallengeSelectedRowIds}
+				columnActions={columns_action}
+				customActions={custom_actions}
+				disableAdd={true}
+				externalBanner={banner}
+			/>
+		</div>
+	);
+}
+
+function AddChallengeButton({
+	event_id,
+	refresh_query_key,
+}: { event_id: string; refresh_query_key?: string }) {
+	const queryClient = useQueryClient();
+	const [isOpen, setIsOpen] = useState(false);
+	const buttonRef = useRef<HTMLButtonElement>(null);
+	const onDialogClose = useCallback(() => setIsOpen(false), []);
+	const [userSelectedRowIds, setUserSelectedRowIds] = useSelectedRowIds();
+	const banner = useMsgBanner();
+	const addEventChallengesMutation = useMutation({
+		mutationFn: adminApi.event_challenges.add,
+		onSuccess: () => {
+			if (refresh_query_key) {
+				queryClient.invalidateQueries({
+					queryKey: [refresh_query_key],
+				});
+			}
+			banner.showBanner("success", "Add Event Challenges Success");
+		},
+		onError: (error) => {
+			banner.showErrorBanner(error);
+		},
+	});
+	const user_op_actions = (
+		<Button
+			variant="primary"
+			onClick={() => {
+				addEventChallengesMutation.mutate({
+					event_id: event_id,
+					challenge_id_list: Array.from(userSelectedRowIds),
+				});
+			}}
+		>
+			Add
+		</Button>
+	);
+	const columns = [
+		{ accessorKey: "id", header: "ID", field: "id", rowHeader: true },
+		{ accessorKey: "name", header: "Name", field: "name", sortBy: true },
 		{
-			accessorKey: "action",
-			header: "Action",
-			field: "action",
-			renderCell: (row: EventChallengeResult) => {
-				return (
-					<ActionMenu>
-						<ActionMenu.Anchor>
-							<IconButton
-								aria-label={row.id}
-								title={row.id}
-								icon={KebabHorizontalIcon}
-								variant="invisible"
-							/>
-						</ActionMenu.Anchor>
-						<ActionMenu.Overlay>
-							<ActionList>
-								<ActionList.Item
-									key={`${row.id}-edit`}
-									onClick={() => {
-										if (row.event_challenge.hidden) {
-											open_event_challenge.mutate({
-												event_id: id,
-												challenge_id: row.challenge.id,
-											});
-										} else {
-											hidden_event_challenge.mutate({
-												event_id: id,
-												challenge_id: row.challenge.id,
-											});
-										}
-									}}
-								>
-									{row.event_challenge.hidden ? "Open" : "Hide"}
-								</ActionList.Item>
-								<ActionList.Divider />
-								<ActionList.Item
-									key={`${row.id}-delete`}
-									variant="danger"
-									onClick={() => {
-										delete_event_challenge.mutate({
-											event_id: id,
-											id_list: [row.challenge.id],
-										});
-									}}
-								>
-									Delete row
-								</ActionList.Item>
-							</ActionList>
-						</ActionMenu.Overlay>
-					</ActionMenu>
-				);
+			accessorKey: "category",
+			header: "Category",
+			field: "category",
+			sortBy: true,
+		},
+
+		{
+			accessorKey: "updated_at",
+			header: "Updated At",
+			field: "updated_at",
+			renderCell: (row: Challenges) => {
+				return <span>{DatetimeToShow(row.updated_at)}</span>;
 			},
 		},
 	];
+	return (
+		<>
+			{isOpen && (
+				<Dialog title="Add Event Challenges" onClose={onDialogClose}>
+					<GenericTable
+						subject="Challenges"
+						columns={columns}
+						queryFn={adminApi.challenges.fetch}
+						disableAdd={true}
+						enableInternalActions={false}
+						selectedRowIds={userSelectedRowIds}
+						onSelectedRowIdsChange={setUserSelectedRowIds}
+						customActions={user_op_actions}
+						externalBanner={banner}
+					/>
+				</Dialog>
+			)}
+			<Button
+				variant="primary"
+				ref={buttonRef}
+				onClick={() => setIsOpen(!isOpen)}
+			>
+				Add Event Challenges
+			</Button>
+		</>
+	);
+}
 
-	const table = useReactTable({
-		data: data?.data ?? [],
-		columns: columns,
-		getCoreRowModel: getCoreRowModel(),
+function CreateChallengeSetButton({
+	name,
+	description,
+	challenge_id_list,
+	banner,
+}: {
+	name: string;
+	description?: string;
+	challenge_id_list: string[];
+	banner: ReturnType<typeof useMsgBanner>;
+}) {
+	const createChallengeSetMutation = useMutation({
+		mutationFn: adminApi.events.createChallengeSet,
+		onSuccess: () => {
+			banner.showBanner(
+				"success",
+				`Create Challenge Set Success: ${name} #${challenge_id_list.length}`,
+			);
+		},
+		onError: (error) => {
+			banner.showErrorBanner(error);
+		},
 	});
 
 	return (
-		<div className="flex gap-2 m-2 items-start">
-			<Table.Container className="flex-1">
-				<DataTable
-					aria-labelledby="repositories-default"
-					// @ts-ignore
-					columns={columns}
-					// @ts-ignore
-					data={table.getRowModel().rows.map((row) => row.original)}
-				/>
-			</Table.Container>
-			<div className="flex flex-col gap-2 m-2">
-				<CheckButton
-					challenge_id_list={
-						data?.data.map((row: EventChallengeResult) => row.challenge.id) ??
-						[]
-					}
-				/>
-
-				<Button
-					variant="primary"
-					onClick={() => {
-						createChallengeSetMutation.mutate({
-							name: event?.title ?? "Challenge Set",
-							description: event?.description ?? "Challenge Set",
-							challenge_id_list: data?.data.map(
-								(row: EventChallengeResult) => row.challenge.id,
-							),
-						});
-					}}
-				>
-					As Challenge Set
-				</Button>
-				{/* Add Challenges */}
-				<ActionSelect
-					event_id={id}
-					label="Add Challenges"
-					buttonText="Add"
-					queryKey={subject}
-					mutationFn={({ event_id, ids }) =>
-						adminApi.event_challenges.add({ event_id, challenge_id_list: ids })
-					}
-					fetchFn={() => adminApi.challenges.fetch()}
-					itemText={(c: Challenges) => `${c.category} - ${c.name}`}
-					getId={(c: Challenges) => c.id}
-					enableImportJson={true}
-				/>
-				{/* Open Challenges */}
-				<ActionSelect
-					event_id={id}
-					label="Open Challenges"
-					buttonText="Open"
-					queryKey={subject}
-					mutationFn={({ event_id, ids }) =>
-						adminApi.event_challenges.open({ event_id, challenge_id_list: ids })
-					}
-					fetchFn={async () => {
-						const res = await adminApi.event_challenges.fetch(id);
-						// ✅ 这里过滤掉 hidden 的 challenge
-						res.data = res.data.filter(
-							(c: EventChallengeResult) => c.event_challenge.hidden,
+		<>
+			<Button
+				variant="primary"
+				onClick={() => {
+					if (challenge_id_list.length === 0) {
+						banner.showBanner(
+							"critical",
+							"Please select at least one challenge",
 						);
-						return res;
-					}}
-					itemText={(c: EventChallengeResult) =>
-						`${c.challenge.category} - ${c.challenge.name}`
+						return;
 					}
-					getId={(c: EventChallengeResult) => c.challenge.id}
-				/>
-			</div>
-		</div>
+					createChallengeSetMutation.mutate({
+						name: name,
+						description: description,
+						challenge_id_list: challenge_id_list,
+					});
+				}}
+			>
+				As Challenge Set
+			</Button>
+		</>
+	);
+}
+
+function OpenChallengesButton({
+	event_id,
+	refresh_query_key,
+	banner,
+	challenge_id_list,
+}: {
+	event_id: string;
+	refresh_query_key?: string;
+	banner: ReturnType<typeof useMsgBanner>;
+	challenge_id_list: string[];
+}) {
+	const queryClient = useQueryClient();
+	const openEventChallengesMutation = useMutation({
+		mutationFn: adminApi.event_challenges.open,
+		onSuccess: () => {
+			if (refresh_query_key) {
+				queryClient.invalidateQueries({
+					queryKey: [refresh_query_key],
+				});
+			}
+			banner.showBanner(
+				"success",
+				`Open Event Challenges Success: ${challenge_id_list.length}`,
+			);
+		},
+		onError: (error) => {
+			banner.showErrorBanner(error);
+		},
+	});
+	return (
+		<Button
+			onClick={() => {
+				openEventChallengesMutation.mutate({
+					event_id: event_id,
+					challenge_id_list: challenge_id_list,
+				});
+			}}
+		>
+			Open Challenges
+		</Button>
 	);
 }

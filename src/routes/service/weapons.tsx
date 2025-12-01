@@ -70,6 +70,7 @@ function RouteComponent() {
 			queryFn={serviceApi.weapons.fetch}
 			disableAdd={true}
 			disablePagination={true}
+			disableSelect={true}
 			enableInternalActions={false}
 		/>
 	);
