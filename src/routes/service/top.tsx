@@ -18,7 +18,7 @@ export type TopUser = {
 
 function RouteComponent() {
 	useTitle("Top | FloatCTF");
-	const subject = "top15users";
+	const subject = "Top 15 Users";
 
 	const columns = [
 		{
@@ -58,7 +58,6 @@ function RouteComponent() {
 			disablePagination={true}
 			disableSelect={true}
 			enableInternalActions={false}
-			hideTitle={true}
 		/>
 	);
 }

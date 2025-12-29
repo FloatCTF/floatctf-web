@@ -5,6 +5,7 @@ import {
 	ActionList,
 	ActionMenu,
 	Button,
+	ButtonGroup,
 	Checkbox,
 	ConfirmationDialog,
 	FormControl,
@@ -34,6 +35,7 @@ import {
 	useCallback,
 	useState,
 } from "react";
+import { FilterBar } from "./FilterBar";
 import { type BannerVariant, useMsgBanner } from "./MsgBanner";
 export type PaginationResponse<T> = {
 	data: T[];
@@ -84,6 +86,7 @@ type GenericTableProps<T> = {
 	getRowId?: (row: T) => string;
 	selectedRowIds?: Set<string>;
 	onSelectedRowIdsChange?: (ids: Set<string>) => void;
+	enableFilter?: boolean;
 } & RequireGetRowId<T> &
 	React.HTMLAttributes<HTMLDivElement>;
 
@@ -108,6 +111,7 @@ export const GenericTable = <T extends object>({
 	getRowId,
 	selectedRowIds: externalSelectedRowIds,
 	onSelectedRowIdsChange,
+	enableFilter = true,
 	...rest
 }: GenericTableProps<T>) => {
 	const [internalSelectedRowIds, setInternalSelectedRowIds] = useState<
@@ -392,12 +396,6 @@ export const GenericTable = <T extends object>({
 					<Table.Title id="repositories-headerAction">{subject}</Table.Title>
 				)}
 
-				<Table.Subtitle id="repositories-subtitle-headerAction">
-					{subtitle && <p>{subtitle}</p>}
-					<TextInput />
-					<banner.BannerComponent />
-				</Table.Subtitle>
-
 				<Table.Actions>
 					{selectedRowIds.size !== 0 && removeFn && (
 						<BulkDeleteButton
@@ -440,7 +438,15 @@ export const GenericTable = <T extends object>({
 					)}
 				</Table.Actions>
 
-				{!customActions && !disableAdd && <Table.Divider />}
+				<Table.Divider />
+				<Table.Subtitle id="repositories-subtitle-headerAction">
+					{subtitle && <p>{subtitle}</p>}
+					{enableFilter && (
+						<FilterBar keys={columns.map((col) => col.accessorKey)} />
+					)}
+
+					<banner.BannerComponent />
+				</Table.Subtitle>
 
 				<DataTable
 					aria-labelledby="repositories-default-headerAction"
