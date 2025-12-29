@@ -1,16 +1,24 @@
-import { FilterIcon, SearchIcon } from "@primer/octicons-react";
-import { Button } from "@primer/react";
+import { FilterIcon, SearchIcon, XIcon } from "@primer/octicons-react";
+import { ActionList, ActionMenu, Button, ButtonGroup } from "@primer/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
+
 export interface FilterBarProps {
 	keys: string[];
+	filter: string;
+	queryKey: string;
+	setFilter: (filter: string) => void;
 }
 
-export const FilterBar = ({ keys = [] }: FilterBarProps) => {
-	const [value, setValue] = useState("");
+export const FilterBar = ({
+	keys = [],
+	filter,
+	setFilter,
+	queryKey,
+}: FilterBarProps) => {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const highlightRef = useRef<HTMLDivElement>(null);
-
-	const parsedRef = useRef<Record<string, string>>({});
+	const queryClient = useQueryClient();
 
 	const getHighlightedText = (text: string) => {
 		const regex = /(\w+):(.*?)(\s|$)/g;
@@ -26,7 +34,6 @@ export const FilterBar = ({ keys = [] }: FilterBarProps) => {
 			);
 			if (matchedKey) {
 				// 存入字典时使用小写
-				parsedRef.current[matchedKey.toLowerCase()] = val;
 				return `<span style="color:#000">${key}:</span><span style="color:#0757ba;background-color:#ddf4ff">${val}</span>${space}`;
 			}
 			return `<span style="color:#000">${key}:${val}</span>${space}`;
@@ -36,15 +43,34 @@ export const FilterBar = ({ keys = [] }: FilterBarProps) => {
 	};
 
 	return (
-		<div className="w-full flex">
-			<Button
-				style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-				leadingVisual={FilterIcon}
-			>
-				Filter
-			</Button>
+		<div className="w-full flex gap-0.5">
+			<ActionMenu>
+				<ActionMenu.Button
+					style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+					leadingVisual={FilterIcon}
+				>
+					Add Filter
+				</ActionMenu.Button>
+				<ActionMenu.Overlay>
+					<ActionList>
+						{keys.map((key) => {
+							return (
+								<ActionList.Item
+									key={key}
+									onSelect={() => {
+										setFilter(`${filter} ${key}:`);
+										inputRef.current?.focus();
+									}}
+								>
+									{key}
+								</ActionList.Item>
+							);
+						})}
+					</ActionList>
+				</ActionMenu.Overlay>
+			</ActionMenu>
 
-			<div className="relative w-full bg-white border focus-within:ring-2 focus-within:ring-[#0969da] focus-within:border-[#0969da]">
+			<div className="relative w-full  bg-white border focus-within:ring-2 focus-within:ring-[#0969da] focus-within:border-[#0969da] ">
 				{/* 高亮层 */}
 				<div
 					ref={highlightRef}
@@ -56,7 +82,7 @@ export const FilterBar = ({ keys = [] }: FilterBarProps) => {
 						color: "#000", // 默认文字颜色
 					}}
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-					dangerouslySetInnerHTML={{ __html: getHighlightedText(value) }}
+					dangerouslySetInnerHTML={{ __html: getHighlightedText(filter) }}
 				/>
 
 				{/* 输入框透明 */}
@@ -70,17 +96,32 @@ export const FilterBar = ({ keys = [] }: FilterBarProps) => {
 						fontFamily: "inherit",
 						lineHeight: "inherit",
 					}}
-					value={value}
-					onChange={(e) => setValue(e.target.value)}
+					value={filter}
+					onChange={(e) => setFilter(e.target.value)}
 				/>
 			</div>
 
-			<Button
-				style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-				leadingVisual={SearchIcon}
-			>
-				Query
-			</Button>
+			<ButtonGroup>
+				<Button
+					style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+					variant="danger"
+					onClick={() => {
+						setFilter("");
+						queryClient.invalidateQueries({ queryKey: [queryKey] });
+					}}
+				>
+					Clear
+				</Button>
+				<Button
+					style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+					leadingVisual={SearchIcon}
+					onClick={() => {
+						queryClient.invalidateQueries({ queryKey: [queryKey] });
+					}}
+				>
+					Apply Filters
+				</Button>
+			</ButtonGroup>
 		</div>
 	);
 };

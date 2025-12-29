@@ -60,6 +60,7 @@ export type QueryParams = {
 	limit?: number;
 	page?: number;
 	total?: number;
+	filter?: string;
 };
 
 export type UniResponse<T> = {

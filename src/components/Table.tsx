@@ -86,7 +86,7 @@ type GenericTableProps<T> = {
 	getRowId?: (row: T) => string;
 	selectedRowIds?: Set<string>;
 	onSelectedRowIdsChange?: (ids: Set<string>) => void;
-	enableFilter?: boolean;
+	filterKeys?: string[];
 } & RequireGetRowId<T> &
 	React.HTMLAttributes<HTMLDivElement>;
 
@@ -111,7 +111,7 @@ export const GenericTable = <T extends object>({
 	getRowId,
 	selectedRowIds: externalSelectedRowIds,
 	onSelectedRowIdsChange,
-	enableFilter = true,
+	filterKeys,
 	...rest
 }: GenericTableProps<T>) => {
 	const [internalSelectedRowIds, setInternalSelectedRowIds] = useState<
@@ -135,11 +135,12 @@ export const GenericTable = <T extends object>({
 	// query
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(disablePagination ? 100 : 10);
+	const [filter, setFilter] = useState("");
 	const queryClient = useQueryClient();
 
 	const { data, isLoading }: UseQueryResult<UniResponse<T[]>> = useQuery({
 		queryKey: [subject, page, limit],
-		queryFn: () => queryFn({ page, limit }),
+		queryFn: () => queryFn({ page, limit, filter }),
 	});
 	// add actions to columns
 	const safeGetRowId = (row: T) => {
@@ -441,11 +442,15 @@ export const GenericTable = <T extends object>({
 				<Table.Divider />
 				<Table.Subtitle id="repositories-subtitle-headerAction">
 					{subtitle && <p>{subtitle}</p>}
-					{enableFilter && (
-						<FilterBar keys={columns.map((col) => col.accessorKey)} />
-					)}
-
 					<banner.BannerComponent />
+					{filterKeys && (
+						<FilterBar
+							keys={filterKeys}
+							filter={filter}
+							setFilter={setFilter}
+							queryKey={subject}
+						/>
+					)}
 				</Table.Subtitle>
 
 				<DataTable

@@ -88,6 +88,8 @@ function RouteComponent() {
 		},
 	];
 
+	const filterKeys = ["id", "username", "nickname", "email"];
+
 	return (
 		<GenericTable
 			subject="Users"
@@ -96,6 +98,7 @@ function RouteComponent() {
 			createFn={adminApi.users.create}
 			removeFn={adminApi.users.remove}
 			patchFn={adminApi.users.patch}
+			filterKeys={filterKeys}
 			mutationColumns={mutationColumns}
 			mutationData={mutationUser}
 		/>

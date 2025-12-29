@@ -161,11 +161,13 @@ function RouteComponent() {
 			</ButtonGroup>
 		</div>
 	);
+	const filterKeys = ["id", "name", "category", "hidden", "description"];
 
 	return (
 		<GenericTable
 			subject="Challenges"
 			columns={columns}
+			filterKeys={filterKeys}
 			queryFn={adminApi.challenges.fetch}
 			createFn={adminApi.challenges.create}
 			removeFn={adminApi.challenges.remove}
