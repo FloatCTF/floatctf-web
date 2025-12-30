@@ -58,7 +58,11 @@ export const FilterBar = ({
 								<ActionList.Item
 									key={key}
 									onSelect={() => {
-										setFilter(`${filter} ${key}:`);
+										if (filter.length === 0) {
+											setFilter(`${filter} ${key}:`);
+										} else {
+											setFilter(`${filter} & ${key}:`);
+										}
 										inputRef.current?.focus();
 									}}
 								>

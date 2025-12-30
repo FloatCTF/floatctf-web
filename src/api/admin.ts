@@ -120,8 +120,10 @@ export const challengeAdminApi = {
 		});
 		return res.data;
 	},
-	getChallengeSets: async (): Promise<UniResponse<ChallengeSets[]>> => {
-		const res = await admin_api.get("/challenge_sets");
+	getChallengeSets: async (
+		params: QueryParams = {},
+	): Promise<UniResponse<ChallengeSets[]>> => {
+		const res = await admin_api.get("/challenge_sets", { params });
 		return res.data;
 	},
 	createChallengeSet: async (
