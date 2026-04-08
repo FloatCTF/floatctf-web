@@ -1,6 +1,7 @@
 export * from "./sea_orm_active_enums";
 export * from "./events";
 export * from "./instances";
+export * from "./scheduled_tasks";
 export * from "./super_admin";
 export * from "./users";
 export * from "./event_instances";
