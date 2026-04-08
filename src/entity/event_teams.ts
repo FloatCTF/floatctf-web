@@ -3,8 +3,8 @@ export type EventTeams = {
   event_id: string;
   name: string;
   description?: string;
+  points: number;
   created_at: string;
   updated_at: string;
-  points: number;
   banned: boolean;
 };

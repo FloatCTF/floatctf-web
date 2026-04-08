@@ -4,6 +4,7 @@ export enum EventTeamMemberRole {
 }
 
 export enum EventType {
+  JeopardyPractice = 'jeopardy_practice',
   JeopardySingle = 'jeopardy_single',
   JeopardyTeam = 'jeopardy_team',
   AwdTeam = 'awd_team',

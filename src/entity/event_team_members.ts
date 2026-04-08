@@ -1,4 +1,4 @@
-import { EventTeamMemberRole } from './sea_orm_active_enums';
+import type { EventTeamMemberRole } from './sea_orm_active_enums';
 
 export type EventTeamMembers = {
   event_id: string;
