@@ -81,6 +81,8 @@ function RouteComponent() {
             </Button>
         </div>
     );
+    const filterKeys = ["user_id", "team_id", "file_url"];
+
     return (
         <GenericTable
             subject={subject}
@@ -88,10 +90,10 @@ function RouteComponent() {
             queryFn={adminApi.event_writeups.fetch(id)}
             hideTitle={true}
             disableAdd={true}
-            disablePagination={true}
             enableInternalActions={false}
             customActions={custom_actions}
             getRowId={(row: EventWriteup) => `${row.event_id}-${row.user_id}`}
+            filterKeys={filterKeys}
         />
     );
 }

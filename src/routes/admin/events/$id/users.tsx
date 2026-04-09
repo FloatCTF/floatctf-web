@@ -123,6 +123,8 @@ function RouteComponent() {
         </div>
     );
 
+    const filterKeys = ["user_id", "username", "nickname", "points", "banned"];
+
     return (
         <div className="flex gap-2 m-2 items-start">
             <GenericTable
@@ -136,6 +138,7 @@ function RouteComponent() {
                 columnActions={columns_actions}
                 getRowId={(row: EventUserResult) => row.user.id}
                 customActions={custom_actions}
+                filterKeys={filterKeys}
             />
         </div>
     );

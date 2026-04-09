@@ -60,6 +60,8 @@ function RouteComponent() {
         },
     ];
 
+    const filterKeys = ["id", "title", "content"];
+
     return (
         <GenericTable
             className="m-2"
@@ -72,7 +74,7 @@ function RouteComponent() {
             columns={columns}
             mutationColumns={mutationColumns}
             hideTitle={true}
-            disablePagination={true}
+            filterKeys={filterKeys}
         />
     );
 }

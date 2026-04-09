@@ -159,6 +159,8 @@ function RouteComponent() {
             </ActionList>
         );
     };
+    const filterKeys = ["id", "name", "points", "banned"];
+
     return (
         <GenericTable
             subject={subject}
@@ -170,6 +172,7 @@ function RouteComponent() {
             disablePagination={true}
             columnActions={columns_actions}
             getRowId={(row) => row.team.id}
+            filterKeys={filterKeys}
         />
     );
 }
