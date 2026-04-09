@@ -12,4 +12,8 @@ export type ScheduledTasks = {
   last_run_at?: string;
   created_at: string;
   updated_at: string;
+  task_name: string;
+  description?: string;
+  enabled: boolean;
+  protected: boolean;
 };
