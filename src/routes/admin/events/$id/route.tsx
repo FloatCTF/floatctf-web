@@ -5,82 +5,88 @@ import { createContext } from "react";
 
 import { adminApi } from "@/api";
 import {
-  type Challenges,
-  type EventChallenges,
-  EventType,
-  type Events,
+    type Challenges,
+    type EventChallenges,
+    EventType,
+    type Events,
 } from "@/entity";
 import { RouterNavItem } from "@/routes/service/events/jeopardy.$id/route";
 
 export const Route = createFileRoute("/admin/events/$id")({
-  component: RouteComponent,
+    component: RouteComponent,
 });
 
 export const EventContext = createContext<Events | null>(null);
 
 export type EventChallengeResult = {
-  id: string;
-  event_challenge: EventChallenges;
-  challenge: Challenges;
+    id: string;
+    event_challenge: EventChallenges;
+    challenge: Challenges;
 };
 function RouteComponent() {
-  const { id } = Route.useParams();
+    const { id } = Route.useParams();
 
-  const {
-    data: event_data,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["event", id],
-    queryFn: () => adminApi.events.get(id),
-  });
+    const {
+        data: event_data,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ["event", id],
+        queryFn: () => adminApi.events.get(id),
+    });
 
-  const event = event_data?.data;
+    const event = event_data?.data;
 
-  if (isLoading) {
-    return <Spinner size="large" />;
-  }
+    if (isLoading) {
+        return <Spinner size="large" />;
+    }
 
-  if (isError || !event) {
-    return <div>Error loading event</div>;
-  }
+    if (isError || !event) {
+        return <div>Error loading event</div>;
+    }
 
-  return (
-    <div>
-      <h3>
-        {event.title} #{event.id}
-      </h3>
-      <UnderlineNav aria-label="Repository">
-        <RouterNavItem to="/admin/events/$id" params={{ id }}>
-          Challenges
-        </RouterNavItem>
-        {event?.type === EventType.JeopardySingle && (
-          <RouterNavItem to="/admin/events/$id/users" params={{ id }}>
-            Users
-          </RouterNavItem>
-        )}
+    return (
+        <div>
+            <h3>
+                {event.title} #{event.id}
+            </h3>
+            <UnderlineNav aria-label="Repository">
+                <RouterNavItem to="/admin/events/$id" params={{ id }}>
+                    Challenges
+                </RouterNavItem>
+                {event?.type === EventType.JeopardySingle && (
+                    <RouterNavItem to="/admin/events/$id/users" params={{ id }}>
+                        Users
+                    </RouterNavItem>
+                )}
 
-        {event?.type === EventType.JeopardyTeam && (
-          <RouterNavItem to="/admin/events/$id/teams" params={{ id }}>
-            Teams
-          </RouterNavItem>
-        )}
-        <RouterNavItem to="/admin/events/$id/announcements" params={{ id }}>
-          Announcements
-        </RouterNavItem>
-        <RouterNavItem to="/admin/events/$id/writeups" params={{ id }}>
-          WriteUps
-        </RouterNavItem>
-        <RouterNavItem to="/service/events/$id/scoreboard" params={{ id }}>
-          Logs
-        </RouterNavItem>
-        <RouterNavItem to="/admin/events/$id/data_present" params={{ id }}>
-          Data Present
-        </RouterNavItem>
-      </UnderlineNav>
-      <EventContext.Provider value={event}>
-        <Outlet /> {/* 普通 TanStack Router 的 Outlet */}
-      </EventContext.Provider>
-    </div>
-  );
+                {event?.type === EventType.JeopardyTeam && (
+                    <RouterNavItem to="/admin/events/$id/teams" params={{ id }}>
+                        Teams
+                    </RouterNavItem>
+                )}
+                <RouterNavItem
+                    to="/admin/events/$id/announcements"
+                    params={{ id }}
+                >
+                    Announcements
+                </RouterNavItem>
+                <RouterNavItem to="/admin/events/$id/writeups" params={{ id }}>
+                    WriteUps
+                </RouterNavItem>
+                <RouterNavItem to="/admin/events/$id/logs" params={{ id }}>
+                    Logs
+                </RouterNavItem>
+                <RouterNavItem
+                    to="/admin/events/$id/data_present"
+                    params={{ id }}
+                >
+                    Data Present
+                </RouterNavItem>
+            </UnderlineNav>
+            <EventContext.Provider value={event}>
+                <Outlet /> {/* 普通 TanStack Router 的 Outlet */}
+            </EventContext.Provider>
+        </div>
+    );
 }

@@ -3,9 +3,11 @@ import type {
     Challenges,
     EventAnnouncements,
     EventChallenges,
+    EventLogs,
     EventWriteup,
     Events,
     Instances,
+    Logs,
     ScheduledTasks,
     Settings,
     Users,
@@ -581,5 +583,25 @@ export const weaponsAdminApi = {
             },
         );
         return res.data;
+    },
+};
+
+export const logsAdminApi = {
+    fetch: async (params: QueryParams = {}): Promise<UniResponse<Logs[]>> => {
+        const res = await admin_api.get("/logs", { params });
+        return res.data;
+    },
+};
+
+export const eventLogAdminApi = {
+    fetch: (event_id: string) => {
+        return async (
+            params: QueryParams = {},
+        ): Promise<UniResponse<EventLogs[]>> => {
+            const res = await admin_api.get(`/events/${event_id}/logs`, {
+                params,
+            });
+            return res.data;
+        };
     },
 };

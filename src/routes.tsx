@@ -65,6 +65,11 @@ export const admin_routes: NavRoute[] = [
         icon: <DatabaseIcon />,
     },
     {
+        label: "Logs",
+        path: "/admin/logs",
+        icon: <LogIcon />,
+    },
+    {
         label: "Scheduled Tasks",
         path: "/admin/scheduled_tasks",
         icon: <ClockIcon />,

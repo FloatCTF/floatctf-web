@@ -4,12 +4,14 @@ import {
     challengeAdminApi,
     databaseAdminApi,
     eventAdminApi,
+    eventLogAdminApi,
     eventAnnouncementAdminApi,
     eventChallengeAdminApi,
     eventTeamAdminApi,
     eventUserAdminApi,
     eventWriteupAdminApi,
     instanceAdminApi,
+    logsAdminApi,
     scheduledTaskAdminApi,
     settingAdminApi,
     systemAdminApi,
@@ -38,11 +40,13 @@ export const adminApi = {
     event_challenges: eventChallengeAdminApi,
     event_users: eventUserAdminApi,
     event_announcements: eventAnnouncementAdminApi,
+    event_logs: eventLogAdminApi,
     event_writeups: eventWriteupAdminApi,
     event_teams: eventTeamAdminApi,
     database: databaseAdminApi,
     scheduled_tasks: scheduledTaskAdminApi,
     weapons: weaponsAdminApi,
+    logs: logsAdminApi,
 };
 
 export const serviceApi = {
