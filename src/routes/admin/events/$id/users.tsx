@@ -171,6 +171,7 @@ function AddUserButton({
             sortBy: true,
         },
     ];
+
     const [userSelectedRowIds, setUserSelectedRowIds] = useSelectedRowIds();
     const banner = useMsgBanner();
     const addEventUserMutation = useMutation({
@@ -196,6 +197,7 @@ function AddUserButton({
             Add
         </Button>
     );
+    const filterKeys = ["id", "username", "nickname"];
     return (
         <>
             {isOpen && (
@@ -204,6 +206,7 @@ function AddUserButton({
                         subject="Users"
                         columns={user_columns}
                         queryFn={adminApi.users.fetch}
+                        filterKeys={filterKeys}
                         disableAdd={true}
                         enableInternalActions={false}
                         selectedRowIds={userSelectedRowIds}

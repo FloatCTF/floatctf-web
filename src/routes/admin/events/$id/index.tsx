@@ -227,6 +227,7 @@ function AddChallengeButton({
             },
         },
     ];
+    const filterKeys = ["name", "id", "category"];
     return (
         <>
             {isOpen && (
@@ -235,6 +236,7 @@ function AddChallengeButton({
                         subject="Challenges"
                         columns={columns}
                         queryFn={adminApi.challenges.fetch}
+                        filterKeys={filterKeys}
                         disableAdd={true}
                         enableInternalActions={false}
                         selectedRowIds={userSelectedRowIds}
