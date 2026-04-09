@@ -32,21 +32,6 @@ function RouteComponent() {
     const columns = [
         { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
         {
-            accessorKey: "user_id",
-            header: "User ID",
-            field: "user_id",
-        },
-        {
-            accessorKey: "superadmin_id",
-            header: "Admin ID",
-            field: "superadmin_id",
-        },
-        {
-            accessorKey: "ip_address",
-            header: "IP Address",
-            field: "ip_address",
-        },
-        {
             accessorKey: "category",
             header: "Category",
             field: "category",
@@ -61,15 +46,33 @@ function RouteComponent() {
             header: "Level",
             field: "level",
             renderCell: (row: Logs) => (
-                <Label variant={levelToVariant(row.level)}>
-                    {row.level}
-                </Label>
+                <Label variant={levelToVariant(row.level)}>{row.level}</Label>
             ),
         },
         {
             accessorKey: "message",
             header: "Message",
             field: "message",
+        },
+        {
+            accessorKey: "user_id",
+            header: "User ID",
+            field: "user_id",
+        },
+        {
+            accessorKey: "superadmin_id",
+            header: "Admin ID",
+            field: "superadmin_id",
+        },
+        {
+            accessorKey: "ip_address",
+            header: "IP",
+            field: "ip_address",
+        },
+        {
+            accessorKey: "details",
+            header: "Details",
+            field: "details",
         },
         {
             accessorKey: "created_at",

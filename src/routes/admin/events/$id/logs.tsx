@@ -61,6 +61,11 @@ function RouteComponent() {
             field: "details",
         },
         {
+            accessorKey: "ip_address",
+            header: "IP",
+            field: "ip_address",
+        },
+        {
             accessorKey: "created_at",
             header: "Created At",
             field: "created_at",
@@ -70,7 +75,15 @@ function RouteComponent() {
         },
     ];
 
-    const filterKeys = ["id", "user_id", "team_id", "type", "level", "action"];
+    const filterKeys = [
+        "id",
+        "user_id",
+        "team_id",
+        "type",
+        "level",
+        "action",
+        "ip_address",
+    ];
 
     return (
         <GenericTable
