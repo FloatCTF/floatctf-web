@@ -80,8 +80,8 @@ export const admin_routes: NavRoute[] = [
         icon: <GearIcon />,
     },
     {
-        label: "Upgrade",
-        path: "/admin/upgrade",
+        label: "Version",
+        path: "/admin/version",
         icon: <ZapIcon />,
     },
 ];
