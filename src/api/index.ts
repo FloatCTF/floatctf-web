@@ -1,6 +1,7 @@
 export * from "@/api/axios";
 import {
     adminLoginFn,
+    announcementAdminApi,
     challengeAdminApi,
     databaseAdminApi,
     eventAdminApi,
@@ -20,6 +21,7 @@ import {
 } from "@/api/admin";
 
 import {
+    announcementServiceApi,
     challengeServiceApi,
     eventServiceApi,
     instanceServiceApi,
@@ -33,6 +35,7 @@ export const adminApi = {
     login: adminLoginFn,
     system: systemAdminApi,
     settings: settingAdminApi,
+    announcements: announcementAdminApi,
     challenges: challengeAdminApi,
     users: userAdminApi,
     events: eventAdminApi,
@@ -57,4 +60,5 @@ export const serviceApi = {
     submit: submitServiceApi,
     solves: solveServiceApi,
     weapons: weaponsServiceApi,
+    announcements: announcementServiceApi,
 };

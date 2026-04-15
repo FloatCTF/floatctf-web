@@ -6,6 +6,7 @@ export * from "./super_admin";
 export * from "./users";
 export * from "./event_instances";
 export * from "./challenges";
+export * from "./announcements";
 export * from "./challenge_set_items";
 export * from "./gameboxes";
 export * from "./challenge_sets";

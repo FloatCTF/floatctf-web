@@ -1,4 +1,5 @@
 import type {
+    Announcements,
     ChallengeSetItems,
     ChallengeSets,
     ChallengeSolves,
@@ -380,6 +381,15 @@ export const weaponsServiceApi = {
         params: QueryParams = {},
     ): Promise<UniResponse<Weapons[]>> => {
         const res = await service_api.get("/weapons", { params });
+        return res.data;
+    },
+};
+
+export const announcementServiceApi = {
+    fetch: async (
+        params: QueryParams = {},
+    ): Promise<UniResponse<Announcements[]>> => {
+        const res = await service_api.get("/announcements", { params });
         return res.data;
     },
 };

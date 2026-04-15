@@ -8,6 +8,7 @@ import {
     GoalIcon,
     ListUnorderedIcon,
     LogIcon,
+    MegaphoneIcon,
     NoteIcon,
     PasskeyFillIcon,
     PersonIcon,
@@ -47,6 +48,11 @@ export const admin_routes: NavRoute[] = [
         label: "Events",
         path: "/admin/events",
         icon: <ListUnorderedIcon />,
+    },
+    {
+        label: "Announcements",
+        path: "/admin/announcements",
+        icon: <MegaphoneIcon />,
     },
     { label: "Weapons", path: "/admin/weapons", icon: <GiftIcon /> },
     {
@@ -122,6 +128,11 @@ export const service_routes: NavRoute[] = [
         label: "Weapons",
         path: "/service/weapons",
         icon: <GiftIcon size={18} />,
+    },
+    {
+        label: "Announcements",
+        path: "/service/announcements",
+        icon: <MegaphoneIcon size={18} />,
     },
     {
         label: "Profile",
