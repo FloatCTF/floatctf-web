@@ -15,7 +15,7 @@ export const Route = createFileRoute("/admin/events/$id/writeups")({
 
 function RouteComponent() {
     const { id } = Route.useParams();
-    const subject = `writeups-${id}`;
+    const subject = `writeups: ${id}`;
     const columns = [
         {
             accessorKey: "user_id",
@@ -88,7 +88,6 @@ function RouteComponent() {
             subject={subject}
             columns={columns}
             queryFn={adminApi.event_writeups.fetch(id)}
-            hideTitle={true}
             disableAdd={true}
             enableInternalActions={false}
             customActions={custom_actions}

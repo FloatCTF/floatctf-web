@@ -28,7 +28,7 @@ const levelToVariant = (level: string) => {
 
 function RouteComponent() {
     const { id: event_id } = Route.useParams();
-    const subject = "EventLogs";
+    const subject = `event_logs: ${event_id} `;
 
     const columns = [
         { accessorKey: "id", header: "ID", field: "id", rowHeader: true },

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/admin/events/$id/announcements")({
 
 function RouteComponent() {
     const { id } = Route.useParams();
-    const subject = `Announcement-${id}`;
+    const subject = `announcement: ${id}`;
     const columns = [
         { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
         { accessorKey: "title", header: "Title", field: "title" },
@@ -73,7 +73,6 @@ function RouteComponent() {
             mutationData={mutationEventAnnouncement}
             columns={columns}
             mutationColumns={mutationColumns}
-            hideTitle={true}
             filterKeys={filterKeys}
         />
     );

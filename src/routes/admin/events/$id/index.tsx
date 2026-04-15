@@ -43,7 +43,7 @@ function RouteComponent() {
     const event = useContext(EventContext);
     const { id } = Route.useParams();
     const queryClient = useQueryClient();
-    const subject = `event_challenges-${id}`;
+    const subject = `event_challenges: ${id}`;
     const banner = useMsgBanner();
     const open_event_challenge = useMutation({
         mutationFn: adminApi.event_challenges.open,
