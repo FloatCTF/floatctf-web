@@ -140,20 +140,22 @@ function RouteComponent() {
 			</div>
 
 			{/* Network */}
-			<div className="border border-gray-300 rounded-lg p-3">
-				<h2 className="text-base font-semibold mb-1">Network Interfaces</h2>
-				{data.network_interfaces.map((iface) => (
-					<div key={iface.name} className="mb-1">
-						<span className="font-medium mr-2">{iface.name}</span>
-						{iface.ip_addresses.length
-							? iface.ip_addresses.join(", ")
-							: "No IP"}
-						<br />
-						Rx: {iface.received.toLocaleString()} bytes, Tx:{" "}
-						{iface.transmitted.toLocaleString()} bytes
-					</div>
-				))}
-			</div>
+			{data.network_interfaces?.length > 0 && (
+				<div className="border border-gray-300 rounded-lg p-3">
+					<h2 className="text-base font-semibold mb-1">Network Interfaces</h2>
+					{data.network_interfaces
+						.filter((iface) => iface.ip_addresses.length > 0)
+						.map((iface) => (
+							<div key={iface.name} className="mb-1">
+								<span className="font-medium mr-2">{iface.name}</span>
+								{iface.ip_addresses.join(", ")}
+								<br />
+								Rx: {(iface.received / 1024 / 1024).toFixed(2)} MB, Tx:{" "}
+								{(iface.transmitted / 1024 / 1024).toFixed(2)} MB
+							</div>
+						))}
+				</div>
+			)}
 
 			{/* Docker */}
 			<div className="border border-gray-300 rounded-lg p-3">

@@ -88,7 +88,7 @@ function RouteComponent() {
 		flag_prefix: "flag",
 		allow_join: false,
 	});
-	const eventType = ["JeopardySingle", "JeopardyTeam", "AwdTeam"];
+	const eventType = ["jeopardy_single", "jeopardy_team", "awd_team"];
 	const mutationColumns = [
 		{
 			header: "Title",
@@ -194,11 +194,13 @@ function RouteComponent() {
 				<input
 					type="datetime-local"
 					step="1"
-					// 显示本地时间
-					value={DatetimeToShow(mutationEvent.start_time)}
+					value={dayjs
+						.utc(mutationEvent.start_time)
+						.local()
+						.format("YYYY-MM-DDTHH:mm:ss")}
 					onChange={(e) => {
 						const localTime = dayjs(e.target.value);
-						const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss"); // UTC 不带 Z
+						const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss[Z]");
 						mutationEvent.start_time = utcTime;
 					}}
 				/>
@@ -217,9 +219,8 @@ function RouteComponent() {
 						.local()
 						.format("YYYY-MM-DDTHH:mm:ss")}
 					onChange={(e) => {
-						// 用户选择的本地时间 -> 转成 UTC 保存
 						const localTime = dayjs(e.target.value);
-						const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss"); // UTC 不带 Z
+						const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss[Z]");
 						mutationEvent.end_time = utcTime;
 					}}
 				/>

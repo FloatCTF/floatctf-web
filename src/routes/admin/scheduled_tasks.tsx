@@ -2,6 +2,7 @@ import { adminApi } from "@/api";
 import { GenericTable } from "@/components";
 import type { ScheduledTasks } from "@/entity";
 import { DatetimeToShow } from "@/util";
+import dayjs from "dayjs";
 import { CheckIcon, XIcon } from "@primer/octicons-react";
 import { Label, Select, Stack, TextInput, ToggleSwitch } from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -172,10 +173,18 @@ function RouteComponent() {
             header: "execute_at",
             field: "execute_at",
             render: (
-                <TextInput
-                    value={mutationTask.execute_at ?? ""}
+                <input
+                    type="datetime-local"
+                    step="1"
+                    value={
+                        mutationTask.execute_at
+                            ? dayjs.utc(mutationTask.execute_at).local().format("YYYY-MM-DDTHH:mm:ss")
+                            : ""
+                    }
                     onChange={(e) => {
-                        mutationTask.execute_at = e.target.value || undefined;
+                        const localTime = dayjs(e.target.value);
+                        const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss[Z]");
+                        mutationTask.execute_at = utcTime || undefined;
                     }}
                 />
             ),
@@ -184,10 +193,18 @@ function RouteComponent() {
             header: "expires_at",
             field: "expires_at",
             render: (
-                <TextInput
-                    value={mutationTask.expires_at ?? ""}
+                <input
+                    type="datetime-local"
+                    step="1"
+                    value={
+                        mutationTask.expires_at
+                            ? dayjs.utc(mutationTask.expires_at).local().format("YYYY-MM-DDTHH:mm:ss")
+                            : ""
+                    }
                     onChange={(e) => {
-                        mutationTask.expires_at = e.target.value || undefined;
+                        const localTime = dayjs(e.target.value);
+                        const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss[Z]");
+                        mutationTask.expires_at = utcTime || undefined;
                     }}
                 />
             ),

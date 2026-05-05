@@ -13,12 +13,15 @@ export const Route = createFileRoute("/service/writeups/")({
 function RouteComponent() {
 	useTitle("Writeups | FloatCTF");
 	const subject = "Writeups";
+	const filterKeys = ["id", "challenge_id"];
+
 	const columns = [
 		{
 			accessorKey: "id",
 			header: "ID",
 			field: "writeup.id",
 			rowHeader: true,
+			sortBy: true,
 			renderCell: (row: ChallengeWriteupResult) => (
 				<Link to="/service/writeups/$id" params={{ id: row.writeup.id }}>
 					{row.writeup.id}
@@ -29,7 +32,7 @@ function RouteComponent() {
 			accessorKey: "challenge",
 			header: "Challenge",
 			field: "challenge.name",
-			rowHeader: true,
+			sortBy: true,
 			renderCell: (row: ChallengeWriteupResult) => (
 				<Link to="/service/challenges/$id" params={{ id: row.challenge.id }}>
 					{row.challenge.name}
@@ -40,13 +43,12 @@ function RouteComponent() {
 			accessorKey: "nickname",
 			header: "Author",
 			field: "nickname",
-			rowHeader: true,
+			sortBy: true,
 		},
 		{
 			accessorKey: "email",
 			header: "Email",
 			field: "email",
-			rowHeader: true,
 			renderCell: (row: ChallengeWriteupResult) => (
 				<a href={`mailto:${row.email}`}>{row.email}</a>
 			),
@@ -55,20 +57,21 @@ function RouteComponent() {
 			accessorKey: "created_at",
 			header: "Created At",
 			field: "writeup.created_at",
-			rowHeader: true,
+			sortBy: true,
 			renderCell: (row: ChallengeWriteupResult) => (
 				<span>{DatetimeToShow(row.writeup.created_at)}</span>
 			),
 		},
 	];
+
 	return (
 		<GenericTable
 			subject={subject}
 			columns={columns}
+			filterKeys={filterKeys}
 			queryFn={serviceApi.challenges.getAllWriteups}
 			enableInternalActions={false}
 			disableAdd={true}
-			disablePagination={true}
 			disableSelect={true}
 			getRowId={(row: ChallengeWriteupResult) => row.writeup.id}
 		/>

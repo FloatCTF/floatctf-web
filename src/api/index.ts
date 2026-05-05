@@ -18,6 +18,7 @@ import {
     systemAdminApi,
     userAdminApi,
     weaponsAdminApi,
+    downloadAdminApi,
 } from "@/api/admin";
 
 import {
@@ -50,6 +51,7 @@ export const adminApi = {
     scheduled_tasks: scheduledTaskAdminApi,
     weapons: weaponsAdminApi,
     logs: logsAdminApi,
+    download: downloadAdminApi,
 };
 
 export const serviceApi = {

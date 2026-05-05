@@ -34,14 +34,12 @@ function RouteComponent() {
             field: "file_url",
             renderCell: (row: EventWriteup) => {
                 return (
-                    <a
-                        href={`/${row.file_url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
+                    <button
+                        onClick={() => adminApi.download.download(row.file_url)}
+                        className="text-blue-600 hover:underline"
                     >
-                        {row.file_url}
-                    </a>
+                        {row.file_url?.split("/").pop() || "-"}
+                    </button>
                 );
             },
         },
@@ -57,17 +55,14 @@ function RouteComponent() {
 
     const exportMutation = useMutation({
         mutationFn: async () => {
-            const res = await adminApi.events.exportWriteUps(id);
-            return res.data; // 这里是返回的 URL
-        },
-        onSuccess: (url) => {
-            if (url) {
-                const a = document.createElement("a");
-                a.href = `/${url}`;
-                a.download = `${id}.zip`; // 建议加这个，浏览器会强制下载
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+            // 1. Get S3 key from report endpoint
+            const res = await adminApi.events.getReport(id);
+            const s3Key = res.data; // e.g. "writeups/{event_id}/{event_name}_{event_id}.zip"
+            // 2. Get presigned download URL and trigger download
+            if (s3Key) {
+                await adminApi.download.download(s3Key);
+            } else {
+                console.error("no s3Key");
             }
         },
         onError: (error) => {

@@ -88,7 +88,9 @@ export const announcementAdminApi = {
         return res.data;
     },
     remove: async (id_list: string[]): Promise<UniResponse<number>> => {
-        const res = await admin_api.delete("/announcements", { data: { id_list } });
+        const res = await admin_api.delete("/announcements", {
+            data: { id_list },
+        });
         return res.data;
     },
     patch: async (
@@ -268,6 +270,10 @@ export const eventAdminApi = {
     },
     getData: async (id: string): Promise<UniResponse<DataPresent>> => {
         const res = await admin_api.get(`/events/${id}/data`);
+        return res.data;
+    },
+    getReport: async (event_id: string): Promise<UniResponse<string>> => {
+        const res = await admin_api.get(`/events/${event_id}/report`);
         return res.data;
     },
     exportWriteUps: async (event_id: string): Promise<UniResponse<string>> => {
@@ -632,5 +638,22 @@ export const eventLogAdminApi = {
             });
             return res.data;
         };
+    },
+};
+
+export const downloadAdminApi = {
+    download: async (key: string): Promise<void> => {
+        const res = await admin_api.get(`/download`, {
+            params: { key },
+        });
+        const url = res.data.data;
+        const blobRes = await fetch(url);
+        const blob = await blobRes.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = key.split("/").pop() || "download";
+        a.click();
+        URL.revokeObjectURL(blobUrl);
     },
 };

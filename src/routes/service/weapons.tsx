@@ -40,14 +40,17 @@ function RouteComponent() {
             field: "file_url",
             sortBy: true,
             renderCell: (row: Weapons) => {
+                if (!row.has_file || !row.file_url) {
+                    return <span>-</span>;
+                }
                 return (
                     <a
-                        href={`/${row.file_url}`}
+                        href={`/public/${row.file_url}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         download
                     >
-                        {row.file_url}
+                        {row.file_url.split("/").pop()}
                     </a>
                 );
             },

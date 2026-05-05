@@ -264,7 +264,7 @@ export const challengeServiceApi = {
     getAllWriteups: async (
         params: QueryParams = {},
     ): Promise<UniResponse<ChallengeWriteupResult[]>> => {
-        const res = await service_api.get("/writeups");
+        const res = await service_api.get("/writeups", { params });
         return res.data;
     },
     getChallengeSets: async (): Promise<UniResponse<ChallengeSets[]>> => {

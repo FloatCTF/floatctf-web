@@ -58,11 +58,12 @@ export const diffToPatch = <T extends Record<string, any>>(
         if (key === "id") continue; // 防止重复处理 id
         if (current[key] !== original[key] && current[key] !== undefined) {
             result[key] = current[key];
-        } else {
-            // @ts-ignore
-            result[key] = null;
+        } else if (current[key] !== original[key]) {
+            console.log(`diffToPatch: ${key} changed`, { original: original[key], current: current[key], resultKey: result[key] });
         }
+        // 如果值没变化，不设置 null，让后端保持原值
     }
+    console.log("diffToPatch result:", result);
 
     return result;
 };
