@@ -30,6 +30,8 @@
         "@tanstack/router-plugin": "^1.121.2",
         "@types/node": "^24.5.0",
         "@uiw/react-md-editor": "^4.0.8",
+        "@xterm/addon-fit": "^0.10.0",
+        "@xterm/xterm": "^5.5.0",
         "ahooks": "^3.9.5",
         "axios": "^1.11.0",
         "dayjs": "^1.11.13",
