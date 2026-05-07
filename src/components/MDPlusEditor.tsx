@@ -168,6 +168,35 @@ export const MDPlusEditor = ({
         },
     };
 
+    const imageUpload: ICommand = {
+        name: "ImageUpload",
+        keyCommand: "ImageUpload",
+        buttonProps: { "aria-label": "Upload Image" },
+        icon: <ImageIcon />,
+        execute: () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.onchange = async (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (!file) return;
+                try {
+                    const url = await uploadsServiceApi.upload_image?.(file);
+                    if (url.data) {
+                        const result = url.data.startsWith(".")
+                            ? url.data.slice(1)
+                            : url.data;
+                        const imageMarkdown = `${value}![${result}](${result})\n`;
+                        setValue(imageMarkdown);
+                    }
+                } catch (err) {
+                    console.error("图片上传失败:", err);
+                }
+            };
+            input.click();
+        },
+    };
+
     const handlePaste = useCallback(
         async (event: ClipboardEvent) => {
             if (!event.clipboardData) return;
@@ -215,6 +244,7 @@ export const MDPlusEditor = ({
             value={value}
             onChange={(newValue = "") => setValue(newValue)}
             extraCommands={[
+                imageUpload,
                 tipBox,
                 blur,
                 save,
