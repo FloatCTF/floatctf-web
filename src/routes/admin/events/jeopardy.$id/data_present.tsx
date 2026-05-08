@@ -23,7 +23,7 @@ import {
 import { DatetimeToShow } from "@/util";
 import { AdminRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/admin/events/$id/data_present")({
+export const Route = createFileRoute("/admin/events/jeopardy/$id/data_present")({
     component: RouteComponent,
     loader: AdminRouteGuard,
 });

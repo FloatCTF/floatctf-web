@@ -8,7 +8,7 @@ import type { EventWriteup } from "@/entity";
 import { DatetimeToShow } from "@/util";
 import { AdminRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/admin/events/$id/writeups")({
+export const Route = createFileRoute("/admin/events/jeopardy/$id/writeups")({
     component: RouteComponent,
     loader: AdminRouteGuard,
 });
@@ -80,6 +80,7 @@ function RouteComponent() {
 
     return (
         <GenericTable
+            className="m-2"
             subject={subject}
             columns={columns}
             queryFn={adminApi.event_writeups.fetch(id)}

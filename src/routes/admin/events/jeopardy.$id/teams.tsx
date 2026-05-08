@@ -10,7 +10,7 @@ import type { EventTeamMemberRole, EventTeams } from "@/entity";
 import { DatetimeToShow } from "@/util";
 import { AdminRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/admin/events/$id/teams")({
+export const Route = createFileRoute("/admin/events/jeopardy/$id/teams")({
     component: RouteComponent,
     loader: AdminRouteGuard,
 });
@@ -163,12 +163,12 @@ function RouteComponent() {
 
     return (
         <GenericTable
+            className="m-2"
             subject={subject}
             columns={columns}
             queryFn={adminApi.event_teams.getTeams(id)}
             removeFn={adminApi.event_teams.remove(id)}
-            disableAdd={true}
-            hideTitle={true}
+            // disableAdd={true}
             disablePagination={true}
             columnActions={columns_actions}
             getRowId={(row) => row.team.id}

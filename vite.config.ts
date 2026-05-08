@@ -22,6 +22,8 @@ export default defineConfig({
         },
     },
     server: {
-        allowedHosts: ["mint"],
+        watch: {
+            ignored: ["**/routeTree.gen.ts"], // ← 加这 3 行
+        },
     },
 });

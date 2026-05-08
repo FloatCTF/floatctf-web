@@ -21,7 +21,7 @@ import { DatetimeToShow, useSelectedRowIds } from "@/util";
 import { EventContext } from "./route";
 import { AdminRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/admin/events/$id/")({
+export const Route = createFileRoute("/admin/events/jeopardy/$id/")({
     component: RouteComponent,
     loader: AdminRouteGuard,
 });

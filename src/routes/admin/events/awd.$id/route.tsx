@@ -12,7 +12,7 @@ import {
 } from "@/entity";
 import { RouterNavItem } from "@/routes/service/events/jeopardy.$id/route";
 
-export const Route = createFileRoute("/admin/events/$id")({
+export const Route = createFileRoute("/admin/events/awd/$id")({
     component: RouteComponent,
 });
 
@@ -51,34 +51,34 @@ function RouteComponent() {
                 {event.title} #{event.id}
             </h3>
             <UnderlineNav aria-label="Repository">
-                <RouterNavItem to="/admin/events/$id" params={{ id }}>
+                <RouterNavItem to="/admin/events/awd/$id" params={{ id }}>
                     Challenges
                 </RouterNavItem>
-                {event?.type === EventType.JeopardySingle && (
-                    <RouterNavItem to="/admin/events/$id/users" params={{ id }}>
-                        Users
-                    </RouterNavItem>
-                )}
-
-                {event?.type === EventType.JeopardyTeam && (
-                    <RouterNavItem to="/admin/events/$id/teams" params={{ id }}>
+                {event?.type === EventType.AwdTeam && (
+                    <RouterNavItem
+                        to="/admin/events/awd/$id/teams"
+                        params={{ id }}
+                    >
                         Teams
                     </RouterNavItem>
                 )}
                 <RouterNavItem
-                    to="/admin/events/$id/announcements"
+                    to="/admin/events/awd/$id/announcements"
                     params={{ id }}
                 >
                     Announcements
                 </RouterNavItem>
-                <RouterNavItem to="/admin/events/$id/writeups" params={{ id }}>
+                <RouterNavItem
+                    to="/admin/events/awd/$id/writeups"
+                    params={{ id }}
+                >
                     WriteUps
                 </RouterNavItem>
-                <RouterNavItem to="/admin/events/$id/logs" params={{ id }}>
+                <RouterNavItem to="/admin/events/awd/$id/logs" params={{ id }}>
                     Logs
                 </RouterNavItem>
                 <RouterNavItem
-                    to="/admin/events/$id/data_present"
+                    to="/admin/events/awd/$id/data_present"
                     params={{ id }}
                 >
                     Data Present

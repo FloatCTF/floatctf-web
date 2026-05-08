@@ -8,7 +8,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
 import { AdminRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/admin/events/$id/announcements")({
+export const Route = createFileRoute("/admin/events/awd/$id/announcements")({
     component: RouteComponent,
     loader: AdminRouteGuard,
 });

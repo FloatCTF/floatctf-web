@@ -10,7 +10,7 @@ import { DatetimeToShow, useSelectedRowIds } from "@/util";
 import { useCallback, useRef, useState } from "react";
 import { AdminRouteGuard } from "../../route";
 
-export const Route = createFileRoute("/admin/events/$id/users")({
+export const Route = createFileRoute("/admin/events/jeopardy/$id/users")({
     component: RouteComponent,
     loader: AdminRouteGuard,
 });
