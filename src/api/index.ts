@@ -4,6 +4,7 @@ import {
     announcementAdminApi,
     challengeAdminApi,
     databaseAdminApi,
+    dockerAdminApi,
     eventAdminApi,
     eventLogAdminApi,
     eventAnnouncementAdminApi,
@@ -19,6 +20,9 @@ import {
     userAdminApi,
     weaponsAdminApi,
     downloadAdminApi,
+    type FloatDockerContainer,
+    type ImageInfo,
+    type NetworkInfo,
 } from "@/api/admin";
 
 import {
@@ -31,6 +35,8 @@ import {
     userServiceApi,
     weaponsServiceApi,
 } from "./service";
+
+export type { FloatDockerContainer, ImageInfo, NetworkInfo };
 
 export const adminApi = {
     login: adminLoginFn,
@@ -52,6 +58,7 @@ export const adminApi = {
     weapons: weaponsAdminApi,
     logs: logsAdminApi,
     download: downloadAdminApi,
+    docker: dockerAdminApi,
 };
 
 export const serviceApi = {
