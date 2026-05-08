@@ -79,6 +79,9 @@ function RouteComponent() {
 
             ws.onopen = () => {
                 terminal.writeln("\x1b[32m● Connected\x1b[0m\r\n");
+                // Send initial terminal size immediately
+                const { cols, rows } = terminal;
+                ws.send(JSON.stringify({ type: "resize", cols, rows }));
             };
 
             ws.onmessage = (event) => {
