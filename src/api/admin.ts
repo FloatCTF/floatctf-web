@@ -185,8 +185,12 @@ export const challengeAdminApi = {
         return res.data;
     },
     getChallengeSet: (id: string) => {
-        return async (): Promise<UniResponse<Challenges[]>> => {
-            const res = await admin_api.get(`/challenge_sets/${id}`);
+        return async (
+            params: QueryParams = {},
+        ): Promise<UniResponse<Challenges[]>> => {
+            const res = await admin_api.get(`/challenge_sets/${id}`, {
+                params,
+            });
             return res.data;
         };
     },
