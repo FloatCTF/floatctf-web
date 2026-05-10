@@ -449,9 +449,9 @@ function SubmitWriteup({
         text: string;
     }>(null);
     const queryClient = useQueryClient();
-    const { data: createdDate } = useQuery({
-        queryKey: ["writeup_created_date", eventId],
-        queryFn: () => serviceApi.events.getWriteUpCreatedDate(eventId),
+    const { data: wpUrl } = useQuery({
+        queryKey: ["own_wp", eventId],
+        queryFn: () => serviceApi.events.getOwnWp(eventId),
     });
 
     const submitMutation = useMutation({
@@ -524,14 +524,15 @@ function SubmitWriteup({
             <div>
                 <Button onClick={handleClick}>Upload Writeup *.pdf</Button>
                 <p>Upload again to override the file</p>
-                {createdDate?.data && (
-                    <p className="text-bold">
-                        Last uploaded at:{" "}
-                        {dayjs
-                            .utc(createdDate.data)
-                            .local()
-                            .format("YYYY-MM-DD HH:mm:ss")}
-                    </p>
+                {wpUrl?.data && (
+                    <a
+                        href={wpUrl.data}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                    >
+                        Download Writeup
+                    </a>
                 )}
                 <input
                     type="file"
