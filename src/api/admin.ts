@@ -20,14 +20,14 @@ import type {
 } from "@/routes/admin/challenges";
 import type { SystemInformation } from "@/routes/admin/dashboard";
 
-import type { DataPresent } from "@/routes/admin/events/$id/data_present";
-import type { TeamResult } from "@/routes/admin/events/$id/teams";
-import type { EventUserResult } from "@/routes/admin/events/$id/users";
+import type { DataPresent } from "@/routes/admin/events/jeopardy.$id/data_present";
+import type { TeamResult } from "@/routes/admin/events/jeopardy.$id/teams";
+import type { EventUserResult } from "@/routes/admin/events/jeopardy.$id/users";
+import type { EventChallengeResult } from "@/routes/admin/events/jeopardy.$id";
 
 import { type QueryParams, type UniResponse, admin_api } from "@/api/axios";
 import type { Weapons } from "@/entity/weapons";
 import type { SqlResult, SqlStatement } from "@/routes/admin/database";
-import type { EventChallengeResult } from "@/routes/admin/events/$id";
 
 export const adminLoginFn = async ({
     username,
@@ -723,15 +723,25 @@ export const dockerAdminApi = {
         return res.data;
     },
     stopContainer: async (container_id: string): Promise<UniResponse<null>> => {
-        const res = await admin_api.post(`/docker/containers/${container_id}/stop`);
+        const res = await admin_api.post(
+            `/docker/containers/${container_id}/stop`,
+        );
         return res.data;
     },
-    startContainer: async (container_id: string): Promise<UniResponse<null>> => {
-        const res = await admin_api.post(`/docker/containers/${container_id}/start`);
+    startContainer: async (
+        container_id: string,
+    ): Promise<UniResponse<null>> => {
+        const res = await admin_api.post(
+            `/docker/containers/${container_id}/start`,
+        );
         return res.data;
     },
-    deleteContainer: async (container_id: string): Promise<UniResponse<null>> => {
-        const res = await admin_api.delete(`/docker/containers/${container_id}`);
+    deleteContainer: async (
+        container_id: string,
+    ): Promise<UniResponse<null>> => {
+        const res = await admin_api.delete(
+            `/docker/containers/${container_id}`,
+        );
         return res.data;
     },
     fetchImages: async (
