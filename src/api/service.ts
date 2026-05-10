@@ -199,12 +199,8 @@ export const eventServiceApi = {
         const res = await service_api.get(`/events/${event_id}/announcements`);
         return res.data;
     },
-    getWriteUpCreatedDate: async (
-        event_id: string,
-    ): Promise<UniResponse<string>> => {
-        const res = await service_api.get(
-            `/events/${event_id}/submit_wp_status`,
-        );
+    getOwnWp: async (event_id: string): Promise<UniResponse<string | null>> => {
+        const res = await service_api.get(`/events/${event_id}/own_wp`);
         return res.data;
     },
 };

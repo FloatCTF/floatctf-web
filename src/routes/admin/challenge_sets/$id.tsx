@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { adminApi } from "@/api";
 import { GenericTable, useMsgBanner } from "@/components";
+import { DatetimeToShow } from "@/util";
 import type { Challenges } from "@/entity";
 import { AdminRouteGuard } from "@/routes/admin/route";
 import { useSelectedRowIds } from "@/util";
@@ -46,7 +47,7 @@ function RouteComponent() {
             header: "Updated At",
             field: "updated_at",
             renderCell: (row: Challenges) => {
-                return <span>{row.updated_at}</span>;
+                return <span>{DatetimeToShow(row.updated_at)}</span>;
             },
         },
     ];

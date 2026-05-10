@@ -3,10 +3,20 @@ import { GenericTable } from "@/components";
 import type { ScheduledTasks } from "@/entity";
 import { DatetimeToShow } from "@/util";
 import dayjs from "dayjs";
-import { CheckIcon, XIcon } from "@primer/octicons-react";
-import { Label, Select, Stack, TextInput, ToggleSwitch } from "@primer/react";
+import { CheckIcon, XIcon, PlayIcon } from "@primer/octicons-react";
+import {
+    ActionList,
+    ConfirmationDialog,
+    Label,
+    Select,
+    Stack,
+    TextInput,
+    ToggleSwitch,
+} from "@primer/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useReactive } from "ahooks";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminRouteGuard } from "./route";
 
 export const Route = createFileRoute("/admin/scheduled_tasks")({
@@ -178,12 +188,17 @@ function RouteComponent() {
                     step="1"
                     value={
                         mutationTask.execute_at
-                            ? dayjs.utc(mutationTask.execute_at).local().format("YYYY-MM-DDTHH:mm:ss")
+                            ? dayjs
+                                  .utc(mutationTask.execute_at)
+                                  .local()
+                                  .format("YYYY-MM-DDTHH:mm:ss")
                             : ""
                     }
                     onChange={(e) => {
                         const localTime = dayjs(e.target.value);
-                        const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss[Z]");
+                        const utcTime = localTime
+                            .utc()
+                            .format("YYYY-MM-DDTHH:mm:ss[Z]");
                         mutationTask.execute_at = utcTime || undefined;
                     }}
                 />
@@ -198,12 +213,17 @@ function RouteComponent() {
                     step="1"
                     value={
                         mutationTask.expires_at
-                            ? dayjs.utc(mutationTask.expires_at).local().format("YYYY-MM-DDTHH:mm:ss")
+                            ? dayjs
+                                  .utc(mutationTask.expires_at)
+                                  .local()
+                                  .format("YYYY-MM-DDTHH:mm:ss")
                             : ""
                     }
                     onChange={(e) => {
                         const localTime = dayjs(e.target.value);
-                        const utcTime = localTime.utc().format("YYYY-MM-DDTHH:mm:ss[Z]");
+                        const utcTime = localTime
+                            .utc()
+                            .format("YYYY-MM-DDTHH:mm:ss[Z]");
                         mutationTask.expires_at = utcTime || undefined;
                     }}
                 />
@@ -263,17 +283,70 @@ function RouteComponent() {
         "protected",
     ];
 
+    const queryClient = useQueryClient();
+    const [runConfirmOpen, setRunConfirmOpen] = useState(false);
+    const [runTargetTask, setRunTargetTask] = useState<ScheduledTasks | null>(
+        null,
+    );
+
+    const runMutation = useMutation({
+        mutationFn: (task_id: string) => adminApi.scheduled_tasks.run(task_id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["ScheduledTasks"] });
+            setRunConfirmOpen(false);
+            setRunTargetTask(null);
+        },
+    });
+
+    const columnActions = (row: ScheduledTasks) => (
+        <ActionList>
+            <ActionList.Item
+                onClick={() => {
+                    setRunTargetTask(row);
+                    setRunConfirmOpen(true);
+                }}
+            >
+                <ActionList.LeadingVisual>
+                    <PlayIcon />
+                </ActionList.LeadingVisual>
+                Run once
+            </ActionList.Item>
+        </ActionList>
+    );
+
     return (
-        <GenericTable
-            subject={subject}
-            columns={columns}
-            queryFn={adminApi.scheduled_tasks.fetch}
-            createFn={adminApi.scheduled_tasks.create}
-            removeFn={adminApi.scheduled_tasks.remove}
-            patchFn={adminApi.scheduled_tasks.patch}
-            mutationColumns={mutationColumns}
-            mutationData={mutationTask}
-            filterKeys={filterKeys}
-        />
+        <>
+            <GenericTable
+                subject={subject}
+                columns={columns}
+                queryFn={adminApi.scheduled_tasks.fetch}
+                createFn={adminApi.scheduled_tasks.create}
+                removeFn={adminApi.scheduled_tasks.remove}
+                patchFn={adminApi.scheduled_tasks.patch}
+                mutationColumns={mutationColumns}
+                mutationData={mutationTask}
+                filterKeys={filterKeys}
+                columnActions={columnActions}
+            />
+
+            {runConfirmOpen && runTargetTask && (
+                <ConfirmationDialog
+                    onClose={(gesture) => {
+                        if (gesture === "confirm") {
+                            runMutation.mutate(runTargetTask.id);
+                        } else {
+                            setRunConfirmOpen(false);
+                            setRunTargetTask(null);
+                        }
+                    }}
+                    title="Run Task"
+                    confirmButtonContent="Run"
+                    cancelButtonContent="Cancel"
+                >
+                    Are you sure you want to run task "{runTargetTask.task_name}
+                    " now?
+                </ConfirmationDialog>
+            )}
+        </>
     );
 }
