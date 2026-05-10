@@ -584,6 +584,10 @@ export const scheduledTaskAdminApi = {
         });
         return res.data;
     },
+    run: async (task_id: string): Promise<UniResponse<ScheduledTasks>> => {
+        const res = await admin_api.post(`/scheduled_tasks/${task_id}/run`);
+        return res.data;
+    },
 };
 
 export const weaponsAdminApi = {
