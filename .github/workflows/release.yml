@@ -1,4 +1,4 @@
-name: Frontend Release
+name: Release
 
 on:
   push:
@@ -27,49 +27,25 @@ jobs:
         uses: actions/checkout@v4
 
       # =========================
-      # Node + pnpm（最稳组合）
+      # Node + npm（官方原生，最稳组合）
       # =========================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
-      - name: Enable corepack (fix pnpm missing issue)
-        run: corepack enable
-
-      - name: Activate pnpm
-        run: corepack prepare pnpm@10 --activate
-
-      - name: Verify pnpm
-        run: pnpm -v
-
-      # =========================
-      # pnpm cache
-      # =========================
-      - name: Get pnpm store path
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+          cache: npm
+          # 确保这里指向的是 package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       # =========================
       # install & build
       # =========================
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # 使用 npm ci 替代 npm install，能严格按照 lock 文件安装，速度更快且更稳定
+        run: npm ci
 
       - name: Build frontend
-        run: pnpm build
+        run: npm run build
 
       # =========================
       # package
