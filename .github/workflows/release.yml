@@ -26,19 +26,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # =========================
+      # Node + pnpm（最稳组合）
+      # =========================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "pnpm"
+          cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
+      - name: Enable corepack (fix pnpm missing issue)
+        run: corepack enable
 
+      - name: Activate pnpm
+        run: corepack prepare pnpm@10 --activate
+
+      - name: Verify pnpm
+        run: pnpm -v
+
+      # =========================
+      # pnpm cache
+      # =========================
       - name: Get pnpm store path
         id: pnpm-cache
         shell: bash
@@ -53,20 +62,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
+      # =========================
+      # install & build
+      # =========================
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build frontend
         run: pnpm build
 
+      # =========================
+      # package
+      # =========================
       - name: Archive frontend
         run: |
           cd dist
           tar -czf ../../html.tar.gz .
 
+      # =========================
+      # release
+      # =========================
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag || github.ref_name }}
           generate_release_notes: true
-          files: frontend-dist.tar.gz
+          files: html.tar.gz
