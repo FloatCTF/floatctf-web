@@ -12,6 +12,7 @@ import {
     NoteIcon,
     PasskeyFillIcon,
     PersonIcon,
+    ShieldLockIcon,
     TasklistIcon,
     TelescopeIcon,
     TerminalIcon,
@@ -22,6 +23,11 @@ import {
 
 export const admin_routes: NavRoute[] = [
     { label: "Dashboard", path: "/admin/dashboard", icon: <GoalIcon /> },
+    {
+        label: "Super Admins",
+        path: "/admin/super_admins",
+        icon: <ShieldLockIcon />,
+    },
     {
         label: "Users",
         path: "/admin/users",
@@ -55,6 +61,7 @@ export const admin_routes: NavRoute[] = [
         path: "/admin/announcements",
         icon: <MegaphoneIcon />,
     },
+
     {
         label: "Discussions",
         path: "/admin/discussions",

@@ -6,6 +6,7 @@ import {
     databaseAdminApi,
     discussionAdminApi,
     dockerAdminApi,
+    superAdminApi,
     downloadAdminApi,
     eventAdminApi,
     eventLogAdminApi,
@@ -63,6 +64,7 @@ export const adminApi = {
     logs: logsAdminApi,
     download: downloadAdminApi,
     docker: dockerAdminApi,
+    super_admin: superAdminApi,
 };
 
 export const serviceApi = {

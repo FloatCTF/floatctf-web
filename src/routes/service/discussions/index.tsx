@@ -104,6 +104,7 @@ function RouteComponent() {
 
     return (
         <GenericTable
+            className="mt-2"
             subject={subject}
             columns={columns}
             queryFn={serviceApi.discussions.fetch}
