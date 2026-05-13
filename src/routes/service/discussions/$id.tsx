@@ -1,5 +1,5 @@
 import { ThumbsupIcon, CommentIcon, EyeIcon } from "@primer/octicons-react";
-import { Avatar, Button, Textarea } from "@primer/react";
+import { Avatar, Button } from "@primer/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
@@ -52,17 +52,43 @@ function buildCommentTree(
     return roots;
 }
 
+function AvatarOrFallback({
+    src,
+    name,
+    size,
+}: {
+    src?: string;
+    name: string;
+    size: number;
+}) {
+    if (src) return <Avatar src={src} size={size} />;
+    return (
+        <div
+            className="shrink-0 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium"
+            style={{
+                width: size,
+                height: size,
+                fontSize: size * 0.4,
+            }}
+        >
+            {name?.[0]?.toUpperCase() || "?"}
+        </div>
+    );
+}
+
 function CommentItem({
     comment,
     discussionId,
     currentUserId,
+    parentNickname,
     onReply,
     onDelete,
 }: {
     comment: CommentWithReplies;
     discussionId: string;
     currentUserId?: string;
-    onReply: (parentId: string, content: string, parentContent: string) => void;
+    parentNickname?: string;
+    onReply: (parentId: string, content: string) => void;
     onDelete: (commentId: string) => void;
 }) {
     const [showReply, setShowReply] = useState(false);
@@ -74,89 +100,113 @@ function CommentItem({
             banner.showBanner("critical", "Reply content cannot be empty");
             return;
         }
-        onReply(comment.id, replyContent, comment.content);
+        onReply(comment.id, replyContent);
         setReplyContent("");
         setShowReply(false);
     };
 
+    const authorName = comment.author_nickname || comment.author_id;
+
     return (
-        <div className="border rounded p-3 mb-2 bg-white">
-            <div className="flex items-center gap-2 mb-2">
-                {comment.author_avatar ? (
-                    <Avatar src={comment.author_avatar} size={24} />
-                ) : (
-                    <div
-                        className="shrink-0 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium"
-                        style={{ width: 24, height: 24, fontSize: 10 }}
-                    >
-                        {comment.author_nickname?.[0]?.toUpperCase() || "?"}
+        <div className="border border-gray-200 rounded-md">
+            {/* Header */}
+            <div className="flex items-start gap-3 p-3 pb-0">
+                <AvatarOrFallback
+                    src={comment.author_avatar}
+                    name={authorName}
+                    size={32}
+                />
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">
+                            {authorName}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                            {DatetimeToShow(comment.created_at)}
+                        </span>
+                        {currentUserId === comment.author_id && (
+                            <Button
+                                size="small"
+                                variant="danger"
+                                onClick={() => onDelete(comment.id)}
+                            >
+                                Delete
+                            </Button>
+                        )}
                     </div>
-                )}
-                <span className="font-medium">
-                    {comment.author_nickname || comment.author_id}
-                </span>
-                <span className="text-gray-500 text-sm">
-                    {DatetimeToShow(comment.created_at)}
-                </span>
-                {currentUserId === comment.author_id && (
-                    <Button
-                        size="small"
-                        variant="danger"
-                        onClick={() => onDelete(comment.id)}
-                    >
-                        Delete
-                    </Button>
+                    {parentNickname && (
+                        <div className="text-xs text-gray-400 mt-0.5">
+                            Replying to{" "}
+                            <span className="font-medium text-gray-500">
+                                @{parentNickname}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Body */}
+            <div className="px-3 pt-1 pb-2">
+                <div className="ml-[44px] prose max-w-none text-sm">
+                    <MDEditor.Markdown source={comment.content} />
+                </div>
+            </div>
+
+            {/* Actions */}
+            <div className="ml-[44px] px-3 pb-3 flex items-center gap-3 border-t border-gray-100 pt-2">
+                <Button size="small" onClick={() => setShowReply(!showReply)}>
+                    Reply
+                </Button>
+                {comment.replies.length > 0 && (
+                    <span className="text-xs text-gray-400">
+                        {comment.replies.length}{" "}
+                        {comment.replies.length === 1 ? "reply" : "replies"}
+                    </span>
                 )}
             </div>
-            <div className="pl-8 border-l-2 border-gray-200">
-                {comment.parent_id && (
-                    <div className="text-sm text-gray-500 mb-1 italic">
-                        Replying to a comment
-                    </div>
-                )}
-                <p className="whitespace-pre-wrap">{comment.content}</p>
 
-                <div className="mt-2 flex gap-2">
-                    <Button
-                        size="small"
-                        onClick={() => setShowReply(!showReply)}
-                    >
-                        Reply
-                    </Button>
-                    <span className="text-sm text-gray-500 self-center">
-                        {comment.replies.length} replies
-                    </span>
-                </div>
-
-                {showReply && (
-                    <div className="mt-2 flex flex-col gap-2">
-                        <Textarea
-                            value={replyContent}
-                            onChange={(e) => setReplyContent(e.target.value)}
-                            placeholder="Write your reply..."
-                            rows={3}
-                        />
+            {/* Reply form */}
+            {showReply && (
+                <div className="ml-[44px] px-3 pb-3 flex flex-col gap-2">
+                    <MDPlusEditor
+                        height={200}
+                        value={replyContent}
+                        setValue={setReplyContent}
+                    />
+                    <div className="flex gap-2">
                         <Button
                             size="small"
                             variant="primary"
                             onClick={submitReply}
                         >
-                            Submit Reply
+                            Comment
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => setShowReply(false)}
+                        >
+                            Cancel
                         </Button>
                     </div>
-                )}
+                </div>
+            )}
 
-                {comment.replies.map((reply) => (
-                    <CommentItem
-                        key={reply.id}
-                        comment={reply}
-                        discussionId={discussionId}
-                        currentUserId={currentUserId}
-                        onReply={onReply}
-                        onDelete={onDelete}
-                    />
-                ))}
-            </div>
+            {/* Threaded replies */}
+            {comment.replies.length > 0 && (
+                <div className="ml-[44px] border-l-2 border-gray-100 pl-4 pr-3 pb-3 space-y-2">
+                    {comment.replies.map((reply) => (
+                        <CommentItem
+                            key={reply.id}
+                            comment={reply}
+                            discussionId={discussionId}
+                            currentUserId={currentUserId}
+                            parentNickname={authorName}
+                            onReply={onReply}
+                            onDelete={onDelete}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -267,11 +317,7 @@ function RouteComponent() {
         setNewComment("");
     };
 
-    const handleReply = (
-        parentId: string,
-        content: string,
-        _parentContent: string,
-    ) => {
+    const handleReply = (parentId: string, content: string) => {
         createCommentMutation.mutate({ content, parent_id: parentId });
     };
 
@@ -357,15 +403,14 @@ function RouteComponent() {
                     <div className="border-top my-2" />
 
                     {isAuthor ? <banner.BannerComponent /> : null}
-
-                    {/* 👇 这里是修复的地方 👇 */}
                     {isAuthor ? (
                         <div
-                            id="-wp"
-                            className="w-full [&_.w-md-editor-show-preview_.w-md-editor-content]:!h-auto [&_.w-md-editor-show-preview_.w-md-editor-preview]:!static [&_.w-md-editor-show-preview_.w-md-editor-preview]:!h-auto [&_.w-md-editor-show-preview_.w-md-editor-preview]:!overflow-visible"
+                            key={editorKey}
+                            className="min-h-[400px] flex flex-col"
                         >
                             <MDPlusEditor
-                                height={"auto"}
+                                className="flex-1 min-h-0"
+                                height={400}
                                 value={editContent}
                                 setValue={setEditContent}
                                 onSave={() => {
@@ -381,18 +426,18 @@ function RouteComponent() {
                             <MDEditor.Markdown source={discussion.content} />
                         </div>
                     )}
-                    {/* 👆 这里是修复的地方 👆 */}
 
                     <div className="border-top my-4" />
 
-                    <h3 className="text-lg font-semibold">Comments</h3>
+                    <h3 className="text-lg font-semibold">
+                        Comments ({comments.length})
+                    </h3>
 
                     <div className="mb-4">
-                        <Textarea
+                        <MDPlusEditor
+                            height={200}
                             value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="Write a comment..."
-                            rows={4}
+                            setValue={setNewComment}
                         />
                         <Button
                             className="mt-2"
@@ -400,11 +445,11 @@ function RouteComponent() {
                             onClick={handlePostComment}
                             disabled={createCommentMutation.isPending}
                         >
-                            Post Comment
+                            Comment
                         </Button>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                         {commentTree.map((comment) => (
                             <CommentItem
                                 key={comment.id}

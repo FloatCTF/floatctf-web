@@ -1,3 +1,4 @@
+import { ThumbsupIcon, CommentIcon, EyeIcon } from "@primer/octicons-react";
 import { Avatar } from "@primer/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
@@ -27,7 +28,7 @@ function RouteComponent() {
                         <Avatar src={row.author_avatar} size={24} />
                     ) : (
                         <div
-                            className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                            className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium shrink-0"
                             style={{ width: 24, height: 24, fontSize: 10 }}
                         >
                             {row.author_nickname?.[0]?.toUpperCase() || "?"}
@@ -57,18 +58,36 @@ function RouteComponent() {
             header: "Views",
             field: "view_count",
             sortBy: true,
+            renderCell: (row: Discussions) => (
+                <span className="flex items-center gap-1">
+                    <EyeIcon size={14} />
+                    {row.view_count}
+                </span>
+            ),
         },
         {
             accessorKey: "like_count",
             header: "Likes",
             field: "like_count",
             sortBy: true,
+            renderCell: (row: Discussions) => (
+                <span className="flex items-center gap-1">
+                    <ThumbsupIcon size={14} />
+                    {row.like_count}
+                </span>
+            ),
         },
         {
             accessorKey: "comment_count",
             header: "Comments",
             field: "comment_count",
             sortBy: true,
+            renderCell: (row: Discussions) => (
+                <span className="flex items-center gap-1">
+                    <CommentIcon size={14} />
+                    {row.comment_count}
+                </span>
+            ),
         },
         {
             accessorKey: "created_at",
