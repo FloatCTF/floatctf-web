@@ -25,7 +25,6 @@ interface CodeProps {
     inline?: boolean;
     children?: ReactNode;
     className?: string;
-    // rehype 的 node 节点（any 类型，因为库里没给完整类型定义）
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     node?: any;
 }
@@ -82,6 +81,7 @@ export interface MDPlusEditorProps {
     value: string;
     setValue: (value: string) => void;
     className?: string;
+    height?: any;
     onSave?: () => void;
 }
 
@@ -89,6 +89,7 @@ export const MDPlusEditor = ({
     value,
     setValue,
     className,
+    height,
     onSave,
 }: MDPlusEditorProps) => {
     const editorRef = useRef<HTMLTextAreaElement | null>(null);
@@ -204,12 +205,11 @@ export const MDPlusEditor = ({
             const items = event.clipboardData.items;
             for (const item of items) {
                 if (item.type.startsWith("image/")) {
-                    event.preventDefault(); // 阻止默认粘贴行为
+                    event.preventDefault();
                     const file = item.getAsFile();
                     if (!file) return;
 
                     try {
-                        // 调用外部上传函数
                         const url =
                             await uploadsServiceApi.upload_image?.(file);
 
@@ -241,6 +241,8 @@ export const MDPlusEditor = ({
     return (
         <MDEditor
             className={className}
+            height={height}
+            minHeight={300}
             value={value}
             onChange={(newValue = "") => setValue(newValue)}
             extraCommands={[

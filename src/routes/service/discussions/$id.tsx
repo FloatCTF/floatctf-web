@@ -4,10 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
 import { useTitle } from "ahooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { serviceApi } from "@/api";
-import { useMsgBanner } from "@/components";
+import { MDPlusEditor, useMsgBanner } from "@/components";
 import type { DiscussionComments, Discussions } from "@/entity";
 import { DatetimeToShow } from "@/util";
 
@@ -180,6 +180,28 @@ function RouteComponent() {
         select: (res) => res.data,
     });
     const currentUserId = meData?.id;
+    const isAuthor = currentUserId === discussion?.author_id;
+
+    const [editContent, setEditContent] = useState(discussion?.content || "");
+    const [editorKey, setEditorKey] = useState(0);
+    useEffect(() => {
+        if (discussion?.content != null) {
+            setEditContent(discussion.content);
+            setEditorKey((k) => k + 1);
+        }
+    }, [discussion?.content]);
+
+    const patchMutation = useMutation({
+        mutationFn: (data: Partial<Discussions>) =>
+            serviceApi.discussions.patch(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["discussion", id] });
+            banner.showBanner("success", "Discussion updated");
+        },
+        onError: () => {
+            banner.showBanner("critical", "Failed to update discussion");
+        },
+    });
 
     const { data: commentsData, refetch: refetchComments } = useQuery({
         queryKey: ["discussion-comments", id],
@@ -334,9 +356,32 @@ function RouteComponent() {
 
                     <div className="border-top my-2" />
 
-                    <div className="prose max-w-none">
-                        <MDEditor.Markdown source={discussion.content} />
-                    </div>
+                    {isAuthor ? <banner.BannerComponent /> : null}
+
+                    {/* 👇 这里是修复的地方 👇 */}
+                    {isAuthor ? (
+                        <div
+                            id="-wp"
+                            className="w-full [&_.w-md-editor-show-preview_.w-md-editor-content]:!h-auto [&_.w-md-editor-show-preview_.w-md-editor-preview]:!static [&_.w-md-editor-show-preview_.w-md-editor-preview]:!h-auto [&_.w-md-editor-show-preview_.w-md-editor-preview]:!overflow-visible"
+                        >
+                            <MDPlusEditor
+                                height={"auto"}
+                                value={editContent}
+                                setValue={setEditContent}
+                                onSave={() => {
+                                    patchMutation.mutate({
+                                        id,
+                                        content: editContent,
+                                    });
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <div className="prose max-w-none">
+                            <MDEditor.Markdown source={discussion.content} />
+                        </div>
+                    )}
+                    {/* 👆 这里是修复的地方 👆 */}
 
                     <div className="border-top my-4" />
 
