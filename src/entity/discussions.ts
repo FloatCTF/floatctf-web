@@ -5,6 +5,7 @@ export type Discussions = {
     author_id: string;
     author_nickname: string;
     author_avatar?: string;
+    is_liked: boolean;
     view_count: number;
     like_count: number;
     comment_count: number;

@@ -1,7 +1,7 @@
 import { ThumbsupIcon, CommentIcon, EyeIcon } from "@primer/octicons-react";
 import { Avatar, Button, Textarea } from "@primer/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import MDEditor from "@uiw/react-md-editor";
 import { useTitle } from "ahooks";
 import { useState } from "react";
@@ -40,7 +40,6 @@ function buildCommentTree(
         }
     });
 
-    // Sort by reply count descending
     roots.sort((a, b) => b.replies.length - a.replies.length);
     roots.forEach((r) => {
         r.replies.sort(
@@ -87,7 +86,7 @@ function CommentItem({
                     <Avatar src={comment.author_avatar} size={24} />
                 ) : (
                     <div
-                        className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                        className="shrink-0 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium"
                         style={{ width: 24, height: 24, fontSize: 10 }}
                     >
                         {comment.author_nickname?.[0]?.toUpperCase() || "?"}
@@ -165,11 +164,8 @@ function CommentItem({
 function RouteComponent() {
     const params = Route.useParams();
     const id = params.id!;
-    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const banner = useMsgBanner();
-
-    const [hasLiked, setHasLiked] = useState(false);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["discussion", id],
@@ -195,7 +191,6 @@ function RouteComponent() {
     const likeMutation = useMutation({
         mutationFn: () => serviceApi.discussions.like(id),
         onSuccess: () => {
-            setHasLiked(true);
             queryClient.invalidateQueries({ queryKey: ["discussion", id] });
         },
         onError: () => {
@@ -206,7 +201,6 @@ function RouteComponent() {
     const unlikeMutation = useMutation({
         mutationFn: () => serviceApi.discussions.unlike(id),
         onSuccess: () => {
-            setHasLiked(false);
             queryClient.invalidateQueries({ queryKey: ["discussion", id] });
         },
         onError: () => {
@@ -235,13 +229,6 @@ function RouteComponent() {
         },
         onError: () => {
             banner.showBanner("critical", "Failed to delete comment");
-        },
-    });
-
-    const deleteDiscussionMutation = useMutation({
-        mutationFn: () => serviceApi.discussions.remove(id),
-        onSuccess: () => {
-            navigate({ to: "/service/discussions" });
         },
     });
 
@@ -278,12 +265,6 @@ function RouteComponent() {
         unlikeMutation.mutate();
     };
 
-    const handleDeleteDiscussion = () => {
-        if (confirm("Are you sure you want to delete this discussion?")) {
-            deleteDiscussionMutation.mutate();
-        }
-    };
-
     if (isLoading) {
         return <div className="p-8">Loading...</div>;
     }
@@ -302,27 +283,14 @@ function RouteComponent() {
         <div className="h-full flex flex-col">
             <div className="flex-1 overflow-auto">
                 <div className="flex flex-col pt-3 px-8 gap-3">
-                    <div className="flex justify-between items-start">
-                        <h2 className="text-xl font-bold">
-                            {discussion.title}
-                        </h2>
-                        {currentUserId === discussion.author_id && (
-                            <Button
-                                size="small"
-                                variant="danger"
-                                onClick={handleDeleteDiscussion}
-                            >
-                                Delete Discussion
-                            </Button>
-                        )}
-                    </div>
+                    <h2 className="text-xl font-bold">{discussion.title}</h2>
 
                     <div className="flex items-center gap-3">
                         {discussion.author_avatar ? (
                             <Avatar src={discussion.author_avatar} size={32} />
                         ) : (
                             <div
-                                className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                                className="shrink-0 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium"
                                 style={{ width: 32, height: 32, fontSize: 14 }}
                             >
                                 {discussion.author_nickname?.[0]?.toUpperCase() ||
@@ -344,34 +312,24 @@ function RouteComponent() {
                             <EyeIcon size={16} />
                             {discussion.view_count} views
                         </span>
-                        <span className="flex items-center gap-1">
-                            <ThumbsupIcon size={16} />
+                        <span
+                            className="flex items-center gap-1 cursor-pointer select-none"
+                            onClick={
+                                discussion.is_liked ? handleUnlike : handleLike
+                            }
+                        >
+                            <ThumbsupIcon
+                                size={16}
+                                className={
+                                    discussion.is_liked ? "text-[#1a7f37]" : ""
+                                }
+                            />
                             {discussion.like_count} likes
                         </span>
                         <span className="flex items-center gap-1">
                             <CommentIcon size={16} />
                             {discussion.comment_count} comments
                         </span>
-                    </div>
-
-                    <div className="flex gap-2">
-                        {hasLiked ? (
-                            <Button
-                                size="small"
-                                variant="danger"
-                                onClick={handleUnlike}
-                            >
-                                Unlike
-                            </Button>
-                        ) : (
-                            <Button
-                                size="small"
-                                variant="primary"
-                                onClick={handleLike}
-                            >
-                                Like
-                            </Button>
-                        )}
                     </div>
 
                     <div className="border-top my-2" />
