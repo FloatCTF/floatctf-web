@@ -32,7 +32,16 @@ function RouteComponent() {
             field: "author_nickname",
             renderCell: (row: Discussions) => (
                 <div className="flex items-center gap-2">
-                    <Avatar src={row.author_avatar || ""} size={24} />
+                    {row.author_avatar ? (
+                        <Avatar src={row.author_avatar} size={24} />
+                    ) : (
+                        <div
+                            className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                            style={{ width: 24, height: 24, fontSize: 10 }}
+                        >
+                            {row.author_nickname?.[0]?.toUpperCase() || "?"}
+                        </div>
+                    )}
                     <span>{row.author_nickname}</span>
                 </div>
             ),

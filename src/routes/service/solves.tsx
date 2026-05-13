@@ -1,3 +1,4 @@
+import { Avatar } from "@primer/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useTitle } from "ahooks";
 
@@ -14,6 +15,26 @@ function RouteComponent() {
     useTitle("Solves | FloatCTF");
     const columns = [
         { accessorKey: "id", header: "ID", field: "id", rowHeader: true },
+        {
+            accessorKey: "nickname",
+            header: "User",
+            field: "nickname",
+            renderCell: (row: ChallengeSolves) => (
+                <div className="flex items-center gap-2">
+                    {row.avatar ? (
+                        <Avatar src={row.avatar} size={24} />
+                    ) : (
+                        <div
+                            className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                            style={{ width: 24, height: 24, fontSize: 10 }}
+                        >
+                            {row.nickname?.[0]?.toUpperCase() || "?"}
+                        </div>
+                    )}
+                    <span>{row.nickname}</span>
+                </div>
+            ),
+        },
         {
             accessorKey: "challenge_id",
             header: "Challenge ID",

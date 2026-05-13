@@ -83,7 +83,16 @@ function CommentItem({
     return (
         <div className="border rounded p-3 mb-2 bg-white">
             <div className="flex items-center gap-2 mb-2">
-                <Avatar src={comment.author_avatar || ""} size={24} />
+                {comment.author_avatar ? (
+                    <Avatar src={comment.author_avatar} size={24} />
+                ) : (
+                    <div
+                        className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                        style={{ width: 24, height: 24, fontSize: 10 }}
+                    >
+                        {comment.author_nickname?.[0]?.toUpperCase() || "?"}
+                    </div>
+                )}
                 <span className="font-medium">
                     {comment.author_nickname || comment.author_id}
                 </span>
@@ -309,10 +318,17 @@ function RouteComponent() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Avatar
-                            src={discussion.author_avatar || ""}
-                            size={32}
-                        />
+                        {discussion.author_avatar ? (
+                            <Avatar src={discussion.author_avatar} size={32} />
+                        ) : (
+                            <div
+                                className="flex items-center justify-center rounded-full bg-gray-200 text-gray-500 font-medium flex-shrink-0"
+                                style={{ width: 32, height: 32, fontSize: 14 }}
+                            >
+                                {discussion.author_nickname?.[0]?.toUpperCase() ||
+                                    "?"}
+                            </div>
+                        )}
                         <div>
                             <span className="font-medium">
                                 {discussion.author_nickname}
