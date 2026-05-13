@@ -76,10 +76,53 @@ function AvatarOrFallback({
     );
 }
 
+function CommentEditor({
+    value,
+    setValue,
+    avatar,
+    nickname,
+    onSubmit,
+    onCancel,
+    submitLabel,
+}: {
+    value: string;
+    setValue: (v: string) => void;
+    avatar?: string;
+    nickname: string;
+    onSubmit: () => void;
+    onCancel?: () => void;
+    submitLabel?: string;
+}) {
+    return (
+        <div className="flex items-start gap-3">
+            <AvatarOrFallback src={avatar} name={nickname} size={32} />
+            <div className="flex-1 flex flex-col gap-2">
+                <div className="text-xs text-gray-500 font-medium">
+                    Comment as{" "}
+                    <span className="text-gray-700">@{nickname}</span>
+                </div>
+                <MDPlusEditor height={200} value={value} setValue={setValue} />
+                <div className="flex gap-2">
+                    <Button size="small" variant="primary" onClick={onSubmit}>
+                        {submitLabel || "Comment"}
+                    </Button>
+                    {onCancel && (
+                        <Button size="small" onClick={onCancel}>
+                            Cancel
+                        </Button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function CommentItem({
     comment,
     discussionId,
     currentUserId,
+    meAvatar,
+    meNickname,
     parentNickname,
     onReply,
     onDelete,
@@ -87,6 +130,8 @@ function CommentItem({
     comment: CommentWithReplies;
     discussionId: string;
     currentUserId?: string;
+    meAvatar?: string;
+    meNickname: string;
     parentNickname?: string;
     onReply: (parentId: string, content: string) => void;
     onDelete: (commentId: string) => void;
@@ -167,27 +212,15 @@ function CommentItem({
 
             {/* Reply form */}
             {showReply && (
-                <div className="ml-[44px] px-3 pb-3 flex flex-col gap-2">
-                    <MDPlusEditor
-                        height={200}
+                <div className="ml-[44px] px-3 pb-3">
+                    <CommentEditor
                         value={replyContent}
                         setValue={setReplyContent}
+                        avatar={meAvatar}
+                        nickname={meNickname}
+                        onSubmit={submitReply}
+                        onCancel={() => setShowReply(false)}
                     />
-                    <div className="flex gap-2">
-                        <Button
-                            size="small"
-                            variant="primary"
-                            onClick={submitReply}
-                        >
-                            Comment
-                        </Button>
-                        <Button
-                            size="small"
-                            onClick={() => setShowReply(false)}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
                 </div>
             )}
 
@@ -200,6 +233,8 @@ function CommentItem({
                             comment={reply}
                             discussionId={discussionId}
                             currentUserId={currentUserId}
+                            meAvatar={meAvatar}
+                            meNickname={meNickname}
                             parentNickname={authorName}
                             onReply={onReply}
                             onDelete={onDelete}
@@ -230,6 +265,8 @@ function RouteComponent() {
         select: (res) => res.data,
     });
     const currentUserId = meData?.id;
+    const meNickname = meData?.nickname || "";
+    const meAvatar = meData?.avatar;
     const isAuthor = currentUserId === discussion?.author_id;
 
     const [editContent, setEditContent] = useState(discussion?.content || "");
@@ -434,19 +471,13 @@ function RouteComponent() {
                     </h3>
 
                     <div className="mb-4">
-                        <MDPlusEditor
-                            height={200}
+                        <CommentEditor
                             value={newComment}
                             setValue={setNewComment}
+                            avatar={meAvatar}
+                            nickname={meNickname}
+                            onSubmit={handlePostComment}
                         />
-                        <Button
-                            className="mt-2"
-                            variant="primary"
-                            onClick={handlePostComment}
-                            disabled={createCommentMutation.isPending}
-                        >
-                            Comment
-                        </Button>
                     </div>
 
                     <div className="flex flex-col gap-3">
@@ -456,6 +487,8 @@ function RouteComponent() {
                                 comment={comment}
                                 discussionId={id}
                                 currentUserId={currentUserId}
+                                meAvatar={meAvatar}
+                                meNickname={meNickname}
                                 onReply={handleReply}
                                 onDelete={handleDeleteComment}
                             />
