@@ -12,7 +12,7 @@ export const Route = createFileRoute("/admin/events/awd/$id/logs")({
 });
 
 const levelToVariant = (level: string) => {
-    switch (level) {
+    switch (level.toLowerCase()) {
         case "info":
             return "accent";
         case "warn":
@@ -59,6 +59,9 @@ function RouteComponent() {
             accessorKey: "details",
             header: "Details",
             field: "details",
+            renderCell: (row: EventLogs) => (
+                <span>{typeof row.details === "object" ? JSON.stringify(row.details) : String(row.details)}</span>
+            ),
         },
         {
             accessorKey: "ip_address",

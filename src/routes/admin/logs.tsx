@@ -12,7 +12,7 @@ export const Route = createFileRoute("/admin/logs")({
 });
 
 const levelToVariant = (level: string) => {
-    switch (level) {
+    switch (level.toLowerCase()) {
         case "info":
             return "accent";
         case "warn":
@@ -73,6 +73,9 @@ function RouteComponent() {
             accessorKey: "details",
             header: "Details",
             field: "details",
+            renderCell: (row: Logs) => (
+                <span>{typeof row.details === "object" ? JSON.stringify(row.details) : row.details}</span>
+            ),
         },
         {
             accessorKey: "created_at",
