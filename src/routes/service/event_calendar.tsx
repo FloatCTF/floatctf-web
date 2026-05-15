@@ -29,8 +29,8 @@ interface FullCalendarEvent {
     extendedProps: CalendarEvent;
 }
 
-const INTERNAL_COLOR = "#0969da";
-const CTFTIME_COLOR = "#1a7f37";
+const INTERNAL_COLOR = "#1a7f37";
+const CTFTIME_COLOR = "#0969da";
 const ENDED_COLOR = "#656d76";
 
 function toFullCalendarEvents(items: CalendarEvent[]): FullCalendarEvent[] {
