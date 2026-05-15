@@ -22,6 +22,7 @@ import type { EventChallengeResult } from "@/routes/service/events/jeopardy.$id/
 import type { EventInstanceResult } from "@/routes/service/events/jeopardy.$id/instances";
 import type { ScoreboardItem } from "@/routes/service/events/jeopardy.$id/scoreboard";
 import type { TrendItem } from "@/routes/service/events/jeopardy.$id/trend";
+import type { CalendarEvent } from "@/entity/event_calendar";
 import type { TopUser } from "@/routes/service/top";
 import { type QueryParams, type UniResponse, service_api } from "./axios";
 
@@ -411,6 +412,13 @@ export const uploadsServiceApi = {
                 "Content-Type": "multipart/form-data",
             },
         });
+        return res.data;
+    },
+};
+
+export const eventCalendarApi = {
+    fetch: async (): Promise<UniResponse<CalendarEvent[]>> => {
+        const res = await service_api.get("/event_calendar");
         return res.data;
     },
 };

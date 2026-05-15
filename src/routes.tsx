@@ -118,6 +118,11 @@ export const service_routes: NavRoute[] = [
         icon: <TelescopeIcon size={18} />,
     },
     {
+        label: "Event Calendar",
+        path: "/service/event_calendar",
+        icon: <ClockIcon size={18} />,
+    },
+    {
         label: "Challenges",
         path: "/service/challenges",
         icon: <ListUnorderedIcon size={18} />,
