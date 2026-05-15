@@ -31,6 +31,7 @@ import {
     announcementServiceApi,
     challengeServiceApi,
     discussionServiceApi,
+    eventCalendarApi,
     eventServiceApi,
     instanceServiceApi,
     solveServiceApi,
@@ -78,4 +79,5 @@ export const serviceApi = {
     announcements: announcementServiceApi,
     discussions: discussionServiceApi,
     uploads: uploadsServiceApi,
+    eventCalendar: eventCalendarApi,
 };
