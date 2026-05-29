@@ -13,6 +13,8 @@ import type {
     EventUsers,
     Events,
     Instances,
+    OobRecords,
+    OobTokens,
     Users,
 } from "@/entity";
 import type { Weapons } from "@/entity/weapons";
@@ -412,6 +414,42 @@ export const uploadsServiceApi = {
                 "Content-Type": "multipart/form-data",
             },
         });
+        return res.data;
+    },
+};
+
+export const oobServiceApi = {
+    createToken: async (data: {
+        name?: string;
+        expires_at?: string;
+    }): Promise<UniResponse<OobTokens>> => {
+        const res = await service_api.post("/oob/tokens", data);
+        return res.data;
+    },
+    fetchTokens: async (
+        params: QueryParams = {},
+    ): Promise<UniResponse<OobTokens[]>> => {
+        const res = await service_api.get("/oob/tokens", { params });
+        return res.data;
+    },
+    patchToken: async (
+        data: Partial<OobTokens>,
+    ): Promise<UniResponse<OobTokens>> => {
+        const res = await service_api.patch(`/oob/tokens/${data.id}`, data);
+        return res.data;
+    },
+    deleteToken: async (id: string): Promise<UniResponse<number>> => {
+        const res = await service_api.delete(`/oob/tokens/${id}`);
+        return res.data;
+    },
+    fetchRecords: async (
+        params: QueryParams & { token_id?: string } = {},
+    ): Promise<UniResponse<OobRecords[]>> => {
+        const res = await service_api.get("/oob/records", { params });
+        return res.data;
+    },
+    deleteRecord: async (id: string): Promise<UniResponse<number>> => {
+        const res = await service_api.delete(`/oob/records/${id}`);
         return res.data;
     },
 };

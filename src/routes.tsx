@@ -19,6 +19,7 @@ import {
     ClockIcon,
     ZapIcon,
     CommentDiscussionIcon,
+    KeyIcon,
 } from "@primer/octicons-react";
 
 export const admin_routes: NavRoute[] = [
@@ -136,6 +137,11 @@ export const service_routes: NavRoute[] = [
         label: "Instances",
         path: "/service/instances",
         icon: <FlameIcon size={18} />,
+    },
+    {
+        label: "OOB",
+        path: "/service/oob",
+        icon: <KeyIcon size={18} />,
     },
     {
         label: "Discussions",

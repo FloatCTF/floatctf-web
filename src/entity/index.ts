@@ -24,5 +24,7 @@ export * from "./challenge_writeup";
 export * from "./event_challenge_solves";
 export * from "./challenge_solves";
 export * from "./logs";
+export * from "./oob_records";
+export * from "./oob_tokens";
 export * from "./discussions";
 export * from "./event_calendar";
