@@ -1,7 +1,7 @@
 /**
- * AWD admin + player API clients (canonical paths).
- * Admin:  /api/admin/awd/...
- * Player: /api/awd/...
+ * AWD admin + player API clients (unified event routes).
+ * Admin:  /api/admin/events/{eventId}/awd/...  (create: POST /api/admin/events/awd)
+ * Player: /api/events/{eventId}/awd/...
  */
 import { type UniResponse, admin_api, service_api } from "@/api/axios";
 
@@ -31,39 +31,39 @@ export type WireGuardConfigResponse = {
 /** Admin AWD lifecycle (SuperAdmin). */
 export const awdAdminApi = {
 	createEvent: async (body: Record<string, unknown>): Promise<UniResponse<string>> => {
-		const res = await admin_api.post("/awd/events", body);
+		const res = await admin_api.post("/events/awd", body);
 		return res.data;
 	},
 	deploy: async (eventId: string): Promise<UniResponse<null>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/deploy`);
+		const res = await admin_api.post(`/events/${eventId}/awd/deploy`);
 		return res.data;
 	},
 	start: async (eventId: string): Promise<UniResponse<null>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/start`);
+		const res = await admin_api.post(`/events/${eventId}/awd/start`);
 		return res.data;
 	},
 	pause: async (eventId: string): Promise<UniResponse<null>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/pause`);
+		const res = await admin_api.post(`/events/${eventId}/awd/pause`);
 		return res.data;
 	},
 	resume: async (eventId: string): Promise<UniResponse<null>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/resume`);
+		const res = await admin_api.post(`/events/${eventId}/awd/resume`);
 		return res.data;
 	},
 	finish: async (eventId: string): Promise<UniResponse<null>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/finish`);
+		const res = await admin_api.post(`/events/${eventId}/awd/finish`);
 		return res.data;
 	},
 	precheck: async (eventId: string): Promise<UniResponse<string>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/precheck`);
+		const res = await admin_api.post(`/events/${eventId}/awd/precheck`);
 		return res.data;
 	},
 	scores: async (eventId: string): Promise<UniResponse<AwdScoreRow[]>> => {
-		const res = await admin_api.get(`/awd/events/${eventId}/scores`);
+		const res = await admin_api.get(`/events/${eventId}/awd/scores`);
 		return res.data;
 	},
 	archive: async (eventId: string): Promise<UniResponse<null>> => {
-		const res = await admin_api.post(`/awd/events/${eventId}/archive`);
+		const res = await admin_api.post(`/events/${eventId}/awd/archive`);
 		return res.data;
 	},
 	resetGamebox: async (
@@ -71,7 +71,7 @@ export const awdAdminApi = {
 		instanceId: string,
 	): Promise<UniResponse<null>> => {
 		const res = await admin_api.post(
-			`/awd/events/${eventId}/gameboxes/${instanceId}/reset`,
+			`/events/${eventId}/awd/gameboxes/${instanceId}/reset`,
 		);
 		return res.data;
 	},
@@ -80,7 +80,7 @@ export const awdAdminApi = {
 /** Player AWD endpoints (User JWT). */
 export const awdPlayerApi = {
 	gameboxes: async (eventId: string): Promise<UniResponse<AwdGameBox[]>> => {
-		const res = await service_api.get(`/awd/events/${eventId}/gameboxes`);
+		const res = await service_api.get(`/events/${eventId}/awd/gameboxes`);
 		return res.data;
 	},
 	resetGamebox: async (
@@ -88,7 +88,7 @@ export const awdPlayerApi = {
 		instanceId: string,
 	): Promise<UniResponse<null>> => {
 		const res = await service_api.post(
-			`/awd/events/${eventId}/gameboxes/${instanceId}/reset`,
+			`/events/${eventId}/awd/gameboxes/${instanceId}/reset`,
 		);
 		return res.data;
 	},
@@ -96,20 +96,20 @@ export const awdPlayerApi = {
 		eventId: string,
 		flag: string,
 	): Promise<UniResponse<null>> => {
-		const res = await service_api.post(`/awd/events/${eventId}/submissions`, {
+		const res = await service_api.post(`/events/${eventId}/awd/submissions`, {
 			flag,
 		});
 		return res.data;
 	},
 	scores: async (eventId: string): Promise<UniResponse<AwdScoreRow[]>> => {
-		const res = await service_api.get(`/awd/events/${eventId}/scores`);
+		const res = await service_api.get(`/events/${eventId}/awd/scores`);
 		return res.data;
 	},
 	wireguardConfig: async (
 		eventId: string,
 	): Promise<UniResponse<WireGuardConfigResponse>> => {
 		const res = await service_api.get(
-			`/awd/events/${eventId}/wireguard/config`,
+			`/events/${eventId}/awd/wireguard/config`,
 		);
 		return res.data;
 	},

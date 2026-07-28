@@ -1,7 +1,7 @@
 /**
  * AWD realtime event stream hook.
  *
- * Prefers EventSource/SSE when backend exposes `/api/awd/events/{id}/stream`.
+ * Prefers EventSource/SSE when backend exposes `/api/events/{id}/awd/stream`.
  * Falls back to REST snapshot polling until a WS hub is fronted.
  */
 import { useQueryClient } from "@tanstack/react-query";
@@ -91,7 +91,7 @@ export function useAwdEventStream(options: UseAwdEventStreamOptions) {
 		if (preferStream && typeof EventSource !== "undefined") {
 			try {
 				// Backend may not expose this yet; onerror falls back to poll.
-				es = new EventSource(`/api/awd/events/${eventId}/stream`, {
+				es = new EventSource(`/api/events/${eventId}/awd/stream`, {
 					withCredentials: true,
 				});
 				es.onopen = () => {
