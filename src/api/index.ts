@@ -38,7 +38,7 @@ import {
     uploadsServiceApi,
     userServiceApi,
     weaponsServiceApi,
-} from "./service";
+} from "@/api/service";
 import { awdAdminApi, awdPlayerApi } from "./awd";
 
 export type { FloatDockerContainer, ImageInfo, NetworkInfo };
