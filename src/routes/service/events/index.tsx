@@ -64,6 +64,16 @@ function RouteComponent() {
                                 {row.event.title}
                             </Link>
                         );
+                    case EventType.AwdTeam:
+                        return (
+                            <Link
+                                to={"/service/events/awd/$id"}
+                                params={{ id: row.event.id }}
+                                target="_blank"
+                            >
+                                {row.event.title}
+                            </Link>
+                        );
                     default:
                         return <span>{row.event.title}</span>;
                 }

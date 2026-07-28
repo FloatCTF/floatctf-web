@@ -39,8 +39,10 @@ import {
     userServiceApi,
     weaponsServiceApi,
 } from "./service";
+import { awdAdminApi, awdPlayerApi } from "./awd";
 
 export type { FloatDockerContainer, ImageInfo, NetworkInfo };
+export { awdAdminApi, awdPlayerApi };
 
 export const adminApi = {
     login: adminLoginFn,
@@ -65,6 +67,7 @@ export const adminApi = {
     download: downloadAdminApi,
     docker: dockerAdminApi,
     super_admin: superAdminApi,
+    awd: awdAdminApi,
 };
 
 export const serviceApi = {
@@ -78,4 +81,5 @@ export const serviceApi = {
     announcements: announcementServiceApi,
     discussions: discussionServiceApi,
     uploads: uploadsServiceApi,
+    awd: awdPlayerApi,
 };

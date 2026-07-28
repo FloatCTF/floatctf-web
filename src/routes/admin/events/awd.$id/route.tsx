@@ -54,6 +54,12 @@ function RouteComponent() {
                 <RouterNavItem to="/admin/events/awd/$id" params={{ id }}>
                     Challenges
                 </RouterNavItem>
+                <RouterNavItem
+                    to="/admin/events/awd/$id/ops"
+                    params={{ id }}
+                >
+                    Ops
+                </RouterNavItem>
                 {event?.type === EventType.AwdTeam && (
                     <RouterNavItem
                         to="/admin/events/awd/$id/teams"
@@ -76,12 +82,6 @@ function RouteComponent() {
                 </RouterNavItem>
                 <RouterNavItem to="/admin/events/awd/$id/logs" params={{ id }}>
                     Logs
-                </RouterNavItem>
-                <RouterNavItem
-                    to="/admin/events/awd/$id/data_present"
-                    params={{ id }}
-                >
-                    Data Present
                 </RouterNavItem>
             </UnderlineNav>
             <EventContext.Provider value={event}>
